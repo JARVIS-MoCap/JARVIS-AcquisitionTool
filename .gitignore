@@ -23,6 +23,7 @@
 *.app
 
 FlirSpinnaker/
+cudajpegencoder/images/
 calibrationMode_old?/
 Imgs/
 Savefiles/
