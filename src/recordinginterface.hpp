@@ -16,7 +16,7 @@ class RecordingInterface : public QObject {
 		explicit RecordingInterface(const QString& cameraName, const AcquisitionSpecs& acquisitionSpecs)
 					: m_cameraName{cameraName}, m_acquisitionSpecs{acquisitionSpecs} { }
 
-		virtual QPixmap recordFrame(uchar* frame) = 0;
+		virtual QImage recordFrame(uchar* frame) = 0;
 
 	protected:
 		const QString m_cameraName;

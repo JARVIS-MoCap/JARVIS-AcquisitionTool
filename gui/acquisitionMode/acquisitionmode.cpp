@@ -44,6 +44,7 @@ AcquisitionMode::AcquisitionMode(QMainWindow *parent) : QMainWindow(parent) {
 	connect(this, &AcquisitionMode::camAdded, controlBar, &ControlBar::camAddedSlot);
 	//<-> Relayed Signals
 	connect(controlBar, &ControlBar::updateStreamingPanels, streamingWidget, &StreamingWidget::updateStreamingPanelsSlot);
+	connect(controlBar, &ControlBar::acquisitionStarted, streamingWidget, &StreamingWidget::acquisitionStartedSlot);
 	connect(camSelector, &CamSelectorWindow::camVisibilityToggled, controlBar, &ControlBar::camVisibilityToggledSlot);
 	connect(streamingWidget, &StreamingWidget::togglePanel, controlBar, &ControlBar::camVisibilityToggledSlot);
 	connect(streamingWidget, &StreamingWidget::togglePanel, camSelector, &CamSelectorWindow::camVisibilityToggledSlot);

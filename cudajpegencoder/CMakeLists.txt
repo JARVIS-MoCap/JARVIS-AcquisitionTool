@@ -28,4 +28,5 @@ target_link_libraries(${PROJECT_NAME}
   -lnvjpeg
   -lnppc
   -lnppicc
+  -lnppig
 )

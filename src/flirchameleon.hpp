@@ -66,7 +66,7 @@ class FLIRChameleon : public CameraInterface {
 		void loadPresetRecursive(SettingsNode *settingsNode);
 
 	private slots:
-		void streamImageSlot(QPixmap pix);
+		void streamImageSlot(QImage img);
 };
 
 #endif

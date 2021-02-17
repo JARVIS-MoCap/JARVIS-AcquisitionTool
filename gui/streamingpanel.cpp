@@ -33,7 +33,7 @@ StreamingPanel::StreamingPanel(CameraInterface * camera, QWidget *parent)
 	toolBar->addWidget(closeButton);
 
 	imgViewer = new ImageViewer();
-	imgViewer->setPixmap(QPixmap("icons/hand_hires.png"));
+	imgViewer->setImage(QImage("icons/hand_hires.png"));
 	layout->addWidget(toolBar,0,0);
 	layout->addWidget(imgViewer,1,0);
 	layout->setSpacing(0);
@@ -47,7 +47,7 @@ StreamingPanel::StreamingPanel(CameraInterface * camera, QWidget *parent)
 
 	//<-> Relayed Signals
 	if (m_camera != nullptr) {
-		connect(m_camera, &CameraInterface::streamImage, imgViewer, &ImageViewer::setPixmap);
+		connect(m_camera, &CameraInterface::streamImage, imgViewer, &ImageViewer::setImage);
 	}
 }
 

@@ -141,6 +141,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 		acquisitionSpecs.recordingDir = recordingDir;
 		acquisitionSpecs.recorderType =CudaRecorderType;
 		acquisitionSpecs.frameRate = 100;
+		acquisitionSpecs.streamingSamplingRatio = 2;
 		m_recordingInfoFile = new QFile(recordingDir.filePath("RecordingInfo.txt"));
 		if (m_recordingInfoFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
 			QTextStream out(m_recordingInfoFile);
@@ -163,6 +164,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 				if (!cam->isStreaming()) trigger = false;
 			}
 		}
+		emit acquisitionStarted(320); 	//TODO: this is very temporary, this needs to be done by camerainterface
 		serialInterface->write(10);
 	}
 }
@@ -187,7 +189,8 @@ void ControlBar::startClickedSlot(bool toggled) {
 }
 
 void ControlBar::startTrigger() {
-	serialInterface->write(50);
+	emit acquisitionStarted(640); 	//TODO: this is very temporary, this needs to be done by camerainterface
+	serialInterface->write(20);
 }
 
 
@@ -205,7 +208,6 @@ void ControlBar::pauseClickedSlot(bool toggled) {
 
 void ControlBar::stopClickedSlot() {
 	serialInterface->write(0);
-	delayl(100);
 	emit stopAcquisition();
 	recordAction->setChecked(false);
 	startAction->setChecked(false);

@@ -54,7 +54,7 @@ class TestCamera : public CameraInterface {
 		void testStatusReadySlot();
 		void testStatusWarningSlot();
 		void testStatusErrorSlot();
-		void streamImageSlot(QPixmap);
+		void streamImageSlot(QImage);
 };
 
 

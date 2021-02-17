@@ -44,7 +44,8 @@ class AcquisitionWorker : public QObject {
 		RecordingInterface * m_recordingInterface;
 
 	signals:
-		void streamImage(QPixmap);
+		//void streamImage(QPixmap);
+		void streamImage(QImage);
 };
 
 
@@ -74,7 +75,7 @@ class CameraInterface : public QObject {
 		virtual void continueSlot() = 0;
 
 	signals:
-		void streamImage(QPixmap);
+		void streamImage(QImage);
 		void statusUpdated(statusType status, const QString& statusMessage);
 
 	protected:

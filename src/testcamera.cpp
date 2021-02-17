@@ -19,8 +19,8 @@ TestAcquisitionWorker::TestAcquisitionWorker(const QString& cameraName, const Ac
 
 void TestAcquisitionWorker::acquireImages() {
 	forever {
-		QPixmap pix = m_recordingInterface->recordFrame((*m_testimgs[m_frameCount%5]).bits());
-		emit streamImage(pix);
+		QImage img = m_recordingInterface->recordFrame((*m_testimgs[m_frameCount%5]).bits());
+		emit streamImage(img);
 		m_frameCount ++;
 		delayl(500);
 		if (QThread::currentThread()->isInterruptionRequested()) return;
@@ -138,6 +138,6 @@ void TestCamera::testStatusErrorSlot() {
 }
 
 
-void TestCamera::streamImageSlot(QPixmap pix) {
-	emit streamImage(pix);
+void TestCamera::streamImageSlot(QImage img) {
+	emit streamImage(img);
 }

@@ -15,7 +15,7 @@ class BaseRecoder : public RecordingInterface {
 	Q_OBJECT
 	public:
 		explicit BaseRecoder(const QString& cameraName, const AcquisitionSpecs& acquisitionSpecs);
-		QPixmap recordFrame(uchar* frame);
+		QImage recordFrame(uchar* frame);
 };
 
 #endif

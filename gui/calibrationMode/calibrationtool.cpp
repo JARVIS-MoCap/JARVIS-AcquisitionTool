@@ -77,18 +77,19 @@ CalibrationTool::CalibrationTool(QWidget *parent) : QMainWindow(parent) {
 void CalibrationTool::cameraSelectedSlot(CameraInterface *camera) {
 	std::cout << camera->cameraName().toStdString() << std::endl;
 	calibrationStreamingWidget->streamingPanel->setCamera(camera);
-	disconnect(calibrationBackend, &CalibrationBackend::streamCheckerBoardImage, calibrationStreamingWidget->streamingPanel->imgViewer, &ImageViewer::setPixmap);
+	//disconnect(calibrationBackend, &CalibrationBackend::streamCheckerBoardImage, calibrationStreamingWidget->streamingPanel->imgViewer, &ImageViewer::setPixmap);
 
 	if (m_camera != nullptr) {
-		disconnect(m_camera, &CameraInterface::streamImage, calibrationBackend, &CalibrationBackend::imageStreamSlot);
-		disconnect(calibrationControlBar, &CalibrationControlBar::startAcquisition, m_camera, &CameraInterface::startAcquisitionSlot);
-		disconnect(calibrationControlBar, &CalibrationControlBar::stopAcquisition, m_camera, &CameraInterface::stopAcquisitionSlot);
+		//this is disconnected because of the switch from pixmap to qimage for now
+		//disconnect(m_camera, &CameraInterface::streamImage, calibrationBackend, &CalibrationBackend::imageStreamSlot);
+		//disconnect(calibrationControlBar, &CalibrationControlBar::startAcquisition, m_camera, &CameraInterface::startAcquisitionSlot);
+		//disconnect(calibrationControlBar, &CalibrationControlBar::stopAcquisition, m_camera, &CameraInterface::stopAcquisitionSlot);
 	}
 	m_camera = camera;
-	connect(calibrationControlBar, &CalibrationControlBar::startAcquisition, m_camera, &CameraInterface::startAcquisitionSlot);
-	connect(calibrationControlBar, &CalibrationControlBar::stopAcquisition, m_camera, &CameraInterface::stopAcquisitionSlot);
-	connect(m_camera, &CameraInterface::streamImage, calibrationBackend, &CalibrationBackend::imageStreamSlot);
-	connect(calibrationBackend, &CalibrationBackend::streamCheckerBoardImage, calibrationStreamingWidget->streamingPanel->imgViewer, &ImageViewer::setPixmap);
+	//connect(calibrationControlBar, &CalibrationControlBar::startAcquisition, m_camera, &CameraInterface::startAcquisitionSlot);
+	//connect(calibrationControlBar, &CalibrationControlBar::stopAcquisition, m_camera, &CameraInterface::stopAcquisitionSlot);
+	//connect(m_camera, &CameraInterface::streamImage, calibrationBackend, &CalibrationBackend::imageStreamSlot);
+	//connect(calibrationBackend, &CalibrationBackend::streamCheckerBoardImage, calibrationStreamingWidget->streamingPanel->imgViewer, &ImageViewer::setPixmap);
 }
 
 void CalibrationTool::stopAcquisitionSlot() {

@@ -13,15 +13,16 @@ class ImageViewer : public QWidget {
 	Q_OBJECT
 	public:
 		void scale(float s);
-		void fitToScreen(int pixmapWidth);
+		void fitToScreen(int imageWidth);
 		void setSize(int w, int h) {m_size = QSize(w,h);}
 		QSize sizeHint() const override {return m_size;}
 
 	public slots:
-		void setPixmap(QPixmap pix);
+		void setImage(QImage img);
 
 	private:
 		QPixmap m_pixmap;
+		QImage m_image;
 		QSize m_size;
 		QRectF m_rect;
 		QPointF m_reference;

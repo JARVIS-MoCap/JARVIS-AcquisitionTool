@@ -51,6 +51,7 @@ typedef struct AcquisitionSpecs {
 	RecorderType recorderType;
 	int frameRate;
 	frameSize_t frameSize;
+	int streamingSamplingRatio = 2;
 	PixelFormat pixelFormat;
 } AcquisitionSpecs;
 

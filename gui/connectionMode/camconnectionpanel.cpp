@@ -149,6 +149,7 @@ CamConnectionPanel::~CamConnectionPanel() {
 	delete camera;
 	camera = nullptr;
 	delete statusLogWindow;
+  std::cout << "destroying connection panel" << std::endl;
 }
 
 void CamConnectionPanel::createFlirBoxes() {

@@ -16,16 +16,15 @@ void ImageViewer::scale(float s) {
 }
 
 
-void ImageViewer::fitToScreen(int pixmapWidth) {
-	m_scale = static_cast<float>(this->size().width())/pixmapWidth;
+void ImageViewer::fitToScreen(int imageWidth) {
+	m_scale = static_cast<float>(this->size().width())/imageWidth;
 	m_delta = QPoint(0,0);
 	update();
 }
 
-
-void ImageViewer::setPixmap(QPixmap pix) {
-	m_pixmap = pix;
-	m_rect = m_pixmap.rect();
+void ImageViewer::setImage(QImage img) {
+	m_image = img;
+	m_rect = m_image.rect();
 	m_rect.translate(-m_rect.center());
 	update();
 }
@@ -36,7 +35,9 @@ void ImageViewer::paintEvent(QPaintEvent *) {
 	p.translate(rect().center());
 	p.scale(m_scale, m_scale);
 	p.translate(m_delta);
-	p.drawPixmap(m_rect.topLeft(), m_pixmap);
+	//p.drawPixmap(m_rect.topLeft(), m_pixmap);
+	p.drawImage(m_rect, m_image);
+
 }
 
 
@@ -52,7 +53,7 @@ void ImageViewer::mousePressEvent(QMouseEvent *event) {
 
 void ImageViewer::mouseDoubleClickEvent(QMouseEvent *event) {
 	if (event->button() == Qt::LeftButton) {
-		fitToScreen(m_pixmap.size().width());
+		fitToScreen(m_image.size().width());
 		update();
 	}
 }

@@ -1,22 +1,26 @@
+/*------------------------------------------------------------
+ *  cudajpegencoder.hpp
+ *  Created: 20. November 2020
+ *  Author:   Timo Hueser
+ *  Email:    timo.hueser at gmail.com
+ *------------------------------------------------------------*/
+
 #ifndef NVJPEGENCODER_H
 #define NVJPEGENCODER_H
 
 #include <cuda_runtime_api.h>
 #include "helper_nvJPEG.hpp"
 
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/imgcodecs.hpp>
+#include <npp.h>
+#include <nppi.h>
 
 int nvJPEGEncode();
 
-
 class CudaJPEGEncoder {
   public:
-    explicit CudaJPEGEncoder(int width, int height);
+    explicit CudaJPEGEncoder(int width, int height, int streamingSamplingRatio = 1);
     ~CudaJPEGEncoder();
-    uchar * encodeImage(uchar *frameData, std::string &output_filename, bool saveRecording = false);
+    unsigned char * encodeImage(unsigned char *frameData, std::string &output_filename, bool saveRecording = false);
 
   private:
     struct encode_params_t {
@@ -31,6 +35,7 @@ class CudaJPEGEncoder {
 
     int m_frameHeight;
     int m_frameWidth;
+    int m_streamingSamplingRatio;
 
     nvjpegEncoderParams_t encode_params;
     nvjpegHandle_t nvjpeg_handle;
@@ -40,8 +45,14 @@ class CudaJPEGEncoder {
     nvjpegInputFormat_t input_format = NVJPEG_INPUT_RGBI;
     unsigned char * pBuffer = NULL;
     unsigned char * pBuffer2 = NULL;
+    unsigned char * pBuffer3 = NULL;
     unsigned char * data_pinned;
     unsigned char * receive_data_pinned;
+
+    NppiSize fullSize;
+    NppiRect fullRect;
+    NppiSize streamingSize;
+    NppiRect streamingRect;
 
 };
 

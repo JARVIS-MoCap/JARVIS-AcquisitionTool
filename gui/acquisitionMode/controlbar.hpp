@@ -34,6 +34,7 @@ class ControlBar : public QToolBar {
 		void updateStreamingPanels(StreamingWidget::layoutType);
 		void openTimeStampWindow();
 		void recordingInfoFileCreated(QFile *file, QTime *time);
+		void acquisitionStarted(int width);
 
 	private:
 		SerialInterface *serialInterface;

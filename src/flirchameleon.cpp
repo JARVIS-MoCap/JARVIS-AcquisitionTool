@@ -31,31 +31,37 @@ FlirWorker::~FlirWorker() {
 
 
 void FlirWorker::acquireImages() {
+	int time_buffer = 0;
 	forever {
 		try {
-			ImagePtr pResultImage = m_pCam->GetNextImage(100);
+			ImagePtr pResultImage = m_pCam->GetNextImage(50);
 			if (pResultImage->IsIncomplete()) {
 				std::cout << "INCOMPLETE" << std::endl;
 			}
 			else {
 				auto t1 = std::chrono::high_resolution_clock::now();
-				QPixmap pix = m_recordingInterface->recordFrame(static_cast<uchar*>(pResultImage->GetData()));
-				emit streamImage(pix);
+				QImage img = m_recordingInterface->recordFrame(static_cast<uchar*>(pResultImage->GetData()));
 				pResultImage->Release();
+				emit streamImage(img);
 				auto t2 = std::chrono::high_resolution_clock::now();
 				auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-				if (duration > 8000) std::cout << duration << std::endl;
+				time_buffer += duration - 10000;
+				if (time_buffer < 0) time_buffer = 0;
+				if (time_buffer > 20000) std::cout << time_buffer << std::endl;
 			}
 		}
 		catch (Spinnaker::Exception& e)
 		{
-				if (e.what() != "Failed waiting for EventData on NEW_BUFFER_DATA event. [-1011]")
+				if (e == SPINNAKER_ERR_TIMEOUT) {
+					if (QThread::currentThread()->isInterruptionRequested()) {
+						return;
+					}
+				}
+				else {
 					std::cout << "ErrorWorker: " << e.what() << std::endl;
+				}
+		}
 
-		}
-		if (QThread::currentThread()->isInterruptionRequested()) {
-			return;
-		}
 	}
 }
 
@@ -84,12 +90,47 @@ FLIRChameleon::FLIRChameleon(const QString& cameraName, const QString& serialNum
 
 
 FLIRChameleon::~FLIRChameleon() {
+	// Change User Set to 1
+	m_pCam->Init();
+	INodeMap& nodeMap = m_pCam->GetNodeMap();
+	CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
+	if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector))
+	{
+			std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl << std::endl;
+	}
+
+	CEnumEntryPtr ptrUserSet1 = ptrUserSetSelector->GetEntryByName("UserSet1");
+	if (!IsAvailable(ptrUserSet1) || !IsReadable(ptrUserSet1))
+	{
+			std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl << std::endl;
+	}
+
+	ptrUserSetSelector->SetIntValue(ptrUserSet1->GetValue());
+
+	// Save custom settings to User Set 1
+	CCommandPtr ptrUserSetSave = m_pCam->GetNodeMap().GetNode("UserSetSave");
+	if (!IsAvailable(ptrUserSetSave) || !IsWritable(ptrUserSetSave))
+	{
+			std::cout << "Unable to save to User Set. Aborting..." << std::endl << std::endl;
+	}
+
+	ptrUserSetSave->Execute();
+
+	std::cout << "Saved Custom Settings to " << ptrUserSetSelector->GetCurrentEntry()->GetSymbolic() << std::endl;
+
+	// Change default User Set to User Set 1
+	CEnumerationPtr ptrUserSetDefault = nodeMap.GetNode("UserSetDefault");
+	if (!IsAvailable(ptrUserSetDefault) || !IsWritable(ptrUserSetDefault))
+	{
+			std::cout << "Unable to access User Set Default(enum retrieval). Aborting..." << std::endl << std::endl;
+	}
+  ptrUserSetDefault->SetIntValue(ptrUserSet1->GetValue());
+
 	if (m_pCam->IsInitialized()) m_pCam->DeInit();
 	m_pCam = nullptr;
 	if (cameraList.size() == 0) m_camSystem->ReleaseInstance();
 	delete (m_cameraSettings);
 }
-
 
 void FLIRChameleon::loadPreset() {
 	m_pCam->Init();
@@ -111,7 +152,7 @@ void FLIRChameleon::settingChangedSlot(const QString& name, QList<QString> subMe
 		if (subMenus.last() == "FLIR Chameleon") ptrNode = appLayerNodeMap.GetNode(cName);
 		else if (subMenus.last() == "Stream Parameters") ptrNode = nodeMapTLStream.GetNode(cName);
 		else if (subMenus.last() == "Transport Layer") ptrNode = genTLNodeMap.GetNode(cName);
-
+		std::cout << name.toStdString() << std::endl;
 		if (type == SettingsNode::String) {
 			CStringPtr ptrString = static_cast<CStringPtr>(ptrNode);
 			if (IsAvailable(ptrString) && IsWritable(ptrString)) {
@@ -227,6 +268,9 @@ void FLIRChameleon::createSettings() {
 	createSettingsTreeFromCam(genTLNodeMap.GetNode("Root"), transportLayerNode);
 
 	INodeMap& nodeMapTLStream = m_pCam->GetTLStreamNodeMap();
+	CIntegerPtr ptrNode  = nodeMapTLStream.GetNode("StreamBufferCountManual");
+	if (IsAvailable(ptrNode) && IsWritable(ptrNode))
+		ptrNode->SetValue(200);
 	categoryNode *streamLayerNode = new categoryNode(m_cameraSettingsRootNode, "Stream Parameters");
 	createSettingsTreeFromCam(nodeMapTLStream.GetNode("Root"), streamLayerNode);
 
@@ -234,6 +278,7 @@ void FLIRChameleon::createSettings() {
 	INodeMap& appLayerNodeMap = m_pCam->GetNodeMap();
 	categoryNode *geniCamNode = new categoryNode(m_cameraSettingsRootNode, "FLIR Chameleon");
 	createSettingsTreeFromCam(appLayerNodeMap.GetNode("Root"), geniCamNode);
+
 	m_pCam->DeInit();
 
 	m_cameraSettingsRootNode->addChild(geniCamNode);
@@ -461,6 +506,6 @@ void FLIRChameleon::loadPresetRecursive(SettingsNode *node) {
 }
 
 
-void FLIRChameleon::streamImageSlot(QPixmap pix) {
-	emit streamImage(pix);
+void FLIRChameleon::streamImageSlot(QImage img) {
+	emit streamImage(img);
 }

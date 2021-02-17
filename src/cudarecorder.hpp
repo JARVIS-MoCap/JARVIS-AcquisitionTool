@@ -17,7 +17,7 @@ class CudaRecorder : public RecordingInterface {
 	public:
 		explicit CudaRecorder(const QString& cameraName, const AcquisitionSpecs& acquisitionSpecs);
 		~CudaRecorder();
-		QPixmap recordFrame(uchar* frame);
+		QImage recordFrame(uchar* frame);
 	private:
 		CudaJPEGEncoder * m_cudaJPEGEncoder;
 };

@@ -23,6 +23,12 @@ StreamingWidget::StreamingWidget(QWidget *parent) : QWidget(parent) {
 	biglayout->setMargin(0);
 }
 
+void StreamingWidget::acquisitionStartedSlot(int width) {
+	for (const auto& panel : streamingPanels) {
+		panel->imgViewer->fitToScreen(width);
+	}
+}
+
 void StreamingWidget::updateStreamingPanelsSlot(layoutType panelLayout) {
 	m_panelLayout = panelLayout;
 	delete layout;
