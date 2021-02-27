@@ -141,7 +141,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 		acquisitionSpecs.recordingDir = recordingDir;
 		acquisitionSpecs.recorderType =CudaRecorderType;
 		acquisitionSpecs.frameRate = 100;
-		acquisitionSpecs.streamingSamplingRatio = 2;
+		acquisitionSpecs.streamingSamplingRatio = 4;
 		m_recordingInfoFile = new QFile(recordingDir.filePath("RecordingInfo.txt"));
 		if (m_recordingInfoFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
 			QTextStream out(m_recordingInfoFile);
@@ -175,6 +175,7 @@ void ControlBar::startClickedSlot(bool toggled) {
 		AcquisitionSpecs acquisitionSpecs;
 		acquisitionSpecs.frameRate = 100; //TODO: not hard code those values
 		acquisitionSpecs.recorderType = CudaRecorderType;
+		acquisitionSpecs.streamingSamplingRatio = 1;
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);
 		recordAction->setEnabled(false);

@@ -271,6 +271,7 @@ void FLIRChameleon::createSettings() {
 	CIntegerPtr ptrNode  = nodeMapTLStream.GetNode("StreamBufferCountManual");
 	if (IsAvailable(ptrNode) && IsWritable(ptrNode))
 		ptrNode->SetValue(200);
+
 	categoryNode *streamLayerNode = new categoryNode(m_cameraSettingsRootNode, "Stream Parameters");
 	createSettingsTreeFromCam(nodeMapTLStream.GetNode("Root"), streamLayerNode);
 
@@ -278,6 +279,27 @@ void FLIRChameleon::createSettings() {
 	INodeMap& appLayerNodeMap = m_pCam->GetNodeMap();
 	categoryNode *geniCamNode = new categoryNode(m_cameraSettingsRootNode, "FLIR Chameleon");
 	createSettingsTreeFromCam(appLayerNodeMap.GetNode("Root"), geniCamNode);
+	CEnumerationPtr ptrUserSetSelector = appLayerNodeMap.GetNode("UserSetSelector");
+	if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector))
+	{
+			std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl << std::endl;
+	}
+	CEnumEntryPtr ptrUserSet1 = ptrUserSetSelector->GetEntryByName("UserSet1");
+	if (!IsAvailable(ptrUserSet1) || !IsReadable(ptrUserSet1))
+	{
+			std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl << std::endl;
+	}
+
+	ptrUserSetSelector->SetIntValue(ptrUserSet1->GetValue());
+
+	// Save custom settings to User Set 1
+	CCommandPtr ptrUserSetLoad = m_pCam->GetNodeMap().GetNode("UserSetLoad");
+	if (!IsAvailable(ptrUserSetLoad) || !IsWritable(ptrUserSetLoad))
+	{
+			std::cout << "Unable to save to User Set. Aborting..." << std::endl << std::endl;
+	}
+
+	ptrUserSetLoad->Execute();
 
 	m_pCam->DeInit();
 
