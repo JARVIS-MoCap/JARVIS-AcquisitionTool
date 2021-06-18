@@ -270,8 +270,7 @@ void FLIRChameleon::createSettings() {
 	INodeMap& nodeMapTLStream = m_pCam->GetTLStreamNodeMap();
 	CIntegerPtr ptrNode  = nodeMapTLStream.GetNode("StreamBufferCountManual");
 	if (IsAvailable(ptrNode) && IsWritable(ptrNode))
-		ptrNode->SetValue(200);
-
+		ptrNode->SetValue(55);
 	categoryNode *streamLayerNode = new categoryNode(m_cameraSettingsRootNode, "Stream Parameters");
 	createSettingsTreeFromCam(nodeMapTLStream.GetNode("Root"), streamLayerNode);
 
