@@ -1,5 +1,5 @@
 /*****************************************************************
- * File:			  camconfiginterface.cpp
+ * File:			  triggerconfiginterface.cpp
  * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
@@ -8,20 +8,20 @@
  *****************************************************************/
 
 
-#ifndef CAMCONFIGINTERFACE_H
-#define CAMCONFIGINTERFACE_H
+#ifndef TRIGGERCONFIGINTERFACE_H
+#define TRIGGERCONFIGINTERFACE_H
 
 #include "globals.hpp"
-#include "camerainterface.hpp"
+#include "triggerinterface.hpp"
 
 #include <QGroupBox>
 #include <QSettings>
 
 
-class CamConfigInterface : public QWidget {
+class TriggerConfigInterface : public QWidget {
 	Q_OBJECT
 	public:
-		explicit CamConfigInterface(QWidget *parent = 0) {}
+		explicit TriggerConfigInterface(QWidget *parent = 0) {}
 
 		QGroupBox *configEditBox;
 		QGroupBox *configInfoBox;
@@ -29,7 +29,7 @@ class CamConfigInterface : public QWidget {
 		virtual void confirmConfigClicked() = 0;
 		virtual void loadPreset(QSettings *settings) = 0;
 		virtual void savePreset(QSettings *settings) = 0;
-		virtual CameraInterface* getCamera(const QString &cameraName) = 0;
+		virtual TriggerInterface* getTrigger() = 0;
 
 	private:
 

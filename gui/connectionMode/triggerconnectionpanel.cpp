@@ -1,34 +1,41 @@
-/*------------------------------------------------------------
- *  tiggerconnectionpanel.cpp
- *  Created:  23. October 2020
- *  Author:   Timo Hüser
-
- *------------------------------------------------------------*/
+/*****************************************************************
+ * File:			  triggerconnectionpanel.cpp
+ * Created: 	  03. October 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     GPL v3.0
+ *****************************************************************/
 
 #include "globals.hpp"
 #include "triggerconnectionpanel.hpp"
 #include "triggerinterface.hpp"
-#include "testtrigger.hpp"
+#include "triggertestconfig.hpp"
 
 
-TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Window) {
-	this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) :
+			QFrame(parent, Qt::Window) {
+	this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	statusLogWindow = new StatusLogWindow(this);
-	connect(statusLogWindow, SIGNAL(logsCleared()), this, SLOT(logsClearedSlot()));
+	connect(statusLogWindow, &StatusLogWindow::logsCleared,
+					this, &TriggerConnectionPanel::logsClearedSlot);
 	QGridLayout *panellayout = new QGridLayout(this);
 	stackWidget = new QStackedWidget(this);
 	panellayout->addWidget(stackWidget,0,0);
 	setLayout(panellayout);
 
 	addButton = new QPushButton(stackWidget);
-	connect(addButton, SIGNAL(clicked()), this, SLOT(addClickedSlot()));
-	addButton->setIcon(QIcon("icons/add_green.png"));
+	connect(addButton, &QPushButton::clicked,
+					this, &TriggerConnectionPanel::addClickedSlot);
+	addButton->setIcon(QIcon::fromTheme("add_green"));
 	addButton->setIconSize(QSize(100,100));
-	addButton->setStyleSheet(" QPushButton { border-radius: 10px; border: 4px solid rgb(100,164,32); }"
-													 "QPushButton:hover { background-color: rgb(68,74,89); }");
+	addButton->setStyleSheet("QPushButton{border-radius: 10px;"
+													 "border: 4px solid rgb(100,164,32);}"
+													 "QPushButton:hover{background-color:rgb(68,74,89);}");
 
 	triggerConfigureContainer = new QWidget(stackWidget);
-	QGridLayout *triggerconfigurecontainerlayout = new QGridLayout(triggerConfigureContainer);
+	QGridLayout *triggerconfigurecontainerlayout =
+				new QGridLayout(triggerConfigureContainer);
 	configToolBar = new QToolBar(this);
 	configToolBar->setFixedHeight(40);
 	configToolBar->setIconSize(QSize(25,25));
@@ -38,12 +45,16 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) : QFrame(parent,
 	configSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	confirmButton = new QToolButton(this);
 	confirmAction = new QAction(this);
-	createToolBarButton(confirmButton, confirmAction, QIcon("icons/check.png"), true, false, QSize(35,35));
-	connect(confirmAction, &QAction::triggered, this, &TriggerConnectionPanel::confirmConfigClickedSlot);
+	createToolBarButton(confirmButton, confirmAction, QIcon::fromTheme("check"),
+				true, false, QSize(35,35));
+	connect(confirmAction, &QAction::triggered,
+					this, &TriggerConnectionPanel::confirmConfigClickedSlot);
 	exitButton = new QToolButton(this);
 	exitAction = new QAction(this);
-	createToolBarButton(exitButton, exitAction, QIcon("icons/discard.png"), true, false, QSize(35,35));
-	connect(exitAction, &QAction::triggered, this, &TriggerConnectionPanel::exitConfigClickedSlot);
+	createToolBarButton(exitButton, exitAction, QIcon::fromTheme("discard"),
+				true, false, QSize(35,35));
+	connect(exitAction, &QAction::triggered,
+					this, &TriggerConnectionPanel::exitConfigClickedSlot);
 	configToolBar->addWidget(configToolBarLabel);
 	configToolBar->addWidget(configSpacer);
 	configToolBar->addWidget(confirmButton);
@@ -53,20 +64,25 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) : QFrame(parent,
 	pal.setColor(QPalette::Background, QColor(22, 24, 26));
 	triggerConfigureWidget->setAutoFillBackground(true);
 	triggerConfigureWidget->setPalette(pal);
-	QGridLayout *triggerconfigurelayout = new QGridLayout(triggerConfigureWidget);
-	QWidget *configureBottomSpacer = new QWidget(triggerConfigureWidget);
-	configureBottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	triggerconfigurelayout = new QGridLayout(triggerConfigureWidget);
+	configureBottomSpacer = new QWidget(triggerConfigureWidget);
+	configureBottomSpacer->setSizePolicy(QSizePolicy::Expanding,
+																			 QSizePolicy::Expanding);
 	QLabel *triggerTypeLabel = new QLabel("Trigger Type", triggerConfigureWidget);
 	triggerTypeCombo = new QComboBox(triggerConfigureWidget);
 	triggerTypeCombo->addItem("Test Trigger");
-	connect(triggerTypeCombo, SIGNAL(currentTextChanged(QString)), SLOT(typeComboChangedSlot(QString)));
+
+	connect(triggerTypeCombo, &QComboBox::currentTextChanged,
+					this, &TriggerConnectionPanel::typeComboChangedSlot);
 	triggerconfigurecontainerlayout->addWidget(configToolBar,0,0);
 	triggerconfigurecontainerlayout->addWidget(triggerConfigureWidget,1,0);
 	triggerconfigurecontainerlayout->setSpacing(0);
 	triggerconfigurecontainerlayout->setMargin(0);
+	triggerConfigInterface = new TriggerTestConfig(this);
 
 	triggerInfoContainer = new QWidget(stackWidget);
-	QGridLayout *triggerInfoContainerlayout = new QGridLayout(triggerInfoContainer);
+	QGridLayout *triggerinfocontainerlayout =
+				new QGridLayout(triggerInfoContainer);
 	infoToolBar = new QToolBar(this);
 	infoToolBar->setFixedHeight(40);
 	infoToolBar->setIconSize(QSize(25,25));
@@ -76,48 +92,54 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) : QFrame(parent,
 	infoSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	deleteButton = new QToolButton(this);
 	deleteAction = new QAction(this);
-	createToolBarButton(deleteButton, deleteAction, QIcon("icons/discard.png"), true, false, QSize(35,35));
-	connect(deleteAction, &QAction::triggered, this, &TriggerConnectionPanel::deleteTriggerClickedSlot);
+	createToolBarButton(deleteButton, deleteAction, QIcon::fromTheme("discard"),
+				true, false, QSize(35,35));
+	connect(deleteAction, &QAction::triggered,
+					this, &TriggerConnectionPanel::deleteTriggerClickedSlot);
 	infoToolBar->addWidget(infoToolBarLabel);
 	infoToolBar->addWidget(infoSpacer);
 	infoToolBar->addWidget(deleteButton);
 	triggerInfoWidget = new QWidget(triggerInfoContainer);
 	triggerInfoWidget->setAutoFillBackground(true);
 	triggerInfoWidget->setPalette(pal);
-	QGridLayout *triggerinfolayout = new QGridLayout(triggerInfoWidget);
-	QWidget *infoBottomSpacer = new QWidget(triggerConfigureWidget);
-	infoBottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	triggerinfolayout = new QGridLayout(triggerInfoWidget);
+	infoBottomSpacer = new QWidget(triggerConfigureWidget);
+	infoBottomSpacer->setSizePolicy(QSizePolicy::Expanding,
+																	QSizePolicy::Expanding);
 	QLabel *triggerStatusInfoLabel = new QLabel("Status:", triggerInfoWidget);
 	triggerStatusInfoIcon = new QLabel(triggerInfoWidget);
 	triggerStatusInfo = new QLabel(triggerInfoWidget);
 	triggerStatusButton = new QPushButton("Show Log...", triggerInfoWidget);
-	connect(triggerStatusButton, SIGNAL(clicked()), this, SLOT(showLogClickedSlot()));
+	connect(triggerStatusButton, &QPushButton::clicked,
+					this, &TriggerConnectionPanel::showLogClickedSlot);
 	QWidget *triggerStatusSpacer = new QWidget(triggerInfoWidget);
-	triggerStatusSpacer->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
-	triggerStatusInfoIcon->setPixmap(statusIcons[Connecting].pixmap(QSize(20, 20)));
+	triggerStatusSpacer->setSizePolicy(QSizePolicy::Expanding,
+																		 QSizePolicy::Preferred);
+	triggerStatusInfoIcon->setPixmap(statusIcons[Connecting].pixmap(QSize(20,20)));
 	triggerStatusInfo->setText(statusTexts[Connecting]);
 
-	createTestBoxes();
+	//createTestBoxes();
 
 	int i = 0;
 	triggerconfigurelayout->addWidget(triggerTypeLabel,i,0);
 	triggerconfigurelayout->addWidget(triggerTypeCombo,i++,1);
-	triggerconfigurelayout->addWidget(testBox, i++, 0,1,2);
+	triggerconfigurelayout->addWidget(triggerConfigInterface->configEditBox, i++, 0,1,2);
 	triggerconfigurelayout->addWidget(configureBottomSpacer,i,0,1,2);
-	triggerconfigurecontainerlayout->addWidget(infoToolBar,0,0);
-	triggerconfigurecontainerlayout->addWidget(triggerInfoWidget,1,0);
+	triggerconfigurecontainerlayout->addWidget(configToolBar,0,0);
+	triggerconfigurecontainerlayout->addWidget(triggerConfigureWidget,1,0);
 	triggerconfigurecontainerlayout->setSpacing(0);
 	i = 0;
-	triggerinfolayout->addWidget(testInfoBox,i++,0,1,5);
+	triggerinfolayout->addWidget(triggerConfigInterface->configInfoBox, i++,0,1,5);
 	triggerinfolayout->addWidget(triggerStatusInfoLabel,i,0);
 	triggerinfolayout->addWidget(triggerStatusInfoIcon,i,1);
 	triggerinfolayout->addWidget(triggerStatusInfo,i,2);
 	triggerinfolayout->addWidget(triggerStatusSpacer,i,3);
 	triggerinfolayout->addWidget(triggerStatusButton,i++,4);
-	triggerinfolayout->addWidget(infoBottomSpacer,i++,0,1,2);
-	triggerInfoContainerlayout->addWidget(infoToolBar,0,0);
-	triggerInfoContainerlayout->addWidget(triggerInfoWidget,1,0);
-	triggerInfoContainerlayout->setSpacing(0);
+	triggerinfolayout->addWidget(infoBottomSpacer,i++,0,1,5);
+	triggerinfocontainerlayout->addWidget(infoToolBar,0,0);
+	triggerinfocontainerlayout->addWidget(triggerInfoWidget,1,0);
+	triggerinfocontainerlayout->setSpacing(0);
+	triggerinfocontainerlayout->setMargin(0);
 
 	stackWidget->addWidget(addButton);
 	stackWidget->addWidget(triggerConfigureContainer);
@@ -132,33 +154,6 @@ TriggerConnectionPanel::~TriggerConnectionPanel() {
 	delete statusLogWindow;
 }
 
-void TriggerConnectionPanel::createTestBoxes() {
-	testBox = new QGroupBox(triggerConfigureWidget);
-	QGridLayout *testboxlayout = new QGridLayout(testBox);
-	QLabel *example1Label = new QLabel("Exmple 1", testBox);
-	example1Edit = new QLineEdit(testBox);
-	QLabel*example2Label = new QLabel("Example 2", testBox);
-	example2Combo = new QComboBox(testBox);
-	example2Combo->addItem("Val 1");
-	example2Combo->addItem("Val 2");
-	testboxlayout->addWidget(example1Label, 0,0);
-	testboxlayout->addWidget(example1Edit, 0,1);
-	testboxlayout->addWidget(example2Label, 1,0);
-	testboxlayout->addWidget(example2Combo, 1,1);
-
-	testInfoBox = new QGroupBox("Test Trigger", triggerInfoWidget);
-	QGridLayout *testinfoboxlayout = new QGridLayout(testInfoBox);
-	QLabel *example1InfoLabel = new QLabel("Example 1", testInfoBox);
-	example1Info = new QLineEdit(testInfoBox);
-	example1Info->setReadOnly(true);
-	QLabel *example2InfoLabel = new QLabel("Example 2", testInfoBox);
-	example2Info = new QLineEdit(testInfoBox);
-	example2Info->setReadOnly(true);
-	testinfoboxlayout->addWidget(example1InfoLabel, 0,0);
-	testinfoboxlayout->addWidget(example1Info, 0,1);
-	testinfoboxlayout->addWidget(example2InfoLabel, 1,0);
-	testinfoboxlayout->addWidget(example2Info, 1,1);
-}
 
 void TriggerConnectionPanel::addClickedSlot() {
 	stackWidget->setCurrentIndex(1);
@@ -169,12 +164,10 @@ void TriggerConnectionPanel::exitConfigClickedSlot() {
 }
 
 void TriggerConnectionPanel::confirmConfigClickedSlot() {
-	example1Info->setText(example1Edit->text());
-	example2Info->setText(example2Combo->currentText());
-	if (triggerTypeCombo->currentText() == "Test Trigger") {
-		TriggerInterface::triggerInstance = new TestTrigger(example1Edit->text().toInt(), example2Combo->currentText());
-		connect(TriggerInterface::triggerInstance, SIGNAL(statusUpdated(statusType, QString)), this, SLOT(statusUpdatedSlot(statusType, QString)));
-	}
+	triggerConfigInterface->confirmConfigClicked();
+	TriggerInterface::triggerInstance = triggerConfigInterface->getTrigger();
+	connect(TriggerInterface::triggerInstance, SIGNAL(statusUpdated(statusType, QString)), this, SLOT(statusUpdatedSlot(statusType, QString)));
+
 	statusLog statusLog;
 	statusLog.type = Connecting;
 	statusLog.time = new QTime(0,0);
@@ -194,21 +187,28 @@ void TriggerConnectionPanel::deleteTriggerClickedSlot() {
 	emit triggerInstanceChanged();
 }
 
-void TriggerConnectionPanel::toggleItemsDisplayed(QList<QWidget*> items, bool toggle) {
-	if (toggle) {
-		for (const auto& item : items) item->show();
-	}
-	else {
-		for (const auto& item : items) item->hide();
-	}
-}
-
 void TriggerConnectionPanel::typeComboChangedSlot(QString type) {
-	QList<QWidget*> testTriggerItems = {testBox, testInfoBox};
-	toggleItemsDisplayed(testTriggerItems, type == "Test Trigger");
+	QLayoutItem *item = triggerconfigurelayout->takeAt(triggerconfigurelayout->
+				indexOf(triggerConfigInterface->configEditBox));
+	QLayoutItem *spacerItem = triggerconfigurelayout->takeAt(triggerconfigurelayout->
+				indexOf(configureBottomSpacer));
+  delete item->widget();
+  delete item;
+  QLayoutItem *infoItem = triggerinfolayout->takeAt(triggerinfolayout->
+				indexOf(triggerConfigInterface->configInfoBox));
+  delete infoItem->widget();
+  delete infoItem;
+	delete triggerConfigInterface;
+  if (type == "Test Trigger") {
+     triggerConfigInterface = new TriggerTestConfig(this);
+  }
+  triggerconfigurelayout->addWidget(triggerConfigInterface->configEditBox, 2, 0,1,2);
+	triggerconfigurelayout->addItem(spacerItem, 3, 0,1,2);
+  triggerinfolayout->addWidget(triggerConfigInterface->configInfoBox,0,0,1,5);
 }
 
-void TriggerConnectionPanel::statusUpdatedSlot(statusType status, QString statusMessage) {
+void TriggerConnectionPanel::statusUpdatedSlot(statusType status,
+			QString statusMessage) {
 	TriggerInterface::triggerInstance->setTriggerStatus(status);
 	triggerStatusInfoIcon->setPixmap(statusIcons[status].pixmap(QSize(20, 20)));
 	triggerStatusInfo->setText(statusTexts[status]);

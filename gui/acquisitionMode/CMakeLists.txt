@@ -2,15 +2,15 @@ project (acquisitionMode)
 
 
 add_library(${PROJECT_NAME}
-    acquistionmode.hpp   #correct name of file!!
-    camselectorwindow.hpp
-    controlbar.hpp
-    streamingwidget.hpp
-		timestampwindow.hpp
+    acquisitionmode.hpp
     acquisitionmode.cpp
+    camselectorwindow.hpp
     camselectorwindow.cpp
+    controlbar.hpp
     controlbar.cpp
+    streamingwidget.hpp
     streamingwidget.cpp
+    timestampwindow.hpp
 		timestampwindow.cpp
 )
 

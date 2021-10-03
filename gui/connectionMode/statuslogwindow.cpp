@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  statuslogwindow.cpp
- *  Created: 28. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*****************************************************************
+ * File:			  statuslogwinwow.cpp
+ * Created: 	  03. October 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     GPL v3.0
+ *****************************************************************/
 
 #include "statuslogwindow.hpp"
 
@@ -20,9 +23,10 @@ StatusLogWindow::StatusLogWindow(QWidget *parent) : QWidget(parent, Qt::Window) 
 	toolBar->setMovable(false);
 	discardButton = new QToolButton(toolBar);
 	discardAction = new QAction(this);
-	createToolBarButton(discardButton, discardAction, QIcon("icons/discard.png"), true,
-											false, QSize(40,40));
-	connect(discardAction, &QAction::triggered, this, &StatusLogWindow::discardClickedSlot);
+	createToolBarButton(discardButton, discardAction,
+				QIcon::fromTheme("discard"), true, false, QSize(40,40));
+	connect(discardAction, &QAction::triggered,
+					this, &StatusLogWindow::discardClickedSlot);
 	toolBar->addWidget(discardButton);
 
 	statusLogsTable = new QTableWidget(0, 3);
@@ -30,7 +34,8 @@ StatusLogWindow::StatusLogWindow(QWidget *parent) : QWidget(parent, Qt::Window) 
 	QStringList labels;
 	labels << "Status" << "Time" << "Message";
 	statusLogsTable->setHorizontalHeaderLabels(labels);
-	statusLogsTable->horizontalHeader()-> setSectionResizeMode(2, QHeaderView::Stretch);
+	statusLogsTable->horizontalHeader()->
+				setSectionResizeMode(2, QHeaderView::Stretch);
 	statusLogsTable->verticalHeader()->hide();
 	statusLogsTable->setShowGrid(false);
 	statusLogsTable->setSelectionBehavior(QAbstractItemView::SelectRows);

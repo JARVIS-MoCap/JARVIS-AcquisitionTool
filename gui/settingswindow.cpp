@@ -37,17 +37,17 @@ SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObj
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	expandButton = new QToolButton(this);
 	expandAction = new QAction(this);
-	createToolBarButton(expandButton, expandAction, QIcon("icons/plusminus.png"), true,
+	createToolBarButton(expandButton, expandAction, QIcon::fromTheme("plusminus"), true,
 				false, QSize(35,35));
 	connect(expandAction, &QAction::triggered, this, &SettingsWindow::expandClickedSlot);
 	savePresetButton = new QToolButton(this);
 	savePresetAction = new QAction(this);
-	createToolBarButton(savePresetButton, savePresetAction, QIcon("icons/upload.png"), true,
+	createToolBarButton(savePresetButton, savePresetAction, QIcon::fromTheme("upload"), true,
 				false, QSize(35,35));
 	connect(savePresetAction, &QAction::triggered, this, &SettingsWindow::savePresetsClickedSlot);
 	loadPresetButton = new QToolButton(this);
 	loadPresetAction = new QAction(this);
-	createToolBarButton(loadPresetButton, loadPresetAction, QIcon("icons/download.png"), true,
+	createToolBarButton(loadPresetButton, loadPresetAction, QIcon::fromTheme("download"), true,
 				false, QSize(35,35));
 	connect(loadPresetAction, &QAction::triggered, this, &SettingsWindow::loadPresetsClickedSlot);
 	toolBar->addWidget(settingsLabel);

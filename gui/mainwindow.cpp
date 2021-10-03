@@ -42,11 +42,11 @@ void createToolBarButton(QToolButton *button, QAction*action, QIcon icon, bool e
 
 MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
 	statusIcons = {
-		{Connecting, QIcon("icons/connect.png")},
-		{Ready, QIcon("icons/status_good.png")},
-		{Streaming, QIcon("icons/start.png")},
-		{Warning, QIcon("icons/warning.png")},
-		{Error, QIcon("icons/error.png")}
+		{Connecting, QIcon::fromTheme("connect")},
+		{Ready, QIcon::fromTheme("status_good")},
+		{Streaming, QIcon::fromTheme("start")},
+		{Warning, QIcon::fromTheme("warning")},
+		{Error, QIcon::fromTheme("error")}
 	};
 	statusTexts = {
 		{Connecting, "Connecting..."},
@@ -59,7 +59,7 @@ MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
 	this->setMinimumSize(800,800);
 	this->showMaximized();
 	this->setWindowTitle("Camera Controller");
-	this->setWindowIcon(QIcon("icons/hand.png"));
+	this->setWindowIcon(QIcon::fromTheme("hand"));
 	statusBar()->showMessage(tr("Ready"), 2000);
 	mainBar = new MainBar(this);
 	this->addToolBar(mainBar);
@@ -74,11 +74,9 @@ MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
 
 	viewerMode = new QMainWindow(modesWidget);
 
-	modesWidget->addTab(connectionMode, QIcon("icons/network.png"),"");
+	modesWidget->addTab(connectionMode, QIcon::fromTheme("network"),"");
 	modesWidget->setTabToolTip(1, "Connection Mode");
-	modesWidget->addTab(viewerMode, QIcon("icons/movie.png"),"");
-	modesWidget->setTabToolTip(3, "Viewer Mode");
-	modesWidget->insertTab(0,acquisitionMode,QIcon("icons/camera.png"), ""); //added last because resize update issues
+	modesWidget->insertTab(0,acquisitionMode,QIcon::fromTheme("camera"), ""); //added last because resize update issues
 	modesWidget->setTabToolTip(0, "Acquisition Mode");
 	modesWidget->setCurrentIndex(0);
 

@@ -25,22 +25,22 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
 
 	recordButton = new QToolButton(this);
 	recordAction = new QAction(this);
-	createToolBarButton(recordButton, recordAction, QIcon("icons/record.png"),
+	createToolBarButton(recordButton, recordAction, QIcon::fromTheme("record"),
 											true, true, QSize(50,50));
 	connect(recordAction, &QAction::toggled, this, &ControlBar::recordClickedSlot);
 	startButton = new QToolButton(this);
 	startAction = new QAction(this);
-	createToolBarButton(startButton, startAction, QIcon("icons/start.png"), true,
+	createToolBarButton(startButton, startAction, QIcon::fromTheme("start"), true,
 											true, QSize(50,50));
 	connect(startAction, &QAction::toggled, this, &ControlBar::startClickedSlot);
 	pauseButton = new QToolButton(this);
 	pauseAction = new QAction(this);
-	createToolBarButton(pauseButton, pauseAction, QIcon("icons/pause.png"), false,
+	createToolBarButton(pauseButton, pauseAction, QIcon::fromTheme("pause"), false,
 											true, QSize(50,50));
 	connect(pauseAction, &QAction::toggled, this, &ControlBar::pauseClickedSlot);
 	stopButton = new QToolButton(this);
 	stopAction = new QAction(this);
-	createToolBarButton(stopButton, stopAction, QIcon("icons/stop.png"), false,
+	createToolBarButton(stopButton, stopAction, QIcon::fromTheme("stop"), false,
 											false, QSize(50,50));
 	connect(stopAction, &QAction::triggered, this, &ControlBar::stopClickedSlot);
 	recordingTimeLabel = new QLabel(this);
@@ -55,26 +55,26 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
 	recordingNameEdit->setMaximumSize(300,30);
 	saveFolderButton = new QToolButton(this);
 	saveFolderAction = new QAction(this);
-	createToolBarButton(saveFolderButton, saveFolderAction, QIcon("icons/folder.png"), true,
+	createToolBarButton(saveFolderButton, saveFolderAction, QIcon::fromTheme("folder"), true,
 											false, QSize(50,50));
 	connect(saveFolderAction, &QAction::triggered, this, &ControlBar::saveFolderClickedSlot);
 	timeStampButton = new QToolButton(this);
 	timeStampAction = new QAction(this);
-	createToolBarButton(timeStampButton, timeStampAction, QIcon("icons/timestamp.png"), true,
+	createToolBarButton(timeStampButton, timeStampAction, QIcon::fromTheme("timestamp"), true,
 											false, QSize(50,50));
 	connect(timeStampAction, &QAction::triggered, this, &ControlBar::openTimeStampWindow);
 
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	iconList["Default"] = QIcon("icons/panels/default.png");
-	iconList["DefaultActive"] = QIcon("icons/panels/default_active.png");
-	iconList["OneBig"] = QIcon("icons/panels/oneBig.png");
-	iconList["OneBigActive"] = QIcon("icons/panels/oneBig_active.png");
-	iconList["TwoBig"] = QIcon("icons/panels/twoBig.png");
-	iconList["TwoBigActive"] = QIcon("icons/panels/twoBig_active.png");
-	iconList["FourBig"] = QIcon("icons/panels/fourBig.png");
-	iconList["FourBigActive"] = QIcon("icons/panels/fourBig_active.png");
+	iconList["Default"] = QIcon::fromTheme("panels/default");
+	iconList["DefaultActive"] = QIcon::fromTheme("panels/default_active");
+	iconList["OneBig"] = QIcon::fromTheme("panels/oneBig");
+	iconList["OneBigActive"] = QIcon::fromTheme("panels/oneBig_active");
+	iconList["TwoBig"] = QIcon::fromTheme("panels/twoBig");
+	iconList["TwoBigActive"] = QIcon::fromTheme("panels/twoBig_active");
+	iconList["FourBig"] = QIcon::fromTheme("panels/fourBig");
+	iconList["FourBigActive"] = QIcon::fromTheme("panels/fourBig_active");
 
 	m_activeLayout = StreamingWidget::Default;
 	defaultButton = new QToolButton(this);

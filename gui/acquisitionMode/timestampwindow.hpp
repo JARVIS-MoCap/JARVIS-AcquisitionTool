@@ -15,6 +15,7 @@
 #include <QTextEdit>
 #include <QPushButton>
 #include <QListWidget>
+#include <QTableWidget>
 
 
 class TimeStampWindow : public QDockWidget {

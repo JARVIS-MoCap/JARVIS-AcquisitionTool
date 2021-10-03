@@ -4,7 +4,7 @@
  *  Author:   Timo Hüser
  *------------------------------------------------------------*/
 
-#include "acquistionmode.hpp"
+#include "acquisitionmode.hpp"
 #include "streamingwidget.hpp"
 
 AcquisitionMode::AcquisitionMode(QMainWindow *parent) : QMainWindow(parent) {

@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  connectionwidget.cpp
- *  Created:  27. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*****************************************************************
+ * File:			  connectinwidget.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     GPL v3.0
+ *****************************************************************/
 
 #include "connectionwidget.hpp"
 #include "camerainterface.hpp"
@@ -11,19 +14,26 @@
 #include "triggerinterface.hpp"
 #include "testtrigger.hpp"
 
-#include <QLineEdit>
 
 ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window) {
 	settings = new QSettings();
 	this->setFocusPolicy(Qt::StrongFocus);
-	camLoadPresetsWindow = new PresetsWindow(&camPresets, "load", "connectionMode/camPresets");
-	camSavePresetsWindow = new PresetsWindow(&camPresets, "save", "connectionMode/camPresets");
-	connect(camLoadPresetsWindow, SIGNAL(loadPreset(QString)), this, SLOT(camLoadPresetSlot(QString)));
-	connect(camSavePresetsWindow, SIGNAL(savePreset(QString)), this, SLOT(camSavePresetSlot(QString)));
-	triggerLoadPresetsWindow = new PresetsWindow(&triggerPresets, "load", "connectionMode/triggerPresets");
-	triggerSavePresetsWindow = new PresetsWindow(&triggerPresets, "save", "connectionMode/triggerPresets");
-	connect(triggerLoadPresetsWindow, SIGNAL(loadPreset(QString)), this, SLOT(triggerLoadPresetSlot(QString)));
-	connect(triggerSavePresetsWindow, SIGNAL(savePreset(QString)), this, SLOT(triggerSavePresetSlot(QString)));
+	camLoadPresetsWindow = new PresetsWindow(&camPresets, "load",
+				"connectionMode/camPresets");
+	camSavePresetsWindow = new PresetsWindow(&camPresets, "save",
+				"connectionMode/camPresets");
+	connect(camLoadPresetsWindow, &PresetsWindow::loadPreset,
+					this, &ConnectionWidget::camLoadPresetSlot);
+	connect(camSavePresetsWindow, &PresetsWindow::savePreset,
+					this, &ConnectionWidget::camSavePresetSlot);
+	triggerLoadPresetsWindow = new PresetsWindow(&triggerPresets, "load",
+				"connectionMode/triggerPresets");
+	triggerSavePresetsWindow = new PresetsWindow(&triggerPresets, "save",
+				"connectionMode/triggerPresets");
+	connect(triggerLoadPresetsWindow, &PresetsWindow::loadPreset,
+					this, &ConnectionWidget::triggerLoadPresetSlot);
+	connect(triggerSavePresetsWindow, &PresetsWindow::savePreset,
+					this, &ConnectionWidget::triggerSavePresetSlot);
 
 	QGridLayout *layout = new QGridLayout(this);
 
@@ -43,24 +53,31 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	camSavePresetButton = new QToolButton(camToolBar);
 	camSavePresetAction = new QAction(camToolBar);
-	createToolBarButton(camSavePresetButton, camSavePresetAction, QIcon("icons/upload.png"), true,
-											false, QSize(40,40));
-	connect(camSavePresetAction, &QAction::triggered, this, &ConnectionWidget::camSavePresetsClickedSlot);
+	createToolBarButton(camSavePresetButton, camSavePresetAction,
+					QIcon::fromTheme("upload"), true, false, QSize(40,40));
+	connect(camSavePresetAction, &QAction::triggered,
+					this, &ConnectionWidget::camSavePresetsClickedSlot);
 	camLoadPresetButton = new QToolButton(camToolBar);
 	camLoadPresetAction = new QAction(camToolBar);
-	createToolBarButton(camLoadPresetButton, camLoadPresetAction, QIcon("icons/download.png"), true,
-											false, QSize(40,40));
-	connect(camLoadPresetAction, &QAction::triggered, this, &ConnectionWidget::camLoadPresetsClickedSlot);
+	createToolBarButton(camLoadPresetButton, camLoadPresetAction,
+				QIcon::fromTheme("download"), true, false, QSize(40,40));
+	connect(camLoadPresetAction, &QAction::triggered,
+				this, &ConnectionWidget::camLoadPresetsClickedSlot);
 	camToolBar->addWidget(camLabel);
 	camToolBar->addWidget(spacer);
 	camToolBar->addWidget(camSavePresetButton);
 	camToolBar->addWidget(camLoadPresetButton);
-	for (int i = 0; i < NUM_CAMS; i++) {
-		camPanels[i] = new CamConnectionPanel(this);
-		campanellayout->addWidget(camPanels[i], i/(NUM_CAMS/3), i%(NUM_CAMS/3));
-		connect(camPanels[i], SIGNAL(camListChanged()), this, SLOT(camListChangedSlot()));
-		connect(camPanels[i], SIGNAL(camAdded(CameraInterface *)), this, SLOT(camAddedSlot(CameraInterface *)));
-		connect(camPanels[i], SIGNAL(statusUpdated(CameraInterface *, statusType, QString)), this, SLOT(statusUpdatedSlot(CameraInterface *, statusType, QString)));
+	int idx = 0;
+	for (auto &camPanel : camPanels) {
+		camPanel = new CamConnectionPanel(this);
+		campanellayout->addWidget(camPanel, idx/(NUM_CAMS/3), idx%(NUM_CAMS/3));
+		idx++;
+		connect(camPanel, &CamConnectionPanel::camListChanged,
+						this, &ConnectionWidget::camListChangedSlot);
+		connect(camPanel, &CamConnectionPanel::camAdded,
+						this, &ConnectionWidget::camAddedSlot);
+		connect(camPanel, &CamConnectionPanel::statusUpdated,
+						this, &ConnectionWidget::statusUpdatedSlot);
 	}
 	camlayout->addWidget(camToolBar,0,0);
 	camlayout->addWidget(camPanelWidget,1,0);
@@ -85,20 +102,23 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 	triggerSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	triggerSavePresetButton = new QToolButton(triggerToolBar);
 	triggerSavePresetAction = new QAction(triggerToolBar);
-	createToolBarButton(triggerSavePresetButton, triggerSavePresetAction, QIcon("icons/upload.png"), true,
-											false, QSize(40,40));
-	connect(triggerSavePresetAction, &QAction::triggered, this, &ConnectionWidget::triggerSavePresetsClickedSlot);
+	createToolBarButton(triggerSavePresetButton, triggerSavePresetAction,
+				QIcon::fromTheme("upload"), true, false, QSize(40,40));
+	connect(triggerSavePresetAction, &QAction::triggered,
+					this, &ConnectionWidget::triggerSavePresetsClickedSlot);
 	triggerLoadPresetButton = new QToolButton(triggerToolBar);
 	triggerLoadPresetAction = new QAction(triggerToolBar);
-	createToolBarButton(triggerLoadPresetButton, triggerLoadPresetAction, QIcon("icons/download.png"), true,
-											false, QSize(40,40));
-	connect(triggerLoadPresetAction, &QAction::triggered, this, &ConnectionWidget::triggerLoadPresetsClickedSlot);
+	createToolBarButton(triggerLoadPresetButton, triggerLoadPresetAction,
+				QIcon::fromTheme("download"), true, false, QSize(40,40));
+	connect(triggerLoadPresetAction, &QAction::triggered,
+					this, &ConnectionWidget::triggerLoadPresetsClickedSlot);
 	triggerToolBar->addWidget(triggerLabel);
 	triggerToolBar->addWidget(triggerSpacer);
 	triggerToolBar->addWidget(triggerSavePresetButton);
 	triggerToolBar->addWidget(triggerLoadPresetButton);
 	triggerPanel = new TriggerConnectionPanel(this);
-	connect(triggerPanel, SIGNAL(triggerInstanceChanged()), this, SLOT(triggerInstanceChangedSlot()));
+	connect(triggerPanel, &TriggerConnectionPanel::triggerInstanceChanged,
+					this, &ConnectionWidget::triggerInstanceChangedSlot);
 	triggerpanellayout->addWidget(triggerPanel,0, 0);
 
 	triggerlayout->addWidget(triggerToolBar,0,0);
@@ -116,15 +136,19 @@ void ConnectionWidget::camListChangedSlot() {
 	emit camListChanged();
 }
 
+
 void ConnectionWidget::camAddedSlot(CameraInterface * cam) {
 	emit camAdded(cam);
 }
+
 
 void ConnectionWidget::triggerInstanceChangedSlot() {
 	emit triggerInstanceChanged();
 }
 
-void ConnectionWidget::statusUpdatedSlot(CameraInterface* cam, statusType status, QString statusMsg) {
+
+void ConnectionWidget::statusUpdatedSlot(CameraInterface* cam,
+			statusType status, QString statusMsg) {
 	emit statusUpdated(cam,status,statusMsg);
 }
 
@@ -148,17 +172,22 @@ void ConnectionWidget::camLoadPresetSlot(QString preset) {
 		delete camPanel;
 		camPanel = new CamConnectionPanel(this);
 		campanellayout->addWidget(camPanel, idx/(NUM_CAMS/3), idx%(NUM_CAMS/3));
-		connect(camPanel, SIGNAL(camListChanged()), this, SLOT(camListChangedSlot()));
-		connect(camPanel, SIGNAL(camAdded(CameraInterface *)), this, SLOT(camAddedSlot(CameraInterface *)));
-		connect(camPanel, SIGNAL(statusUpdated(CameraInterface *, statusType, QString)), this, SLOT(statusUpdatedSlot(CameraInterface *, statusType, QString)));
+		connect(camPanel, &CamConnectionPanel::camListChanged,
+						this, &ConnectionWidget::camListChangedSlot);
+		connect(camPanel, &CamConnectionPanel::camAdded,
+						this, &ConnectionWidget::camAddedSlot);
+		connect(camPanel, &CamConnectionPanel::statusUpdated,
+						this, &ConnectionWidget::statusUpdatedSlot);
 		settings->beginGroup("Panel_" + QString::number(idx++));
 		if (settings->value("isConfigured").toBool()) {
-			camPanel->camTypeCombo->setCurrentText(settings->value("cameraType").toString());
+			camPanel->camTypeCombo->setCurrentText(settings->
+							value("cameraType").toString());
 			QString cameraName = settings->value("cameraName").toString();
 
 			camPanel->camConfigInterface->loadPreset(settings);
 			camPanel->camera = camPanel->camConfigInterface->getCamera(cameraName);
-			connect(camPanel->camera, SIGNAL(statusUpdated(statusType, QString)), camPanel, SLOT(statusUpdatedSlot(statusType, QString)));
+			//connect(camPanel->camera, &CameraInterface::statusUpdated,
+			//				camPanel, &CamConnectionPanel::statusUpdatedSlot);
 			camPanel->infoToolBarLabel->setText(cameraName);
 			CameraInterface::cameraList.append(camPanel->camera);
 
@@ -210,15 +239,16 @@ void ConnectionWidget::triggerLoadPresetSlot(QString preset) {
 	delete triggerPanel;
 	triggerPanel = new TriggerConnectionPanel(this);
 	triggerpanellayout->addWidget(triggerPanel, 0, 0);
-	connect(triggerPanel, SIGNAL(triggerInstanceChanged()), this, SLOT(triggerInstanceChangedSlot()));
+	connect(triggerPanel, &TriggerConnectionPanel::triggerInstanceChanged,
+					this, &ConnectionWidget::triggerInstanceChangedSlot);
 	if (settings->value("isConfigured").toBool()) {
-		triggerPanel->example1Info->setText(settings->value("example1Info").toString());
+		/*triggerPanel->example1Info->setText(settings->value("example1Info").toString());
 		triggerPanel->example2Info->setText(settings->value("example2Info").toString());
 		triggerPanel->triggerTypeCombo->setCurrentText(settings->value("triggerType").toString());
 		if (triggerPanel->triggerTypeCombo->currentText() == "Test Trigger") {
 			TriggerInterface::triggerInstance = new TestTrigger(triggerPanel->example1Info->text().toInt(), triggerPanel->example2Info->text());
 			connect(TriggerInterface::triggerInstance, SIGNAL(statusUpdated(statusType, QString)), triggerPanel, SLOT(statusUpdatedSlot(statusType, QString)));
-		}
+		}*/
 		statusLog statusLog;
 		statusLog.type = Connecting;
 		statusLog.time = new QTime(0,0);
@@ -235,8 +265,8 @@ void ConnectionWidget::triggerLoadPresetSlot(QString preset) {
 void ConnectionWidget::triggerSavePresetSlot(QString preset) {
 	settings->beginGroup(preset);
 	settings->setValue("isConfigured", triggerPanel->stackWidget->currentIndex() != 0);
-	settings->setValue("example1Info", triggerPanel->example1Info->text());
-	settings->setValue("example2Info", triggerPanel->example2Info->text());
+	/*settings->setValue("example1Info", triggerPanel->example1Info->text());
+	settings->setValue("example2Info", triggerPanel->example2Info->text());*/
 	settings->setValue("triggerType", triggerPanel->triggerTypeCombo->currentText());
 	settings->endGroup();
 }

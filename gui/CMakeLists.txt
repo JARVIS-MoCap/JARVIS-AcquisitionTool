@@ -6,17 +6,17 @@ add_subdirectory(connectionMode)
 
 add_library(${PROJECT_NAME}
     mainwindow.hpp
-    mainbar.hpp
-    presetswindow.hpp
-    settingswindow.hpp
-		imageviewer.hpp
-		streamingpanel.hpp
     mainwindow.cpp
     mainbar.cpp
+    mainbar.hpp
+    presetswindow.hpp
     presetswindow.cpp
+    settingswindow.hpp
     settingswindow.cpp
+    imageviewer.hpp
 		imageviewer.cpp
 		streamingpanel.cpp
+    streamingpanel.hpp
 )
 
 target_include_directories(${PROJECT_NAME}

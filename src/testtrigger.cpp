@@ -14,7 +14,7 @@
 #include <QPushButton>
 #include <QTimer>
 
-TestTrigger::TestTrigger(int, const QString&)
+TestTrigger::TestTrigger(const QString&, const QString&)
 			: TriggerInterface {testTrigger}{
 	std::cout << "Creating Trigger" << std::endl;
 	createSettings();

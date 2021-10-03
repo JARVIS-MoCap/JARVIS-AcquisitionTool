@@ -34,17 +34,17 @@ TimeStampWindow::TimeStampWindow(QWidget *parent) : QDockWidget(parent, Qt::Wind
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	savePresetButton = new QToolButton(this);
 	savePresetAction = new QAction(this);
-	createToolBarButton(savePresetButton, savePresetAction, QIcon("icons/upload.png"), true,
+	createToolBarButton(savePresetButton, savePresetAction, QIcon::fromTheme("upload"), true,
 				false, QSize(35,35));
 	connect(savePresetAction, &QAction::triggered, this, &TimeStampWindow::savePresetsClickedSlot);
 	loadPresetButton = new QToolButton(this);
 	loadPresetAction = new QAction(this);
-	createToolBarButton(loadPresetButton, loadPresetAction, QIcon("icons/download.png"), true,
+	createToolBarButton(loadPresetButton, loadPresetAction, QIcon::fromTheme("download"), true,
 				false, QSize(35,35));
 	connect(loadPresetAction, &QAction::triggered, this, &TimeStampWindow::loadPresetsClickedSlot);
 	closeButton = new QToolButton(this);
 	closeAction = new QAction(this);
-	createToolBarButton(closeButton, closeAction, QIcon("icons/discard.png"), true,
+	createToolBarButton(closeButton, closeAction, QIcon::fromTheme("discard"), true,
 				false, QSize(35,35));
 	connect(closeAction, &QAction::triggered, this, &TimeStampWindow::closeClickedSlot);
 	toolBar->addWidget(settingsLabel);
@@ -83,19 +83,19 @@ TimeStampWindow::TimeStampWindow(QWidget *parent) : QDockWidget(parent, Qt::Wind
 	labelSelectorList->setAlternatingRowColors(true);
 	connect(labelSelectorList, &QListWidget::itemDoubleClicked, this, &TimeStampWindow::labelSelectedSlot);
 	moveLabelUpButton = new QPushButton();
-	moveLabelUpButton->setIcon(QIcon("icons/up.png"));
+	moveLabelUpButton->setIcon(QIcon::fromTheme("up"));
 	moveLabelUpButton->setMinimumSize(35,35);
 	connect(moveLabelUpButton, &QPushButton::clicked, this, &TimeStampWindow::moveLabelUpSlot);
 	moveLabelDownButton = new QPushButton();
-	moveLabelDownButton->setIcon(QIcon("icons/down.png"));
+	moveLabelDownButton->setIcon(QIcon::fromTheme("down"));
 	moveLabelDownButton->setMinimumSize(35,35);
 	connect(moveLabelDownButton, &QPushButton::clicked, this, &TimeStampWindow::moveLabelDownSlot);
 	addLabelButton = new QPushButton();
-	addLabelButton->setIcon(QIcon("icons/plus.png"));
+	addLabelButton->setIcon(QIcon::fromTheme("plus"));
 	addLabelButton->setMinimumSize(35,35);
 	connect(addLabelButton, &QPushButton::clicked, this, &TimeStampWindow::addLabelSlot);
 	deleteLabelButton = new QPushButton();
-	deleteLabelButton->setIcon(QIcon("icons/discard.png"));
+	deleteLabelButton->setIcon(QIcon::fromTheme("discard"));
 	deleteLabelButton->setMinimumSize(35,35);
 	connect(deleteLabelButton, &QPushButton::clicked, this, &TimeStampWindow::removeLabelSlot);
 	labelselectorlayout->addWidget(labelSelectorList,0,0,1,4);

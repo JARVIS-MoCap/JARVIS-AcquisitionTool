@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  presetswindow.cpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*****************************************************************
+ * File:			  presetswindow.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:  2021 Timo Hueser
+ * License:    GPL v3.0
+ *****************************************************************/
 
 #include "presetswindow.hpp"
 
@@ -10,14 +13,15 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
-#include <QTableWidget>
 #include <QHeaderView>
 #include <QToolButton>
 #include <QMessageBox>
+#include <QGroupBox>
 
-
-PresetsWindow::PresetsWindow(QList<QString> *presets, const QString& type, const QString& name, QWidget *parent)
-			: QWidget(parent, Qt::Window), m_presets{presets}, m_name{name} {
+PresetsWindow::PresetsWindow(QList<QString> *presets, const QString& type,
+			const QString& name, QWidget *parent) :  QDialog(parent),
+			m_presets{presets}, m_type(type), m_name{name} {
+	setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 	this->resize(600,400);
 	this->setMinimumSize(600,200);
 	settings = new QSettings();
@@ -33,19 +37,20 @@ PresetsWindow::PresetsWindow(QList<QString> *presets, const QString& type, const
 	loadToolBar->setFixedHeight(45);
 	loadToolBar->setMovable(false);
 
+	QLabel *selectedPresetLabel = new QLabel("Preset Name: ", loadToolBar);
+	selectedPresetEdit = new QLineEdit(loadToolBar);
+	selectedPresetEdit->setPlaceholderText("Select a Preset...");
+	selectedPresetEdit->setStyleSheet("background-color:palette(Window);");
+	selectedPresetEdit->setReadOnly(true);
 	discardButton = new QToolButton(loadToolBar);
 	discardAction = new QAction(loadToolBar);
-	createToolBarButton(discardButton, discardAction, QIcon("icons/discard.png"), false,
-				false, QSize(40,40));
-	connect(discardAction, &QAction::triggered, this, &PresetsWindow::discardClickedSlot);
-	loadButton = new QToolButton(loadToolBar);
-	loadAction = new QAction(loadToolBar);
-	loadAction->setIcon(QIcon("icons/download.png"));
-	createToolBarButton(loadButton, loadAction, QIcon("icons/download.png"), false,
-				false, QSize(40,40));
-	connect(loadAction, &QAction::triggered, this, &PresetsWindow::loadClickedSlot);
+	createToolBarButton(discardButton, discardAction, QIcon::fromTheme("discard"),
+				false, false, QSize(40,40));
+	connect(discardAction, &QAction::triggered,
+				this, &PresetsWindow::discardClickedSlot);
+	loadToolBar->addWidget(selectedPresetLabel);
+	loadToolBar->addWidget(selectedPresetEdit);
 	loadToolBar->addWidget(discardButton);
-	loadToolBar->addWidget(loadButton);
 
 	saveToolBar = new QToolBar(this);
 	saveToolBar->setFixedHeight(45);
@@ -53,90 +58,114 @@ PresetsWindow::PresetsWindow(QList<QString> *presets, const QString& type, const
 	QLabel *newPresetLabel = new QLabel("Preset Name: ", saveToolBar);
 	newPresetEdit = new QLineEdit(saveToolBar);
 	newPresetEdit->setPlaceholderText("Enter Name...");
-	connect (newPresetEdit, SIGNAL(textEdited(QString)), this, SLOT(presetNameEditedSlot(QString)));
-	connect(newPresetEdit, SIGNAL(returnPressed()), this, SLOT(saveClickedSlot()));
+	newPresetEdit->setStyleSheet("background-color:palette(Window);");
+	connect(newPresetEdit, &QLineEdit::textEdited,
+					this, &PresetsWindow::presetNameEditedSlot);
+	connect(newPresetEdit, &QLineEdit::returnPressed,
+					this, &PresetsWindow::saveClickedSlot);
 	saveButton = new QToolButton(saveToolBar);
 	saveAction = new QAction(saveToolBar);
-	createToolBarButton(saveButton, saveAction, QIcon("icons/save.png"), false,
+	createToolBarButton(saveButton, saveAction, QIcon::fromTheme("save"), false,
 				false, QSize(40,40));
-	connect(saveAction, &QAction::triggered, this, &PresetsWindow::saveClickedSlot);
+	connect(saveAction, &QAction::triggered,
+					this, &PresetsWindow::saveClickedSlot);
 	saveToolBar->addWidget(newPresetLabel);
 	saveToolBar->addWidget(newPresetEdit);
 	saveToolBar->addWidget(saveButton);
 
-	presetsTable = new QTableWidget(0, 1);
-	presetsTable->setAlternatingRowColors(true);
-	QStringList labels;
-	labels << "Presets";
-	presetsTable->setHorizontalHeaderLabels(labels);
-	presetsTable->horizontalHeader()-> setSectionResizeMode(0, QHeaderView::Stretch);
-	presetsTable->verticalHeader()->hide();
-	presetsTable->setShowGrid(false);
-	presetsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-	connect(presetsTable, SIGNAL(itemSelectionChanged()), this, SLOT(rowChangedSlot()));
-	QPushButton *quitButton = new QPushButton("Quit");
-	quitButton->setFont(fonts["bold"]);
-	quitButton->setMaximumSize(100,35);
-	quitButton->setMinimumSize(100,35);
-	connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
-
-
+	QGroupBox *presetsGroup = new QGroupBox("Presets", this);
+	QGridLayout *presetslayout = new QGridLayout(presetsGroup);
+	presetslayout->setMargin(3);
+	presetsList = new QListWidget(this);
+	presetslayout->addWidget(presetsList);
+	presetsList->setAlternatingRowColors(true);
+	presetsList->setFont(QFont("Sans Serif", 12));
+	connect(presetsList, &QListWidget::currentRowChanged,
+					this, &PresetsWindow::currentPresetChangedSlot);
+	connect(presetsList, &QListWidget::itemClicked,
+					this, &PresetsWindow::presetClickedSlot);
+	connect(presetsList, &QListWidget::currentItemChanged,
+					this, &PresetsWindow::currentItemChangedSlot);
+	presetsList->setCurrentRow(0);
+	closeButton = new QPushButton("Close");
+	closeButton->setMaximumSize(100,35);
+	closeButton->setMinimumSize(100,35);
+	connect(closeButton, &QPushButton::clicked, this, &PresetsWindow::close);
+	loadButton = new QPushButton("Load");
+	loadButton->setIcon(QIcon::fromTheme("download"));
+	loadButton->setMaximumSize(100,35);
+	loadButton->setMinimumSize(100,35);
+	connect(loadButton, &QPushButton::clicked,
+					this, &PresetsWindow::loadClickedSlot);
+	QWidget *spacer = new QWidget(this);
+	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	spacer->setMaximumSize(9999,40);
 	if(type == "load") {
 		layout->setMenuBar(loadToolBar);
 		saveToolBar->hide();
+		layout->addWidget(spacer, 1,0);
+		layout->addWidget(closeButton,1,1, Qt::AlignRight);
+		layout->addWidget(loadButton,1,2, Qt::AlignRight);
 	}
 	else {
 		layout->setMenuBar(saveToolBar);
 		loadToolBar->hide();
+		layout->addWidget(spacer, 1,0,1,2);
+		layout->addWidget(closeButton,1,2,Qt::AlignRight);
 	}
-	layout->addWidget(presetsTable,0,0);
-	layout->addWidget(quitButton,1,0,1,1,Qt::AlignRight);
+	layout->addWidget(presetsGroup,0,0,1,3);
 	this->setLayout(layout);
 }
 
+
 void PresetsWindow::updateListSlot() {
+	presetsList->clear();
 	if (newPresetEdit->text() != "") saveAction->setEnabled(true);
-	presetsTable->setRowCount(m_presets->size());
-	int row = 0;
 	for (const auto& preset : *m_presets) {
-			QTableWidgetItem* presetItem = new QTableWidgetItem();
-		presetItem->setText(preset);
-		presetItem->setFlags(presetItem->flags() ^ Qt::ItemIsEditable);
-		presetsTable->setItem(row,0,presetItem);
-		row++;
+		addItem(preset);
 	}
-	discardAction->setEnabled(false);
-	loadAction->setEnabled(false);
 }
 
+
 void PresetsWindow::loadClickedSlot() {
-	emit loadPreset(m_name + "/" + m_presets->value(presetsTable->currentRow()));
+	emit loadPreset(m_name + "/" + m_presets->value(presetsList->currentRow()/2));
 	close();
 }
 
+
 void PresetsWindow::discardClickedSlot() {
-	QMessageBox::StandardButton reply;
+  QMessageBox::StandardButton reply;
 	reply = QMessageBox::question(this, "", "Delete this Preset?",
-																QMessageBox::Yes|QMessageBox::No);
-	if (reply == QMessageBox::No) {
-		return;
-	}
-	settings->remove(m_name + "/" + m_presets->value(presetsTable->currentRow()));
+                                QMessageBox::Yes|QMessageBox::No);
+  if (reply == QMessageBox::No) {
+    return;
+  }
+	settings->remove(m_name + "/" + m_presets->value(presetsList->currentRow()/2));
+
 	QList<QString>::iterator it = m_presets->begin();
-	it += presetsTable->currentRow();
+	it += presetsList->currentRow()/2;
 	m_presets->erase(it);
-	presetsTable->removeRow(m_selectedRow);
-	discardAction->setEnabled(false);
-	loadAction->setEnabled(false);
+	delete presetsList->takeItem(m_selectedRow);
 	settings->setValue(m_name + "/Presets", QVariant::fromValue(*m_presets));
 	m_selectedRow = -1;
 }
 
 
 void PresetsWindow::saveClickedSlot() {
-	if (newPresetEdit->text() != "" && m_presets->indexOf(newPresetEdit->text()) == -1) {
+	if (m_presets->indexOf(newPresetEdit->text()) != -1) {
+		QMessageBox::StandardButton reply;
+		reply = QMessageBox::question(this, "", "Preset \"" + newPresetEdit->text() +
+																	"\" already exists! Overwrite this preset?",
+																	QMessageBox::Yes|QMessageBox::No);
+		if (reply == QMessageBox::No) {
+			return;
+		}
+	}
+	if (newPresetEdit->text() != "" && m_presets->
+				indexOf(newPresetEdit->text()) == -1) {
 		m_presets->push_back(newPresetEdit->text());
 	}
+
 	updateListSlot();
 	settings->setValue(m_name + "/Presets", QVariant::fromValue(*m_presets));
 	emit savePreset(m_name + "/" + newPresetEdit->text());
@@ -149,15 +178,49 @@ void PresetsWindow::presetNameEditedSlot(const QString& name) {
 }
 
 
-void PresetsWindow::rowChangedSlot() {
-	if (presetsTable->currentRow() == m_selectedRow) {
+void PresetsWindow::currentPresetChangedSlot(int row) {
+	if (row == m_selectedRow) {
 		discardAction->setEnabled(false);
-		loadAction->setEnabled(false);
 		m_selectedRow = -1;
 	}
 	else {
 		discardAction->setEnabled(true);
-		loadAction->setEnabled(true);
-		m_selectedRow = presetsTable->currentRow();
+		m_selectedRow = row;
 	}
+}
+
+
+void PresetsWindow::presetClickedSlot(QListWidgetItem *item) {
+	if (m_type == "save") {
+		newPresetEdit->setText((*m_presets)[presetsList->row(item)/2]);
+		if (newPresetEdit->text() != "") saveAction->setEnabled(true);
+	}
+	else {
+		selectedPresetEdit->setText((*m_presets)[presetsList->row(item)/2]);
+	}
+}
+
+
+void PresetsWindow::currentItemChangedSlot(QListWidgetItem *current,
+			QListWidgetItem *previous) {
+	if (current != nullptr) {
+		current->setBackground(QColor(100,164,32));
+	}
+	if (previous != nullptr) {
+		previous->setBackground(QColor(34, 36, 40));
+	}
+}
+
+
+void PresetsWindow::addItem(const QString &text) {
+	QListWidgetItem * item = new QListWidgetItem();
+	item->setSizeHint(QSize (100, 27));
+	item->setText(text);
+	item->setFlags(item->flags() ^ Qt::ItemIsSelectable);
+	presetsList->addItem(item);
+	QListWidgetItem * seperatorItem = new QListWidgetItem();
+	seperatorItem->setSizeHint(QSize (100, 3));
+	seperatorItem->setFlags(Qt::NoItemFlags);
+	seperatorItem->setBackground(QColor(46, 50, 60));
+	presetsList->addItem(seperatorItem);
 }

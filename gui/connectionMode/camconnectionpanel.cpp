@@ -3,14 +3,15 @@
  * Created: 	  23. October 2020
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright:  2021 Timo Hueser
- * License:    GPL v3.0
+ * Copyright:  	2021 Timo Hueser
+ * License:    	GPL v3.0
  *****************************************************************/
 
 #include "camconnectionpanel.hpp"
 #include "globals.hpp"
 #include "flirchameleonconfig.hpp"
 #include "camtestconfig.hpp"
+
 
 CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Window) {
 	statusLogWindow = new StatusLogWindow(this);
@@ -73,7 +74,6 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
   camConfigInterface = new FlirChameleonConfig(this);
 	connect(camTypeCombo, &QComboBox::currentTextChanged,
 					this, &CamConnectionPanel::typeComboChangedSlot);
-
 
 	camInfoContainer = new QWidget(stackWidget);
 	QGridLayout *caminfocontainerlayout = new QGridLayout(camInfoContainer);
@@ -146,8 +146,8 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 	stackWidget->addWidget(camInfoContainer);
 	stackWidget->setCurrentIndex(0);
 	typeComboChangedSlot(camTypeCombo->currentText());
-
 }
+
 
 CamConnectionPanel::~CamConnectionPanel() {
 	CameraInterface::cameraList.removeAll(camera);
@@ -161,9 +161,11 @@ void CamConnectionPanel::addClickedSlot() {
 	stackWidget->setCurrentIndex(1);
 }
 
+
 void CamConnectionPanel::exitConfigClickedSlot() {
 	stackWidget->setCurrentIndex(0);
 }
+
 
 void CamConnectionPanel::confirmConfigClickedSlot() {
 	QString cameraName;
@@ -188,6 +190,7 @@ void CamConnectionPanel::confirmConfigClickedSlot() {
 	emit camAdded(camera);
 }
 
+
 void CamConnectionPanel::deleteCamClickedSlot() {
 	CameraInterface::cameraList.removeAll(camera);
 	delete camera;
@@ -208,23 +211,24 @@ void CamConnectionPanel::typeComboChangedSlot(QString type) {
 				indexOf(camConfigInterface->configInfoBox));
   delete infoItem->widget();
   delete infoItem;
+	delete camConfigInterface;
   if (type == "Test Camera") {
-    delete camConfigInterface;
     camConfigInterface = new CamTestConfig(this);
   }
   else if (type == "FLIR Chameleon") {
-    delete camConfigInterface;
     camConfigInterface = new FlirChameleonConfig(this);
   }
   camconfigurelayout->addWidget(camConfigInterface->configEditBox, 2, 0,1,2);
   caminfolayout->addWidget(camConfigInterface->configInfoBox,0,0,1,5);
 }
 
+
 void CamConnectionPanel::nameEditedSlot() {
 	camera->setCameraName(infoToolBarLabel->text());
 	infoToolBarLabel->setReadOnly(true);
 	emit camListChanged();
 }
+
 
 void CamConnectionPanel::statusUpdatedSlot(statusType status,
 																					 QString statusMessage) {
@@ -241,16 +245,19 @@ void CamConnectionPanel::statusUpdatedSlot(statusType status,
 	emit statusUpdated(camera, status, statusMessage);
 }
 
+
 void CamConnectionPanel::showLogClickedSlot() {
 	statusLogWindow->updateListSlot();
 	statusLogWindow->show();
 }
+
 
 void CamConnectionPanel::logsClearedSlot() {
 	camStatusInfoIcon->setPixmap(statusIcons[Ready].pixmap(QSize(20, 20)));
 	camStatusInfo->setText(statusTexts[Ready]);
 	emit statusUpdated(camera, Ready, statusTexts[Ready]);
 }
+
 
 bool CamConnectionPanel::eventFilter(QObject* object, QEvent* event) {
     if(object == infoToolBarLabel && event->type() == QEvent::MouseButtonDblClick) {

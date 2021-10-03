@@ -11,7 +11,7 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
 	this->setMovable(false);
 
 	QLabel *iconLabel = new QLabel(this);
-	iconLabel->setPixmap(QIcon("icons/hand.png").pixmap(50,50));
+	iconLabel->setPixmap(QIcon::fromTheme("hand").pixmap(50,50));
 	QWidget *nameSpacer = new QWidget(this);
 	nameSpacer->setMinimumSize(5,5);
 	QLabel *nameLabel = new QLabel(this);
@@ -21,7 +21,7 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	settingsButton = new QToolButton(this);
 	settingsAction = new QAction(this);
-	createToolBarButton(settingsButton, settingsAction, QIcon("icons/settings.png"),
+	createToolBarButton(settingsButton, settingsAction, QIcon::fromTheme("settings"),
 				true, false, QSize(50,50));
 	this->addWidget(iconLabel);
 	this->addWidget(nameSpacer);

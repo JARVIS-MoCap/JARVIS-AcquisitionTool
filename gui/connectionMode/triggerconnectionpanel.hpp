@@ -1,15 +1,18 @@
-/*------------------------------------------------------------
- *  triggerconnectionpanel.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*****************************************************************
+ * File:			  triggerconnectionpanel.hpp
+ * Created: 	  03. October 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     GPL v3.0
+ *****************************************************************/
 
 #ifndef TRIGGERCONNECTIONPANEL_H
 #define TRIGGERCONNECTIONPANEL_H
 
 #include "globals.hpp"
 #include "statuslogwindow.hpp"
-
+#include "triggerconfiginterface.hpp"
 
 #include <QStackedWidget>
 #include <QGroupBox>
@@ -17,6 +20,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QGridLayout>
 
 
 class TriggerConnectionPanel : public QFrame {
@@ -26,6 +30,7 @@ public:
 	~TriggerConnectionPanel();
 	StatusLogWindow *statusLogWindow;
 	QStackedWidget *stackWidget;
+	TriggerConfigInterface *triggerConfigInterface;
 
 	//ConfigureMode
 	QLineEdit *triggerNameEdit;
@@ -48,6 +53,11 @@ public:
 
 
 private:
+	QGridLayout *triggerconfigurelayout;
+	QGridLayout *triggerinfolayout;
+	QWidget *configureBottomSpacer;
+	QWidget *infoBottomSpacer;
+
 	//AddMode
 	QPushButton *addButton;
 
@@ -67,7 +77,6 @@ private:
 	QAction *deleteAction;
 
 	void createTestBoxes();
-	void toggleItemsDisplayed(QList<QWidget*>, bool);
 
 signals:
 	void triggerInstanceChanged();

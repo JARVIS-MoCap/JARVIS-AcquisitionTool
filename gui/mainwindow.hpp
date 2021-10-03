@@ -8,11 +8,9 @@
 #define MAINWINDOW_H
 
 #include "globals.hpp"
-#include "acquistionmode.hpp"
+#include "acquisitionmode.hpp"
 #include "connectionmode.hpp"
 #include "mainbar.hpp"
-#include "settingsnode.hpp"
-#include "settingsobject.hpp"
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT

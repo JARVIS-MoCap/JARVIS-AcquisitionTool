@@ -25,7 +25,7 @@ StreamingPanel::StreamingPanel(CameraInterface * camera, QWidget *parent)
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	closeButton = new QToolButton(this);
 	closeAction = new QAction(this);
-	createToolBarButton(closeButton, closeAction, QIcon("icons/discard.png"), true,
+	createToolBarButton(closeButton, closeAction, QIcon::fromTheme("discard"), true,
 				false, QSize(22,22));
 	connect(closeAction, &QAction::triggered, this, &StreamingPanel::closeClickedSlot);
 	toolBar->addWidget(camNameLabel);
@@ -33,7 +33,7 @@ StreamingPanel::StreamingPanel(CameraInterface * camera, QWidget *parent)
 	toolBar->addWidget(closeButton);
 
 	imgViewer = new ImageViewer();
-	imgViewer->setImage(QImage("icons/hand_hires.png"));
+	imgViewer->setImage(QImage("icons/hand_hires"));
 	layout->addWidget(toolBar,0,0);
 	layout->addWidget(imgViewer,1,0);
 	layout->setSpacing(0);

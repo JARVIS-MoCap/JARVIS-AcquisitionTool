@@ -1,5 +1,5 @@
 /*****************************************************************
- * File:			  camtestconfig.cpp
+ * File:			  triggertestconfig.cpp
  * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
@@ -8,14 +8,14 @@
  *****************************************************************/
 
 #include "globals.hpp"
-#include "camtestconfig.hpp"
-#include "testcamera.hpp"
+#include "triggertestconfig.hpp"
+#include "testtrigger.hpp"
 
 #include <QGridLayout>
 #include <QLabel>
 
 
-CamTestConfig::CamTestConfig(QWidget *parent) : CamConfigInterface(parent) {
+TriggerTestConfig::TriggerTestConfig(QWidget *parent) : TriggerConfigInterface(parent) {
   configEditBox = new QGroupBox(this);
   QGridLayout *configeditlayout = new QGridLayout(configEditBox);
   QLabel *example1Label = new QLabel("Example 1", configEditBox);
@@ -27,7 +27,7 @@ CamTestConfig::CamTestConfig(QWidget *parent) : CamConfigInterface(parent) {
   configeditlayout->addWidget(example2Label,1,0);
   configeditlayout->addWidget(example2Edit,1,1);
 
-  configInfoBox = new QGroupBox("Test Camera", this);
+  configInfoBox = new QGroupBox("Test Trigger", this);
   QGridLayout *configinfolayout = new QGridLayout(configInfoBox);
   QLabel *example1InfoLabel = new QLabel("Example 1", configInfoBox);
   example1Info = new QLineEdit(configInfoBox);
@@ -42,24 +42,24 @@ CamTestConfig::CamTestConfig(QWidget *parent) : CamConfigInterface(parent) {
 }
 
 
-void CamTestConfig::confirmConfigClicked() {
+void TriggerTestConfig::confirmConfigClicked() {
   example1Info->setText(example1Edit->text());
   example2Info->setText(example2Edit->text());
 }
 
 
-void CamTestConfig::loadPreset(QSettings *settings) {
+void TriggerTestConfig::loadPreset(QSettings *settings) {
   example1Info->setText(settings->value("example1Info").toString());
   example2Info->setText(settings->value("example2Info").toString());
 }
 
 
-void CamTestConfig::savePreset(QSettings *settings) {
+void TriggerTestConfig::savePreset(QSettings *settings) {
   settings->setValue("example1Info", example1Info->text());
   settings->setValue("example2Info", example2Info->text());
 }
 
 
-CameraInterface* CamTestConfig::getCamera(const QString &cameraName) {
-  return new TestCamera(cameraName, example1Info->text(), example2Info->text());
+TriggerInterface* TriggerTestConfig::getTrigger() {
+  return new TestTrigger(example1Info->text(), example2Info->text());
 }

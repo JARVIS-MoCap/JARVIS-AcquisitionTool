@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  statuslogwinwow.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*****************************************************************
+ * File:			  statuslogwinwow.hpp
+ * Created: 	  03. October 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     GPL v3.0
+ *****************************************************************/
 
 #ifndef STATUSLOGWINDOW_H
 #define STATUSLOGWINDOW_H
@@ -13,26 +16,27 @@
 #include <QToolBar>
 #include <QTableWidget>
 
+
 class StatusLogWindow : public QWidget {
 	Q_OBJECT
-public:
-	explicit StatusLogWindow(QWidget *parent = 0);
-	std::list<statusLog> statusLogList;
+	public:
+		explicit StatusLogWindow(QWidget *parent = 0);
+		std::list<statusLog> statusLogList;
 
-private:
-	QToolBar *toolBar;
-	QToolButton *discardButton;
-	QAction *discardAction;
-	QTableWidget *statusLogsTable;
+	private:
+		QToolBar *toolBar;
+		QToolButton *discardButton;
+		QAction *discardAction;
+		QTableWidget *statusLogsTable;
 
-signals:
-	void logsCleared();
+	signals:
+		void logsCleared();
 
-private slots:
-	void discardClickedSlot();
+	private slots:
+		void discardClickedSlot();
 
-public slots:
-	void updateListSlot();
+	public slots:
+		void updateListSlot();
 };
 
 
