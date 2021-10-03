@@ -165,7 +165,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 			}
 		}
 		emit acquisitionStarted(320); 	//TODO: this is very temporary, this needs to be done by camerainterface
-		serialInterface->write(10);
+		serialInterface->write(50);
 	}
 }
 

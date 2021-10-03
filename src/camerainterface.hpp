@@ -13,8 +13,6 @@
 #include "recordinginterface.hpp"
 #include "baserecorder.hpp"
 
-
-
 #include "cudarecorder.hpp"
 
 #include <QTreeWidget>

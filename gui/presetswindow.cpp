@@ -13,6 +13,7 @@
 #include <QTableWidget>
 #include <QHeaderView>
 #include <QToolButton>
+#include <QMessageBox>
 
 
 PresetsWindow::PresetsWindow(QList<QString> *presets, const QString& type, const QString& name, QWidget *parent)
@@ -114,6 +115,12 @@ void PresetsWindow::loadClickedSlot() {
 }
 
 void PresetsWindow::discardClickedSlot() {
+	QMessageBox::StandardButton reply;
+	reply = QMessageBox::question(this, "", "Delete this Preset?",
+																QMessageBox::Yes|QMessageBox::No);
+	if (reply == QMessageBox::No) {
+		return;
+	}
 	settings->remove(m_name + "/" + m_presets->value(presetsTable->currentRow()));
 	QList<QString>::iterator it = m_presets->begin();
 	it += presetsTable->currentRow();

@@ -3,7 +3,6 @@ project (gui)
 add_subdirectory(Qt-DarkStyle)
 add_subdirectory(acquisitionMode)
 add_subdirectory(connectionMode)
-add_subdirectory(calibrationMode)
 
 add_library(${PROJECT_NAME}
     mainwindow.hpp
@@ -30,7 +29,6 @@ target_link_libraries(${PROJECT_NAME}
   Qt5::Widgets
   acquisitionMode
   connectionMode
-	calibrationMode
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wunused)

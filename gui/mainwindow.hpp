@@ -10,7 +10,6 @@
 #include "globals.hpp"
 #include "acquistionmode.hpp"
 #include "connectionmode.hpp"
-#include "calibrationmode.hpp"
 #include "mainbar.hpp"
 #include "settingsnode.hpp"
 #include "settingsobject.hpp"
@@ -27,7 +26,6 @@ class MainWindow : public QMainWindow {
 		QTabWidget *modesWidget;
 		AcquisitionMode *acquisitionMode;
 		ConnectionMode *connectionMode;
-		CalibrationMode *calibrationMode;
 		QMainWindow *viewerMode;
 };
 

@@ -8,8 +8,6 @@ if (USE_FLIR)
     camerainterface.hpp
     testcamera.hpp
 		recordinginterface.hpp
-		calibrationbackend.hpp
-		calibrationbackend.cpp
     baserecorder.cpp
     cudarecorder.cpp
     triggerinterface.hpp
@@ -21,6 +19,8 @@ if (USE_FLIR)
     serialinterface.cpp
     flirchameleon.hpp
     flirchameleon.cpp
+    flirconfigbackend.hpp
+    flirconfigbackend.cpp
   )
 else ()
   add_library(${PROJECT_NAME}
@@ -29,8 +29,6 @@ else ()
     camerainterface.hpp
 		recordinginterface.hpp
     testcamera.hpp
-		calibrationbackend.hpp
-		calibrationbackend.cpp
 		baserecorder.cpp
     cudarecorder.cpp
     triggerinterface.hpp

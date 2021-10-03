@@ -25,7 +25,7 @@ SerialInterface::SerialInterface() {
 				serialPort->setStopBits(QSerialPort::OneStop);
 				serialPort->setFlowControl(QSerialPort::NoFlowControl);
 				serialPort->setDataBits(QSerialPort::Data8);
-				delayl(2000);	//Important!! Arduino goes into serial programming mode if this delay is removed
+				delayl(1000);	//Important!! Arduino goes into serial programming mode if this delay is removed
 				return;
 			}
 		}

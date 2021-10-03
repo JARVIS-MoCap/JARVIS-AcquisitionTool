@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  camconnectionpanel.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*****************************************************************
+ * File:			  camconnectionpanelwidget.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:  2021 Timo Hueser
+ * License:    GPL v3.0
+ *****************************************************************/
 
 #ifndef CAMCONNECTIONPANEL_H
 #define CAMCONNECTIONPANEL_H
@@ -10,9 +13,9 @@
 #include "globals.hpp"
 #include "statuslogwindow.hpp"
 #include "camerainterface.hpp"
+#include "camconfiginterface.hpp"
 
 #include <QStackedWidget>
-#include <QGroupBox>
 #include <QPushButton>
 #include <QComboBox>
 #include <QLabel>
@@ -21,44 +24,21 @@
 
 class CamConnectionPanel : public QFrame {
 	Q_OBJECT
-public:
-	explicit CamConnectionPanel(QWidget *parent = 0);
-	~CamConnectionPanel();
-	CameraInterface *camera = nullptr;
-	StatusLogWindow *statusLogWindow;
-	QStackedWidget *stackWidget;
-
-	//ConfigureMode
-	QLineEdit *camNameEdit;
-	QComboBox *camTypeCombo;
-
-	//InfoMode
-	QWidget *camInfoWidget;
-	QGridLayout *caminfolayout;
-	QLineEdit *infoToolBarLabel;
-	QLabel *camStatusInfoIcon;
-	QLabel *camStatusInfo;
-	QPushButton *camStatusButton;
-
-	//Flir Chameleon
-	QGroupBox *flirBox;
-	QLineEdit *camIDEdit;
-	QGroupBox *flirInfoBox;
-	QLineEdit *camIDInfo;
-
-	//Test Camera
-	QGroupBox *testBox;
-	QLineEdit *example1Edit;
-	QComboBox *example2Combo;
-	QGroupBox *testInfoBox;
-	QLineEdit *example1Info;
-	QLineEdit *example2Info;
-
+	public:
+		explicit CamConnectionPanel(QWidget *parent = 0);
+		~CamConnectionPanel();
+		CameraInterface *camera = nullptr;
+		StatusLogWindow *statusLogWindow;
+		QStackedWidget *stackWidget;
+		CamConfigInterface *camConfigInterface;
+		//ConfigureMode
+		QComboBox *camTypeCombo;
+		//InfoMode
+		QLineEdit *infoToolBarLabel;
 
 private:
 	//AddMode
 	QPushButton *addButton;
-
 	//ConfigureMode
 	QWidget *camConfigureContainer;
 	QToolBar *configToolBar;
@@ -67,33 +47,35 @@ private:
 	QToolButton *exitButton;
 	QAction *exitAction;
 	QWidget *camConfigureWidget;
-
+	QGridLayout *camconfigurelayout;
+	QLineEdit *camNameEdit;
 	//InfoMode
 	QWidget *camInfoContainer;
 	QToolBar *infoToolBar;
 	QToolButton *deleteButton;
 	QAction *deleteAction;
+	QWidget *camInfoWidget;
+	QGridLayout *caminfolayout;
+	QLabel *camStatusInfoIcon;
+	QLabel *camStatusInfo;
+	QPushButton *camStatusButton;
 
-	void createFlirBoxes();
-	void createTestBoxes();
-	void toggleItemsDisplayed(QList<QWidget*>, bool);
+	signals:
+		void camListChanged();
+		void camAdded(CameraInterface *);
+		void statusUpdated(CameraInterface*, statusType, QString);
 
-signals:
-	void camListChanged();
-	void camAdded(CameraInterface *);
-	void statusUpdated(CameraInterface*, statusType, QString);
-
-private slots:
-	void addClickedSlot();
-	void exitConfigClickedSlot();
-	void confirmConfigClickedSlot();
-	void deleteCamClickedSlot();
-	void typeComboChangedSlot(QString);
-	void nameEditedSlot();
-	void statusUpdatedSlot(statusType, QString);
-	void showLogClickedSlot();
-	void logsClearedSlot();
-	bool eventFilter(QObject*, QEvent*);
+	private slots:
+		void addClickedSlot();
+		void exitConfigClickedSlot();
+		void confirmConfigClickedSlot();
+		void deleteCamClickedSlot();
+		void typeComboChangedSlot(QString);
+		void nameEditedSlot();
+		void statusUpdatedSlot(statusType, QString);
+		void showLogClickedSlot();
+		void logsClearedSlot();
+		bool eventFilter(QObject*, QEvent*);
 };
 
 #endif

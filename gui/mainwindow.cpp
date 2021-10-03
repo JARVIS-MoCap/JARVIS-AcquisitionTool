@@ -71,14 +71,11 @@ MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
 
 	acquisitionMode = new AcquisitionMode();
 	connectionMode = new ConnectionMode();
-	calibrationMode = new CalibrationMode();
 
 	viewerMode = new QMainWindow(modesWidget);
 
 	modesWidget->addTab(connectionMode, QIcon("icons/network.png"),"");
 	modesWidget->setTabToolTip(1, "Connection Mode");
-	modesWidget->addTab(calibrationMode, QIcon("icons/checkerboard.png"),"");
-	modesWidget->setTabToolTip(2, "Calibration Mode");
 	modesWidget->addTab(viewerMode, QIcon("icons/movie.png"),"");
 	modesWidget->setTabToolTip(3, "Viewer Mode");
 	modesWidget->insertTab(0,acquisitionMode,QIcon("icons/camera.png"), ""); //added last because resize update issues
@@ -95,7 +92,6 @@ MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
 	connect(connectionMode, &ConnectionMode::camAdded, acquisitionMode, &AcquisitionMode::camAdded);
 	connect(connectionMode, &ConnectionMode::camListChanged, acquisitionMode, &AcquisitionMode::camListChanged);
 	connect(connectionMode, &ConnectionMode::statusUpdated, acquisitionMode, &AcquisitionMode::statusUpdated);
-	connect(connectionMode, &ConnectionMode::camListChanged, calibrationMode, &CalibrationMode::camListChanged);
 }
 
 

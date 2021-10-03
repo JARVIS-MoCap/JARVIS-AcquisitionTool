@@ -7,9 +7,7 @@
 #include "connectionwidget.hpp"
 #include "camerainterface.hpp"
 #include "testcamera.hpp"
-#ifdef FLIR_CHAMELEON
 #include "flirchameleon.hpp"
-#endif
 #include "triggerinterface.hpp"
 #include "testtrigger.hpp"
 
@@ -71,8 +69,10 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 
 	//Trigger Widget
 	triggerWidget = new QWidget(this);
-	triggerWidget->setMaximumSize(350,1000);
+	triggerWidget->setMaximumSize(350,10000);
+	triggerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	QGridLayout *triggerlayout = new QGridLayout(triggerWidget);
+	triggerlayout->setMargin(0);
 	triggerPanelWidget = new QWidget(triggerWidget);
 	triggerpanellayout = new QGridLayout(triggerPanelWidget);
 	triggerpanellayout->setContentsMargins(0, 11, 0, 11);
@@ -143,42 +143,33 @@ void ConnectionWidget::camSavePresetsClickedSlot() {
 
 void ConnectionWidget::camLoadPresetSlot(QString preset) {
 	settings->beginGroup(preset);
-	for (int i = 0; i < NUM_CAMS; i++) {
-		delete camPanels[i];
-		camPanels[i] = new CamConnectionPanel(this);
-		campanellayout->addWidget(camPanels[i], i/(NUM_CAMS/3), i%(NUM_CAMS/3));
-		connect(camPanels[i], SIGNAL(camListChanged()), this, SLOT(camListChangedSlot()));
-		connect(camPanels[i], SIGNAL(camAdded(CameraInterface *)), this, SLOT(camAddedSlot(CameraInterface *)));
-		connect(camPanels[i], SIGNAL(statusUpdated(CameraInterface *, statusType, QString)), this, SLOT(statusUpdatedSlot(CameraInterface *, statusType, QString)));
-		settings->beginGroup("Panel_" + QString::number(i));
+	int idx = 0;
+	for (auto &camPanel : camPanels) {
+		delete camPanel;
+		camPanel = new CamConnectionPanel(this);
+		campanellayout->addWidget(camPanel, idx/(NUM_CAMS/3), idx%(NUM_CAMS/3));
+		connect(camPanel, SIGNAL(camListChanged()), this, SLOT(camListChangedSlot()));
+		connect(camPanel, SIGNAL(camAdded(CameraInterface *)), this, SLOT(camAddedSlot(CameraInterface *)));
+		connect(camPanel, SIGNAL(statusUpdated(CameraInterface *, statusType, QString)), this, SLOT(statusUpdatedSlot(CameraInterface *, statusType, QString)));
+		settings->beginGroup("Panel_" + QString::number(idx++));
 		if (settings->value("isConfigured").toBool()) {
-			camPanels[i]->example1Info->setText(settings->value("example1Info").toString());
-			camPanels[i]->example2Info->setText(settings->value("example2Info").toString());
-			camPanels[i]->camTypeCombo->setCurrentText(settings->value("cameraType").toString());
+			camPanel->camTypeCombo->setCurrentText(settings->value("cameraType").toString());
 			QString cameraName = settings->value("cameraName").toString();
-			if (camPanels[i]->camTypeCombo->currentText() == "Test Camera") {
-				camPanels[i]->camera = new TestCamera(cameraName, camPanels[i]->example1Info->text(), camPanels[i]->example2Info->text());
-				connect(camPanels[i]->camera, SIGNAL(statusUpdated(statusType, QString)), camPanels[i], SLOT(statusUpdatedSlot(statusType, QString)));
-				camPanels[i]->infoToolBarLabel->setText(cameraName);
-				CameraInterface::cameraList.append(camPanels[i]->camera);
-			}
-			#ifdef FLIR_CHAMELEON
-			else if (camPanels[i]->camTypeCombo->currentText() == "FLIR Chameleon") {
-				camPanels[i]->camIDInfo->setText(settings->value("camIDInfo").toString());
-				camPanels[i]->camera = new FLIRChameleon(cameraName, camPanels[i]->camIDInfo->text());
-				connect(camPanels[i]->camera, SIGNAL(statusUpdated(statusType, QString)), camPanels[i], SLOT(statusUpdatedSlot(statusType, QString)));
-				camPanels[i]->infoToolBarLabel->setText(cameraName);
-				CameraInterface::cameraList.append(camPanels[i]->camera);
-			}
-			#endif
+
+			camPanel->camConfigInterface->loadPreset(settings);
+			camPanel->camera = camPanel->camConfigInterface->getCamera(cameraName);
+			connect(camPanel->camera, SIGNAL(statusUpdated(statusType, QString)), camPanel, SLOT(statusUpdatedSlot(statusType, QString)));
+			camPanel->infoToolBarLabel->setText(cameraName);
+			CameraInterface::cameraList.append(camPanel->camera);
+
 			statusLog statusLog;
 			statusLog.type = Connecting;
 			statusLog.time = new QTime(0,0);
 			statusLog.time->restart();
 			statusLog.message = "";
-			camPanels[i]->statusLogWindow->statusLogList.push_back(statusLog);
-			camPanels[i]->stackWidget->setCurrentIndex(2);
-			emit camAdded(camPanels[i]->camera);
+			camPanel->statusLogWindow->statusLogList.push_back(statusLog);
+			camPanel->stackWidget->setCurrentIndex(2);
+			emit camAdded(camPanel->camera);
 		}
 		settings->endGroup();
 	}
@@ -188,20 +179,19 @@ void ConnectionWidget::camLoadPresetSlot(QString preset) {
 
 
 void ConnectionWidget::camSavePresetSlot(QString preset) {
-	std::cout << "Saving Preset" << std::endl;
 	settings->beginGroup(preset);
-	for (int i = 0; i < NUM_CAMS; i++) {
-		settings->beginGroup("Panel_" + QString::number(i));
-		settings->setValue("isConfigured", camPanels[i]->stackWidget->currentIndex() != 0);
-		settings->setValue("camIDInfo", camPanels[i]->camIDInfo->text());
-		settings->setValue("example1Info", camPanels[i]->example1Info->text());
-		settings->setValue("example2Info", camPanels[i]->example2Info->text());
-		settings->setValue("cameraName", camPanels[i]->infoToolBarLabel->text());
-		settings->setValue("cameraType", camPanels[i]->camTypeCombo->currentText());
+	int idx = 0;
+	for (const auto &camPanel : camPanels) {
+		settings->beginGroup("Panel_" + QString::number(idx++));
+		settings->setValue("isConfigured", camPanel->stackWidget->currentIndex() != 0);
+		settings->setValue("cameraName", camPanel->infoToolBarLabel->text());
+		settings->setValue("cameraType", camPanel->camTypeCombo->currentText());
+		camPanel->camConfigInterface->savePreset(settings);
 		settings->endGroup();
 	}
 	settings->endGroup();
 }
+
 
 void ConnectionWidget::triggerLoadPresetsClickedSlot() {
 	triggerLoadPresetsWindow->updateListSlot();

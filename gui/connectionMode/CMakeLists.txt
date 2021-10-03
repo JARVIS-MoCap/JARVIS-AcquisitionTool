@@ -12,6 +12,11 @@ add_library(${PROJECT_NAME}
     camconnectionpanel.cpp
     statuslogwindow.cpp
     triggerconnectionpanel.cpp
+    camconfiginterface.hpp
+    flirchameleonconfig.hpp
+    flirchameleonconfig.cpp
+    camtestconfig.hpp
+    camtestconfig.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

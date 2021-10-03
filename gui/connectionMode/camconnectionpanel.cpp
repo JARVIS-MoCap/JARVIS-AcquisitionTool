@@ -1,15 +1,16 @@
-/*------------------------------------------------------------
- *  camconnectionpanelwidget.cpp
- *  Created:  23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*****************************************************************
+ * File:			  camconnectionpanelwidget.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:  2021 Timo Hueser
+ * License:    GPL v3.0
+ *****************************************************************/
 
- #include "camconnectionpanel.hpp"
+#include "camconnectionpanel.hpp"
 #include "globals.hpp"
-#include "testcamera.hpp"
-#ifdef FLIR_CHAMELEON
-#include "flirchameleon.hpp"
-#endif
+#include "flirchameleonconfig.hpp"
+#include "camtestconfig.hpp"
 
 CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Window) {
 	statusLogWindow = new StatusLogWindow(this);
@@ -22,10 +23,11 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 
 	addButton = new QPushButton(stackWidget);
 	connect(addButton, SIGNAL(clicked()), this, SLOT(addClickedSlot()));
-	addButton->setIcon(QIcon("icons/add.png"));
+	addButton->setIcon(QIcon::fromTheme("add"));
 	addButton->setIconSize(QSize(100,100));
-	addButton->setStyleSheet(" QPushButton { border-radius: 10px; border: 4px solid rgb(32,100,164); }"
-													 "QPushButton:hover { background-color: rgb(68,74,89); }");
+	addButton->setStyleSheet("QPushButton {border-radius: 10px;"
+																				"border: 4px solid rgb(32,100,164);}"
+													 "QPushButton:hover{ background-color: rgb(68,74,89);}");
 
 	camConfigureContainer = new QWidget(stackWidget);
 	QGridLayout *camconfigurecontainerlayout = new QGridLayout(camConfigureContainer);
@@ -38,12 +40,16 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 	configSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	confirmButton = new QToolButton(this);
 	confirmAction = new QAction(this);
-	createToolBarButton(confirmButton, confirmAction, QIcon("icons/check.png"), true, false, QSize(35,35));
-	connect(confirmAction, &QAction::triggered, this, &CamConnectionPanel::confirmConfigClickedSlot);
+	createToolBarButton(confirmButton, confirmAction, QIcon::fromTheme("check"),
+				true, false, QSize(35,35));
+	connect(confirmAction, &QAction::triggered,
+					this, &CamConnectionPanel::confirmConfigClickedSlot);
 	exitButton = new QToolButton(this);
 	exitAction = new QAction(this);
-	createToolBarButton(exitButton, exitAction, QIcon("icons/discard.png"), true, false, QSize(35,35));
-	connect(exitAction, &QAction::triggered, this, &CamConnectionPanel::exitConfigClickedSlot);
+	createToolBarButton(exitButton, exitAction, QIcon::fromTheme("discard"),
+				true, false, QSize(35,35));
+	connect(exitAction, &QAction::triggered,
+					this, &CamConnectionPanel::exitConfigClickedSlot);
 	configToolBar->addWidget(configToolBarLabel);
 	configToolBar->addWidget(configSpacer);
 	configToolBar->addWidget(confirmButton);
@@ -53,16 +59,20 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 	pal.setColor(QPalette::Background, QColor(22, 24, 26));
 	camConfigureWidget->setAutoFillBackground(true);
 	camConfigureWidget->setPalette(pal);
-	QGridLayout *camconfigurelayout = new QGridLayout(camConfigureWidget);
+	camconfigurelayout = new QGridLayout(camConfigureWidget);
 	QWidget *configureBottomSpacer = new QWidget(camConfigureWidget);
-	configureBottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	configureBottomSpacer->setSizePolicy(QSizePolicy::Expanding,
+																			 QSizePolicy::Expanding);
 	QLabel *camNameLabel = new QLabel("Camera Name", camConfigureWidget);
 	camNameEdit = new QLineEdit(camConfigureWidget);
 	camNameEdit->setPlaceholderText("Enter Name...");
 	QLabel *camTypeLabel = new QLabel("Camera Type", camConfigureWidget);
 	camTypeCombo = new QComboBox(camConfigureWidget);
+  camTypeCombo->addItem("FLIR Chameleon");
 	camTypeCombo->addItem("Test Camera");
-	connect(camTypeCombo, SIGNAL(currentTextChanged(QString)), SLOT(typeComboChangedSlot(QString)));
+  camConfigInterface = new FlirChameleonConfig(this);
+	connect(camTypeCombo, &QComboBox::currentTextChanged,
+					this, &CamConnectionPanel::typeComboChangedSlot);
 
 
 	camInfoContainer = new QWidget(stackWidget);
@@ -75,57 +85,51 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 	infoToolBarLabel->setFrame(false);
 	infoToolBarLabel->installEventFilter(this);
 	infoToolBarLabel->setReadOnly(true);
-	connect(infoToolBarLabel, SIGNAL(editingFinished()), this, SLOT(nameEditedSlot()));
+	connect(infoToolBarLabel, &QLineEdit::editingFinished,
+					this, &CamConnectionPanel::nameEditedSlot);
 	QWidget	*infoSpacer = new QWidget();
 	infoSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	deleteButton = new QToolButton(this);
 	deleteAction = new QAction(this);
-	createToolBarButton(deleteButton, deleteAction, QIcon("icons/discard.png"), true, false, QSize(35,35));
-	connect(deleteAction, &QAction::triggered, this, &CamConnectionPanel::deleteCamClickedSlot);
+	createToolBarButton(deleteButton, deleteAction, QIcon::fromTheme("discard"),
+				true, false, QSize(35,35));
+	connect(deleteAction, &QAction::triggered,
+					this, &CamConnectionPanel::deleteCamClickedSlot);
 	infoToolBar->addWidget(infoToolBarLabel);
 	infoToolBar->addWidget(infoSpacer);
 	infoToolBar->addWidget(deleteButton);
 	camInfoWidget = new QWidget(camInfoContainer);
 	camInfoWidget->setAutoFillBackground(true);
 	camInfoWidget->setPalette(pal);
-	QGridLayout *caminfolayout = new QGridLayout(camInfoWidget);
+	caminfolayout = new QGridLayout(camInfoWidget);
 	QWidget *infoBottomSpacer = new QWidget(camConfigureWidget);
-	infoBottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	infoBottomSpacer->setSizePolicy(QSizePolicy::Expanding,
+																	QSizePolicy::Expanding);
 	QLabel *camStatusInfoLabel = new QLabel("Status:", camInfoWidget);
 	camStatusInfoIcon = new QLabel(camInfoWidget);
 	camStatusInfo = new QLabel(camInfoWidget);
 	camStatusButton = new QPushButton("Show Log...", camInfoWidget);
-	connect(camStatusButton, SIGNAL(clicked()), this, SLOT(showLogClickedSlot()));
+	connect(camStatusButton, &QPushButton::clicked,
+					this, &CamConnectionPanel::showLogClickedSlot);
 	QWidget *camStatusSpacer = new QWidget(camInfoWidget);
 	camStatusSpacer->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
 	camStatusInfoIcon->setPixmap(statusIcons[Connecting].pixmap(QSize(20, 20)));
 	camStatusInfo->setText(statusTexts[Connecting]);
-
-	#ifdef FLIR_CHAMELEON
-	camTypeCombo->addItem("FLIR Chameleon");
-	createFlirBoxes();
-	#endif
-	createTestBoxes();
 
 	int i = 0;
 	camconfigurelayout->addWidget(camNameLabel,i,0);
 	camconfigurelayout->addWidget(camNameEdit,i++,1);
 	camconfigurelayout->addWidget(camTypeLabel,i,0);
 	camconfigurelayout->addWidget(camTypeCombo,i++,1);
-	#ifdef FLIR_CHAMELEON
-	camconfigurelayout->addWidget(flirBox, i++, 0,1,2);
-	#endif
-	camconfigurelayout->addWidget(testBox, i++, 0,1,2);
+	camconfigurelayout->addWidget(camConfigInterface->configEditBox, i++, 0,1,2);
 	camconfigurelayout->addWidget(configureBottomSpacer,i,0,1,2);
 	camconfigurecontainerlayout->addWidget(configToolBar,0,0);
 	camconfigurecontainerlayout->addWidget(camConfigureWidget,1,0);
 	camconfigurecontainerlayout->setSpacing(0);
 	camconfigurecontainerlayout->setMargin(0);
+
 	i = 0;
-	#ifdef FLIR_CHAMELEON
-	caminfolayout->addWidget(flirInfoBox,i++,0,1,5);
-	#endif
-	caminfolayout->addWidget(testInfoBox,i++,0,1,5);
+	caminfolayout->addWidget(camConfigInterface->configInfoBox,i++,0,1,5);
 	caminfolayout->addWidget(camStatusInfoLabel,i,0);
 	caminfolayout->addWidget(camStatusInfoIcon,i,1);
 	caminfolayout->addWidget(camStatusInfo,i,2);
@@ -142,6 +146,7 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 	stackWidget->addWidget(camInfoContainer);
 	stackWidget->setCurrentIndex(0);
 	typeComboChangedSlot(camTypeCombo->currentText());
+
 }
 
 CamConnectionPanel::~CamConnectionPanel() {
@@ -150,51 +155,6 @@ CamConnectionPanel::~CamConnectionPanel() {
 	camera = nullptr;
 	delete statusLogWindow;
   std::cout << "destroying connection panel" << std::endl;
-}
-
-void CamConnectionPanel::createFlirBoxes() {
-	flirBox = new QGroupBox(camConfigureWidget);
-	QGridLayout *flirboxlayout = new QGridLayout(flirBox);
-	QLabel *camIDLabel = new QLabel("Device ID", camConfigureWidget);
-	camIDEdit = new QLineEdit(camConfigureWidget);
-	flirboxlayout->addWidget(camIDLabel,0,0);
-	flirboxlayout->addWidget(camIDEdit,0,1);
-
-	flirInfoBox = new QGroupBox("Flir Chameleon", camInfoWidget);
-	QGridLayout *testinfoboxlayout = new QGridLayout(flirInfoBox);
-	QLabel *camIDInfoLabel = new QLabel("Device ID", flirInfoBox);
-	camIDInfo = new QLineEdit(flirInfoBox);
-	camIDInfo->setReadOnly(true);
-	testinfoboxlayout->addWidget(camIDInfoLabel,0,0);
-	testinfoboxlayout->addWidget(camIDInfo,1,1,1,4);
-}
-
-void CamConnectionPanel::createTestBoxes() {
-	testBox = new QGroupBox(camConfigureWidget);
-	QGridLayout *testboxlayout = new QGridLayout(testBox);
-	QLabel *example1Label = new QLabel("Exmple 1", testBox);
-	example1Edit = new QLineEdit(testBox);
-	QLabel*example2Label = new QLabel("Example 2", testBox);
-	example2Combo = new QComboBox(testBox);
-	example2Combo->addItem("Val 1");
-	example2Combo->addItem("Val 2");
-	testboxlayout->addWidget(example1Label, 0,0);
-	testboxlayout->addWidget(example1Edit, 0,1);
-	testboxlayout->addWidget(example2Label, 1,0);
-	testboxlayout->addWidget(example2Combo, 1,1);
-
-	testInfoBox = new QGroupBox("Test Camera", camInfoWidget);
-	QGridLayout *testinfoboxlayout = new QGridLayout(testInfoBox);
-	QLabel *example1InfoLabel = new QLabel("Example 1", testInfoBox);
-	example1Info = new QLineEdit(testInfoBox);
-	example1Info->setReadOnly(true);
-	QLabel *example2InfoLabel = new QLabel("Example 2", testInfoBox);
-	example2Info = new QLineEdit(testInfoBox);
-	example2Info->setReadOnly(true);
-	testinfoboxlayout->addWidget(example1InfoLabel, 0,0);
-	testinfoboxlayout->addWidget(example1Info, 0,1);
-	testinfoboxlayout->addWidget(example2InfoLabel, 1,0);
-	testinfoboxlayout->addWidget(example2Info, 1,1);
 }
 
 void CamConnectionPanel::addClickedSlot() {
@@ -207,25 +167,16 @@ void CamConnectionPanel::exitConfigClickedSlot() {
 
 void CamConnectionPanel::confirmConfigClickedSlot() {
 	QString cameraName;
-	if (camNameEdit->text() == "") cameraName = "Camera_" + QString::number(CameraInterface::cameraList.size());
+	if (camNameEdit->text() == "") cameraName = "Camera_" +
+				QString::number(CameraInterface::cameraList.size());
 	else cameraName = camNameEdit->text();
-	if (camTypeCombo->currentText() == "Test Camera") {
-    example1Info->setText(example1Edit->text());
-    example2Info->setText(example2Combo->currentText());
-		camera = new TestCamera(cameraName, example1Edit->text(), example2Combo->currentText());
-		connect(camera, SIGNAL(statusUpdated(statusType, QString)), this, SLOT(statusUpdatedSlot(statusType, QString)));
-		infoToolBarLabel->setText(cameraName);
-		CameraInterface::cameraList.append(camera);
-	}
-	#ifdef FLIR_CHAMELEON
-	else if (camTypeCombo->currentText() == "FLIR Chameleon") {
-    camIDInfo->setText(camIDEdit->text());
-		camera = new FLIRChameleon(cameraName, camIDEdit->text());
-		connect(camera, SIGNAL(statusUpdated(statusType, QString)), this, SLOT(statusUpdatedSlot(statusType, QString)));
-		infoToolBarLabel->setText(cameraName);
-		CameraInterface::cameraList.append(camera);
-	}
-	#endif
+  camConfigInterface->confirmConfigClicked();
+  camera = camConfigInterface->getCamera(cameraName);
+	connect(camera, &CameraInterface::statusUpdated,
+					this, &CamConnectionPanel::statusUpdatedSlot);
+	infoToolBarLabel->setText(cameraName);
+	CameraInterface::cameraList.append(camera);
+
 	statusLog statusLog;
 	statusLog.type = Connecting;
 	statusLog.time = new QTime(0,0);
@@ -247,23 +198,26 @@ void CamConnectionPanel::deleteCamClickedSlot() {
 	emit camListChanged();
 }
 
-void CamConnectionPanel::toggleItemsDisplayed(QList<QWidget*> items, bool toggle) {
-	if (toggle) {
-		for (const auto& item : items) item->show();
-	}
-	else {
-		for (const auto& item : items) item->hide();
-	}
-}
 
 void CamConnectionPanel::typeComboChangedSlot(QString type) {
-	#ifdef FLIR_CHAMELEON
-	QList<QWidget*> flirChameleonItems = {flirBox,flirInfoBox};
-	toggleItemsDisplayed(flirChameleonItems, type == "FLIR Chameleon");
-	#endif
-	QList<QWidget*> testCameraItems = {testBox, testInfoBox};
-	toggleItemsDisplayed(testCameraItems, type == "Test Camera");
-
+  QLayoutItem *item = camconfigurelayout->takeAt(camconfigurelayout->
+				indexOf(camConfigInterface->configEditBox));
+  delete item->widget();
+  delete item;
+  QLayoutItem *infoItem = caminfolayout->takeAt(caminfolayout->
+				indexOf(camConfigInterface->configInfoBox));
+  delete infoItem->widget();
+  delete infoItem;
+  if (type == "Test Camera") {
+    delete camConfigInterface;
+    camConfigInterface = new CamTestConfig(this);
+  }
+  else if (type == "FLIR Chameleon") {
+    delete camConfigInterface;
+    camConfigInterface = new FlirChameleonConfig(this);
+  }
+  camconfigurelayout->addWidget(camConfigInterface->configEditBox, 2, 0,1,2);
+  caminfolayout->addWidget(camConfigInterface->configInfoBox,0,0,1,5);
 }
 
 void CamConnectionPanel::nameEditedSlot() {
@@ -272,7 +226,8 @@ void CamConnectionPanel::nameEditedSlot() {
 	emit camListChanged();
 }
 
-void CamConnectionPanel::statusUpdatedSlot(statusType status, QString statusMessage) {
+void CamConnectionPanel::statusUpdatedSlot(statusType status,
+																					 QString statusMessage) {
 	camera->setCameraStatus(status);
 	camStatusInfoIcon->setPixmap(statusIcons[status].pixmap(QSize(20, 20)));
 	camStatusInfo->setText(statusTexts[status]);
