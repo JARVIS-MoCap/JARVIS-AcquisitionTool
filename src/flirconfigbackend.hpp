@@ -22,9 +22,10 @@ class FlirConfigBackend : public QObject {
             return &instance;
         }
 		explicit FlirConfigBackend(QObject *parent = nullptr);
-		~FlirConfigBackend();
+		//~FlirConfigBackend();
 
 		QList<QString> getCameraIDs();
+		void updateIDs();
 
 	private:
 		QList<QString> cameraIDList;

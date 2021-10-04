@@ -42,9 +42,10 @@ CamTestConfig::CamTestConfig(QWidget *parent) : CamConfigInterface(parent) {
 }
 
 
-void CamTestConfig::confirmConfigClicked() {
+bool CamTestConfig::confirmConfigClicked() {
   example1Info->setText(example1Edit->text());
   example2Info->setText(example2Edit->text());
+  return true;
 }
 
 

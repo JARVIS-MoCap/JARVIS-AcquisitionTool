@@ -11,7 +11,8 @@
 #include "triggerconnectionpanel.hpp"
 #include "triggerinterface.hpp"
 #include "triggertestconfig.hpp"
-
+#include "arduinotriggerconfig.hpp"
+#include <QErrorMessage>
 
 TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) :
 			QFrame(parent, Qt::Window) {
@@ -70,7 +71,10 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) :
 																			 QSizePolicy::Expanding);
 	QLabel *triggerTypeLabel = new QLabel("Trigger Type", triggerConfigureWidget);
 	triggerTypeCombo = new QComboBox(triggerConfigureWidget);
+	triggerTypeCombo->addItem("Arduino Trigger");
 	triggerTypeCombo->addItem("Test Trigger");
+	triggerConfigInterface = new ArduinoTriggerConfig(this);
+
 
 	connect(triggerTypeCombo, &QComboBox::currentTextChanged,
 					this, &TriggerConnectionPanel::typeComboChangedSlot);
@@ -78,7 +82,6 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) :
 	triggerconfigurecontainerlayout->addWidget(triggerConfigureWidget,1,0);
 	triggerconfigurecontainerlayout->setSpacing(0);
 	triggerconfigurecontainerlayout->setMargin(0);
-	triggerConfigInterface = new TriggerTestConfig(this);
 
 	triggerInfoContainer = new QWidget(stackWidget);
 	QGridLayout *triggerinfocontainerlayout =
@@ -164,9 +167,17 @@ void TriggerConnectionPanel::exitConfigClickedSlot() {
 }
 
 void TriggerConnectionPanel::confirmConfigClickedSlot() {
-	triggerConfigInterface->confirmConfigClicked();
-	TriggerInterface::triggerInstance = triggerConfigInterface->getTrigger();
-	connect(TriggerInterface::triggerInstance, SIGNAL(statusUpdated(statusType, QString)), this, SLOT(statusUpdatedSlot(statusType, QString)));
+	if (triggerConfigInterface->confirmConfigClicked()) {
+		TriggerInterface::triggerInstance = triggerConfigInterface->getTrigger();
+		connect(TriggerInterface::triggerInstance, SIGNAL(statusUpdated(statusType, QString)), this, SLOT(statusUpdatedSlot(statusType, QString)));
+	}
+	else {
+		QErrorMessage errorMessage;
+    errorMessage.showMessage(
+	  "No trigger device selected! Make sure your device is plugged in and configured correctly!");
+    errorMessage.exec();
+		return;
+	}
 
 	statusLog statusLog;
 	statusLog.type = Connecting;
@@ -199,9 +210,12 @@ void TriggerConnectionPanel::typeComboChangedSlot(QString type) {
   delete infoItem->widget();
   delete infoItem;
 	delete triggerConfigInterface;
-  if (type == "Test Trigger") {
-     triggerConfigInterface = new TriggerTestConfig(this);
+  if (type == "Arduino Trigger") {
+     triggerConfigInterface = new ArduinoTriggerConfig(this);
   }
+	else if (type == "Test Trigger") {
+		 triggerConfigInterface = new TriggerTestConfig(this);
+	}
   triggerconfigurelayout->addWidget(triggerConfigInterface->configEditBox, 2, 0,1,2);
 	triggerconfigurelayout->addItem(spacerItem, 3, 0,1,2);
   triggerinfolayout->addWidget(triggerConfigInterface->configInfoBox,0,0,1,5);

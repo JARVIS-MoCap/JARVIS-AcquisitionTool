@@ -17,6 +17,8 @@ class TestTrigger : public TriggerInterface {
 	public:
 		explicit TestTrigger(const QString& example1 = "", const QString& example2 = "");
 		~TestTrigger();
+		void enable() {}
+		void disable() {}
 
 	private:
 		void createSettings();

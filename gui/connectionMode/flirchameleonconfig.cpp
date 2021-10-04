@@ -24,8 +24,16 @@ FlirChameleonConfig::FlirChameleonConfig(QWidget *parent) :
   QLabel *camIDLabel = new QLabel("Device ID", configEditBox);
   camIDCombo = new QComboBox(this);
   updateDeviceIDs();
+  updateCamIDsButton = new QPushButton(this);
+  updateCamIDsButton->setIcon(QIcon::fromTheme("update"));
+  updateCamIDsButton->setMinimumSize(25,25);
+  updateCamIDsButton->setMaximumSize(25,25);
+  connect(updateCamIDsButton, &QPushButton::clicked,
+          this, &FlirChameleonConfig::updateCamIDs);
   configeditlayout->addWidget(camIDLabel,0,0);
   configeditlayout->addWidget(camIDCombo,0,1);
+  configeditlayout->addWidget(updateCamIDsButton,0,2);
+
 
   configInfoBox = new QGroupBox("Flir Chameleon", this);
   QGridLayout *configinfolayout = new QGridLayout(configInfoBox);
@@ -38,13 +46,20 @@ FlirChameleonConfig::FlirChameleonConfig(QWidget *parent) :
 
 
 void FlirChameleonConfig::updateDeviceIDs() {
+  camIDCombo->clear();
   QList<QString> cameraIds = configBackend->getCameraIDs();
   camIDCombo->addItems(cameraIds);
 }
 
 
-void FlirChameleonConfig::confirmConfigClicked() {
-  camIDInfo->setText(camIDCombo->currentText());
+bool FlirChameleonConfig::confirmConfigClicked() {
+  if (camIDCombo->currentText() != "") {
+    camIDInfo->setText(camIDCombo->currentText());
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 
@@ -60,4 +75,9 @@ void FlirChameleonConfig::savePreset(QSettings *settings) {
 
 CameraInterface* FlirChameleonConfig::getCamera(const QString &cameraName) {
   return new FLIRChameleon(cameraName, camIDInfo->text());
+}
+
+void FlirChameleonConfig::updateCamIDs() {
+    configBackend->updateIDs();
+    updateDeviceIDs();
 }

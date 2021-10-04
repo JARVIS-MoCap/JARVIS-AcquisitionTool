@@ -24,9 +24,10 @@ class FlirChameleonConfig : public CamConfigInterface {
 		explicit FlirChameleonConfig(QWidget *parent = 0);
 
 		QComboBox *camIDCombo;
+		QPushButton *updateCamIDsButton;
 		QLineEdit *camIDInfo;
 
-		void confirmConfigClicked();
+		bool confirmConfigClicked();
 		void loadPreset(QSettings *settings);
 		void savePreset(QSettings *settings);
 		CameraInterface* getCamera(const QString &cameraName);
@@ -34,6 +35,9 @@ class FlirChameleonConfig : public CamConfigInterface {
 	private:
 		FlirConfigBackend *configBackend;
 		void updateDeviceIDs();
+
+	private slots:
+		void updateCamIDs();
 };
 
 #endif

@@ -19,6 +19,8 @@ add_library(${PROJECT_NAME}
     triggerconfiginterface.hpp
     triggertestconfig.hpp
     triggertestconfig.cpp
+    arduinotriggerconfig.hpp
+    arduinotriggerconfig.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -30,5 +32,5 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   Qt5::Widgets
-  src
+  src 
 )

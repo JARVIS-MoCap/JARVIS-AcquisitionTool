@@ -8,12 +8,20 @@
 
 #include "serialinterface.hpp"
 
+QList<QString> SerialInterface::getAvailableDevices() {
+	QList<QSerialPortInfo> serialPortInfos = QSerialPortInfo::availablePorts();
+	QList<QString> deviceNames;
+	for (const auto& port : serialPortInfos) {
+		deviceNames.append(port.description());
+	}
+	return deviceNames;
+}
 
-SerialInterface::SerialInterface() {
-	serial_conn = false;
+
+SerialInterface::SerialInterface(const QString& deviceName) {
 	QList<QSerialPortInfo> serialPortInfos = QSerialPortInfo::availablePorts();
 	for (int i= 0; i <  serialPortInfos.count(); i++) {
-		if (serialPortInfos[i].description() == "0043") {	//"0043" is the identifier used by the Arduino, probably different for other Arduinos
+		if (serialPortInfos[i].description() == deviceName) {	//"0043" is the identifier used by the Arduino, probably different for other Arduinos
 			serialPortName = serialPortInfos[i].portName();
 			std::cout << serialPortName.toStdString() << std::endl;
 			serialPort = new QSerialPort();
@@ -30,11 +38,10 @@ SerialInterface::SerialInterface() {
 			}
 		}
 	}
-	if (!serial_conn) {
-		//QMessageBox connError;
-		//connError.setText("No Device on Serial Port!");
-		//connError.exec();
-	}
+}
+
+SerialInterface::~SerialInterface()  {
+	serialPort->close();
 }
 
 int SerialInterface::write(int val) {
@@ -42,7 +49,6 @@ int SerialInterface::write(int val) {
 	cmd[0] = val >> 8;
 	cmd[1] = val;
 	if (serial_conn) {
-		std::cout << "Setting Trigger:" << val << std::endl;
 		serialPort->write(cmd);
 		serialPort->waitForBytesWritten(1);
 		return 1;

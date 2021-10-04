@@ -26,7 +26,7 @@ class CamTestConfig : public CamConfigInterface {
 		QLineEdit *example1Info;
 		QLineEdit *example2Info;
 
-		void confirmConfigClicked();
+		bool confirmConfigClicked();
 		void loadPreset(QSettings *settings);
 		void savePreset(QSettings *settings);
 		CameraInterface* getCamera(const QString &cameraName);

@@ -14,7 +14,7 @@
 
 
 ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
-	serialInterface = new SerialInterface();
+	//serialInterface = new SerialInterface();
 	settings = new QSettings();
 	QString saveDirSettings = settings->value("recordingSaveFolder").toString();
 	if (saveDirSettings == "") saveDirSettings = "../Savefiles";
@@ -140,7 +140,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 		acquisitionSpecs.record = true; //TODO: not hard code those values
 		acquisitionSpecs.recordingDir = recordingDir;
 		acquisitionSpecs.recorderType =CudaRecorderType;
-		acquisitionSpecs.frameRate = 100;
+		acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
 		acquisitionSpecs.streamingSamplingRatio = 4;
 		m_recordingInfoFile = new QFile(recordingDir.filePath("RecordingInfo.txt"));
 		if (m_recordingInfoFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -165,7 +165,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 			}
 		}
 		emit acquisitionStarted(320); 	//TODO: this is very temporary, this needs to be done by camerainterface
-		serialInterface->write(50);
+		TriggerInterface::triggerInstance->enable();
 	}
 }
 
@@ -173,42 +173,35 @@ void ControlBar::recordClickedSlot(bool toggled) {
 void ControlBar::startClickedSlot(bool toggled) {
 	if (toggled) {
 		AcquisitionSpecs acquisitionSpecs;
-		acquisitionSpecs.frameRate = 100; //TODO: not hard code those values
+		acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
 		acquisitionSpecs.recorderType = CudaRecorderType;
-		acquisitionSpecs.streamingSamplingRatio = 1;
+		acquisitionSpecs.streamingSamplingRatio = 2;
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);
 		recordAction->setEnabled(false);
 		pauseAction->setEnabled(true);
 		stopAction->setEnabled(true);
 		recordingTimer->start(100);
-		QTimer *timer = new QTimer(this);
-		connect(timer, &QTimer::timeout, this, &ControlBar::startTrigger);
-		timer->setSingleShot(true);
-		timer->start(100);
+		emit acquisitionStarted(640); 	//TODO: this is very temporary, this needs to be done by camerainterface
+		TriggerInterface::triggerInstance->enable();
 	}
-}
-
-void ControlBar::startTrigger() {
-	emit acquisitionStarted(640); 	//TODO: this is very temporary, this needs to be done by camerainterface
-	serialInterface->write(20);
 }
 
 
 void ControlBar::pauseClickedSlot(bool toggled) {
 	if (toggled) {
 		recordingTimer->stop();
-		serialInterface->write(0);
+		TriggerInterface::triggerInstance->disable();
 	}
 	else {
 		recordingTimer->start(100);
-		serialInterface->write(50);
+		TriggerInterface::triggerInstance->enable();
 	}
 }
 
 
 void ControlBar::stopClickedSlot() {
-	serialInterface->write(0);
+	TriggerInterface::triggerInstance->disable();
 	emit stopAcquisition();
 	recordAction->setChecked(false);
 	startAction->setChecked(false);

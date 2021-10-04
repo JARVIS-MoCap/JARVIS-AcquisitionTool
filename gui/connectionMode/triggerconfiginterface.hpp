@@ -26,7 +26,7 @@ class TriggerConfigInterface : public QWidget {
 		QGroupBox *configEditBox;
 		QGroupBox *configInfoBox;
 
-		virtual void confirmConfigClicked() = 0;
+		virtual bool confirmConfigClicked() = 0;
 		virtual void loadPreset(QSettings *settings) = 0;
 		virtual void savePreset(QSettings *settings) = 0;
 		virtual TriggerInterface* getTrigger() = 0;

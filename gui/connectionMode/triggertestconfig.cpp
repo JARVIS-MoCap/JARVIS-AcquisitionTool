@@ -42,9 +42,10 @@ TriggerTestConfig::TriggerTestConfig(QWidget *parent) : TriggerConfigInterface(p
 }
 
 
-void TriggerTestConfig::confirmConfigClicked() {
+bool TriggerTestConfig::confirmConfigClicked() {
   example1Info->setText(example1Edit->text());
   example2Info->setText(example2Edit->text());
+  return true;
 }
 
 

@@ -25,6 +25,9 @@ class TriggerInterface : public QObject {
 		settingsObject *triggerSettings() const {return m_triggerSettings;}
 		void setTriggerStatus(const statusType& status) {m_triggerStatus = status;}  //maybe clearTriggerStatus() isntead??
 		statusType triggerStatus() const {return m_triggerStatus;}
+		int getFrameRate() const {return m_frameRate;}
+		virtual void enable() = 0;
+		virtual void disable() = 0;
 
 	signals:
 		void statusUpdated(statusType status, const QString& statusMessage);
@@ -35,6 +38,7 @@ class TriggerInterface : public QObject {
 		rootNode *m_triggerSettingsRootNode;
 		settingsObject *m_triggerSettings;
 		statusType m_triggerStatus = Connecting;
+		int m_frameRate = 100;
 
 	private slots:
 		void statusInitReady() {emit statusUpdated(Ready, "");};

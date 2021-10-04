@@ -10,8 +10,7 @@
 #include "globals.hpp"
 #include "streamingwidget.hpp"
 #include "camerainterface.hpp"
-
-#include "serialinterface.hpp"
+#include "triggerinterface.hpp"
 
 #include <QLabel>
 #include <QLineEdit>
@@ -37,7 +36,7 @@ class ControlBar : public QToolBar {
 		void acquisitionStarted(int width);
 
 	private:
-		SerialInterface *serialInterface;
+		//SerialInterface *serialInterface;
 		QFile *m_recordingInfoFile;
 		QSettings *settings;
 		QDir saveFileDir;
@@ -76,7 +75,6 @@ class ControlBar : public QToolBar {
 
 	private slots:
 		void recordClickedSlot(bool toggled);
-		void startTrigger();
 		void startClickedSlot(bool toggled);
 		void pauseClickedSlot(bool toggled);
 		void stopClickedSlot();

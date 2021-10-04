@@ -14,12 +14,16 @@ add_library(${PROJECT_NAME}
   testcamera.hpp
   testcamera.cpp
   testtrigger.cpp
+  arduinotrigger.hpp
+  arduinotrigger.cpp
   serialinterface.hpp
   serialinterface.cpp
   flirchameleon.hpp
   flirchameleon.cpp
   flirconfigbackend.hpp
   flirconfigbackend.cpp
+  arduinoconfigbackend.hpp
+  arduinoconfigbackend.cpp
 )
 
 target_include_directories( ${PROJECT_NAME}

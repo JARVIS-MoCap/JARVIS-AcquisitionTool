@@ -14,14 +14,16 @@
 
 class SerialInterface {
 	public:
-		SerialInterface();
+		static QList<QString> getAvailableDevices();
+		SerialInterface(const QString& deviceName);
+		~SerialInterface();
 		int write(int val);
 		int send_instruction(int mode, int readwrite, int val1, int val2);
 		int get_answer(int answer[]);
 		int get_answer();
-
-	bool serial_conn;
+		bool isConnected() {return serial_conn;}
 	private:
+		bool serial_conn = false;
 		QString serialPortName;
 		QSerialPort *serialPort;
 };
