@@ -11,6 +11,9 @@
 #include "presetswindow.hpp"
 #include "settingsnode.hpp"
 #include "settingsobject.hpp"
+#include "savecamerapresetsinterface.hpp"
+#include "loadcamerapresetsinterface.hpp"
+
 
 #include <QDockWidget>
 #include <QSplitter>
@@ -19,7 +22,7 @@
 class SettingsWindow : public QDockWidget {
 	Q_OBJECT
 	public:
-		explicit SettingsWindow(QWidget *parent = nullptr, const QString& name = "", settingsObject *activeSettings = nullptr);
+		explicit SettingsWindow(QWidget *parent = nullptr, const QString& name = "", settingsObject *activeSettings = nullptr, const QString &presetType = "default");
 
 	public slots:
 		void setSettingsObjectSlot(settingsObject*);
@@ -34,6 +37,9 @@ class SettingsWindow : public QDockWidget {
 		QList<QString> presets;
 		PresetsWindow *loadPresetsWindow;
 		PresetsWindow *savePresetsWindow;
+		SaveCameraPresetsInterface *saveCameraPresetsWindow;
+		LoadCameraPresetsInterface *loadCameraPresetsWindow;
+
 
 		QSplitter *mainSplitter;
 		QWidget *mainWidget;
@@ -51,11 +57,14 @@ class SettingsWindow : public QDockWidget {
 		QLineEdit *searchEdit;
 
 		settingsObject *m_activeSettings = nullptr;
+		QString m_presetType;
 		void saveSettingsLayer(SettingsNode* node);
 		void loadSettingsLayer(SettingsNode* node);
 
 		int searchRecursive(QTreeWidgetItem * parent, QList<QTreeWidgetItem *> results);
 
+		void savePreset(const QString& preset);
+		void loadPreset(const QString& preset);
 
 	private slots:
 		void searchEditedSlot(const QString& text);
@@ -63,8 +72,6 @@ class SettingsWindow : public QDockWidget {
 		void treeItemActivatedSlot(QTreeWidgetItem* item, int column);
 		void savePresetsClickedSlot();
 		void loadPresetsClickedSlot();
-		void loadPresetSlot(const QString& preset);
-		void savePresetSlot(const QString& preset);
 };
 
 #endif

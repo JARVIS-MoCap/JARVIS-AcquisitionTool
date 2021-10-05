@@ -62,7 +62,6 @@ class CameraInterface : public QObject {
 		bool isStreaming() const {return m_isStreaming;}
 		void setCameraStatus(const statusType& status) {m_cameraStatus = status;} //maybe clearCameraStatus() isntead??
 		statusType cameraStatus() const {return m_cameraStatus;}
-		virtual void loadPreset() = 0;
 
 	public slots:
 		virtual void settingChangedSlot(const QString& name, QList<QString> subMenus,

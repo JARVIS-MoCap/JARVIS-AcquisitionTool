@@ -132,11 +132,6 @@ FLIRChameleon::~FLIRChameleon() {
 	delete (m_cameraSettings);
 }
 
-void FLIRChameleon::loadPreset() {
-	m_pCam->Init();
-	loadPresetRecursive(m_cameraSettingsRootNode);
-	m_pCam->DeInit();
-}
 
 //TODO: make settingsChangedSlot more universion, can't have all those parameters (submenus specifically)
 void FLIRChameleon::settingChangedSlot(const QString& name, QList<QString> subMenus,
@@ -500,32 +495,6 @@ void FLIRChameleon::updateSettings(INodeMap& nodeMap, SettingsNode* parent) {
 		}
 	}
 }
-
-
-void FLIRChameleon::loadPresetRecursive(SettingsNode *node) {
-	for (const auto & child : node->children()) {
-		if (child->type() == SettingsNode::Category) {
-			loadPresetRecursive(child);
-		}
-		else {
-			QList<QString> subMenus;
-			SettingsNode* parentNode = node;
-			while (parentNode->type() != SettingsNode::Root) {
-				subMenus.append(parentNode->name());
-				parentNode = parentNode->parent();
-			}
-			QString val;
-			if (child->type() == SettingsNode::String || child->type() == SettingsNode::Integer || child->type() == SettingsNode::Float)
-				val = static_cast<QLineEdit*>(child->dataField())->text();
-			else if (child->type() == SettingsNode::Enumeration)
-				val = static_cast<QComboBox*>(child->dataField())->currentText();
-			else if (child->type() == SettingsNode::Boolean)
-				val = QString::number(static_cast<QCheckBox*>(child->dataField())->checkState());
-			settingChangedSlot(child->name(), subMenus, child->type(), val, false);
-		}
-	}
-}
-
 
 void FLIRChameleon::streamImageSlot(QImage img) {
 	emit streamImage(img);

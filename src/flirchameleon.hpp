@@ -42,7 +42,6 @@ class FLIRChameleon : public CameraInterface {
 		explicit FLIRChameleon(const QString& cameraName, const QString& serialNumber);
 		~FLIRChameleon();
 		QThread workerThread;
-		void loadPreset();
 
 	public slots:
 		void settingChangedSlot(const QString& name, QList<QString> subMenus, SettingsNode::nodeType type,
@@ -63,7 +62,6 @@ class FLIRChameleon : public CameraInterface {
 
 		int createSettingsTreeFromCam(Spinnaker::GenApi::CNodePtr node, SettingsNode *settingsNode);
 		void updateSettings(Spinnaker::GenApi::INodeMap& nodeMap, SettingsNode *settingsNode);
-		void loadPresetRecursive(SettingsNode *settingsNode);
 
 	private slots:
 		void streamImageSlot(QImage img);

@@ -20,7 +20,7 @@ AcquisitionMode::AcquisitionMode(QMainWindow *parent) : QMainWindow(parent) {
 	this->resizeDocks({camSelector}, {175}, Qt::Vertical);
 
 
-	camSettingsWindow = new SettingsWindow(parent, "Camera Settings");
+	camSettingsWindow = new SettingsWindow(parent, "Camera Settings", nullptr, "cameraSettings");
 	this->addDockWidget(Qt::LeftDockWidgetArea, camSettingsWindow);
 
 	triggerSettingsWindow = new SettingsWindow(parent, "Trigger Settings");
@@ -34,7 +34,7 @@ AcquisitionMode::AcquisitionMode(QMainWindow *parent) : QMainWindow(parent) {
 	//--- SIGNAL-SLOT Connections ---//
 	//-> Incoming Signals
 	connect(camSelector, &CamSelectorWindow::cameraSelected, this, &AcquisitionMode::camSelectedSlot);
-	connect(camSettingsWindow, &SettingsWindow::loadPreset, this, &AcquisitionMode::loadCameraPresetSlot);
+	//connect(camSettingsWindow, &SettingsWindow::loadPreset, this, &AcquisitionMode::loadCameraPresetSlot);
 	connect(controlBar, &ControlBar::openTimeStampWindow, this, &AcquisitionMode::openTimeStampWindowSlot);
 
 	//<- Outgoing Signals
@@ -67,7 +67,7 @@ void AcquisitionMode::triggerInstanceChangedSlot() {
 
 void AcquisitionMode::loadCameraPresetSlot(settingsObject* activeSettings) {
 	CameraInterface *cam = static_cast<CameraInterface*>(activeSettings->parent());
-	cam->loadPreset();
+	//cam->loadPreset();
 }
 
 void AcquisitionMode::openTimeStampWindowSlot() {

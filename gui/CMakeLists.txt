@@ -17,6 +17,12 @@ add_library(${PROJECT_NAME}
 		imageviewer.cpp
 		streamingpanel.cpp
     streamingpanel.hpp
+    savecamerapresetsinterface.hpp
+    loadcamerapresetsinterface.hpp
+    saveflirpresetswindow.hpp
+    saveflirpresetswindow.cpp
+    loadflirpresetswindow.hpp
+    loadflirpresetswindow.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

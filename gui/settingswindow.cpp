@@ -11,16 +11,21 @@
 #include <QCheckBox>
 #include <QMessageBox>
 
+#include "saveflirpresetswindow.hpp"
+#include "loadflirpresetswindow.hpp"
 
-SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObject *activeSettings) :
-      QDockWidget(parent, Qt::Window), m_activeSettings{activeSettings} {
+
+SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObject *activeSettings, const QString &presetType) :
+      QDockWidget(parent, Qt::Window), m_activeSettings{activeSettings}, m_presetType(presetType) {
 	settings = new QSettings();
 	setMinimumSize(325,300);
 	setWindowTitle(name);
-	loadPresetsWindow = new PresetsWindow(&presets, "load", name + "/");
-	savePresetsWindow = new PresetsWindow(&presets, "save", name + "/");
-	connect(loadPresetsWindow, SIGNAL(loadPreset(QString)), this, SLOT(loadPresetSlot(QString)));
-	connect(savePresetsWindow, SIGNAL(savePreset(QString)), this, SLOT(savePresetSlot(QString)));
+  if (m_presetType == "default") {
+    loadPresetsWindow = new PresetsWindow(&presets, "load", name + "/");
+  	savePresetsWindow = new PresetsWindow(&presets, "save", name + "/");
+  	connect(loadPresetsWindow, SIGNAL(loadPreset(QString)), this, SLOT(loadPresetSlot(QString)));
+  	connect(savePresetsWindow, SIGNAL(savePreset(QString)), this, SLOT(savePresetSlot(QString)));
+  }
 	settingsName = name;
 	mainSplitter = new QSplitter(Qt::Vertical, this);
 	mainWidget = new QWidget (mainSplitter);
@@ -197,27 +202,65 @@ void SettingsWindow::treeItemActivatedSlot(QTreeWidgetItem* item, int) {
 
 
 void SettingsWindow::savePresetsClickedSlot() {
-	savePresetsWindow->updateListSlot();
-	savePresetsWindow->show();
+  if (m_presetType == "default") {
+    savePresetsWindow->updateListSlot();
+    savePresetsWindow->show();
+  }
+  else if (m_presetType == "cameraSettings") {
+    if (m_activeSettings != nullptr) {
+      if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
+        saveCameraPresetsWindow = new SaveFlirPresetsWindow();
+      }
+      int dialogCode = saveCameraPresetsWindow->exec();
+      if(dialogCode == QDialog::Accepted) {
+        //savePreset("");
+        std::cout << "Saving Preset" << std::endl;
+      }
+      if(dialogCode == QDialog::Rejected) {
+        std::cout << "Aborting Saving" << std::endl;
+      }
+    }
+  }
 }
 
 
 void SettingsWindow::loadPresetsClickedSlot() {
-	loadPresetsWindow->updateListSlot();
-	loadPresetsWindow->show();
+  if (m_presetType == "default") {
+  	loadPresetsWindow->updateListSlot();
+  	loadPresetsWindow->show();
+  }
+  else if (m_presetType == "cameraSettings") {
+    if (m_activeSettings != nullptr) {
+      if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
+        loadCameraPresetsWindow = new LoadFlirPresetsWindow();
+      }
+      int dialogCode = loadCameraPresetsWindow->exec();
+      if(dialogCode == QDialog::Accepted) {
+        //loadPreset("");
+        std::cout << "Saving Preset" << std::endl;
+      }
+      if(dialogCode == QDialog::Rejected) {
+        std::cout << "Aborting Loading" << std::endl;
+      }
+    }
+  }
 }
 
 
-void SettingsWindow::savePresetSlot(const QString& preset) {
-	settings->beginGroup(preset);
-	settings->setValue("cameraType", m_activeSettings->getRootNode()->name());
-	saveSettingsLayer(m_activeSettings->getRootNode());
-	settings->endGroup();
-
+void SettingsWindow::savePreset(const QString& preset) {
+  if (m_presetType == "default") {
+    settings->beginGroup(preset);
+    settings->setValue("cameraType", m_activeSettings->getRootNode()->name());
+    saveSettingsLayer(m_activeSettings->getRootNode());
+    settings->endGroup();
+  }
+  else if (m_presetType == "cameraSettings") {
+    std::cout << "Call userset stuff here" << std::endl;
+  }
 }
 
 
-void SettingsWindow::loadPresetSlot(const QString& preset) {
+void SettingsWindow::loadPreset(const QString& preset) {
 	settings->beginGroup(preset);
 	if (settings->value("cameraType") != m_activeSettings->getRootNode()->name()) {
 		QMessageBox *wrongCamMsg = new QMessageBox();
