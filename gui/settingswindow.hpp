@@ -18,6 +18,7 @@
 #include <QDockWidget>
 #include <QSplitter>
 #include <QTextEdit>
+#include <QStackedWidget>
 
 class SettingsWindow : public QDockWidget {
 	Q_OBJECT
@@ -44,6 +45,8 @@ class SettingsWindow : public QDockWidget {
 		QSplitter *mainSplitter;
 		QWidget *mainWidget;
 		QToolBar *toolBar;
+		QToolButton *advancedSimpleButton;
+		QAction *advancedSimpleAction;
 		QToolButton *expandButton;
 		QAction *expandAction;
 		QToolButton *savePresetButton;
@@ -56,8 +59,10 @@ class SettingsWindow : public QDockWidget {
 		QToolBar *searchBar;
 		QLineEdit *searchEdit;
 
+		QStackedWidget *advancedSimpleStackWidget;
 		settingsObject *m_activeSettings = nullptr;
 		QString m_presetType;
+
 		void saveSettingsLayer(SettingsNode* node);
 		void loadSettingsLayer(SettingsNode* node);
 
@@ -68,6 +73,7 @@ class SettingsWindow : public QDockWidget {
 
 	private slots:
 		void searchEditedSlot(const QString& text);
+		void advancedSimpleToggledSlot(bool toggle);
 		void expandClickedSlot();
 		void treeItemActivatedSlot(QTreeWidgetItem* item, int column);
 		void savePresetsClickedSlot();

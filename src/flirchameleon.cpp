@@ -7,6 +7,7 @@
 #include "flirchameleon.hpp"
 
 #include <chrono>
+#include <fstream>
 
 #include <QApplication>
 #include <QTreeWidget>
@@ -66,8 +67,6 @@ void FlirWorker::acquireImages() {
 }
 
 
-
-
 FLIRChameleon::FLIRChameleon(const QString& cameraName, const QString& serialNumber)
 			: CameraInterface(flirChameleon, cameraName),
 			  m_serialNumber{serialNumber},
@@ -107,15 +106,6 @@ FLIRChameleon::~FLIRChameleon() {
 
 	ptrUserSetSelector->SetIntValue(ptrUserSet1->GetValue());
 
-	// Save custom settings to User Set 1
-	CCommandPtr ptrUserSetSave = m_pCam->GetNodeMap().GetNode("UserSetSave");
-	if (!IsAvailable(ptrUserSetSave) || !IsWritable(ptrUserSetSave))
-	{
-			std::cout << "Unable to save to User Set. Aborting..." << std::endl << std::endl;
-	}
-
-	ptrUserSetSave->Execute();
-
 	std::cout << "Saved Custom Settings to " << ptrUserSetSelector->GetCurrentEntry()->GetSymbolic() << std::endl;
 
 	// Change default User Set to User Set 1
@@ -132,6 +122,61 @@ FLIRChameleon::~FLIRChameleon() {
 	delete (m_cameraSettings);
 }
 
+
+bool FLIRChameleon::savePreset(const QString& preset) {
+	m_pCam->Init();
+	INodeMap& nodeMap = m_pCam->GetNodeMap();
+	CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
+	if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector)) {
+			std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl;
+			return false;
+	}
+
+	CEnumEntryPtr ptrUserSet = ptrUserSetSelector->GetEntryByName(preset.toStdString().c_str());
+	if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
+			std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl;
+			return false;
+	}
+	ptrUserSetSelector->SetIntValue(ptrUserSet->GetValue());
+
+	CCommandPtr ptrUserSetSave = m_pCam->GetNodeMap().GetNode("UserSetSave");
+	if (!IsAvailable(ptrUserSetSave) || !IsWritable(ptrUserSetSave)){
+			std::cout << "Unable to save to User Set. Aborting..." << std::endl;
+	}
+	ptrUserSetSave->Execute();
+	m_pCam->DeInit();
+	return true;
+}
+
+bool FLIRChameleon::loadPreset(const QString& preset) {
+	m_pCam->Init();
+	INodeMap& nodeMap = m_pCam->GetNodeMap();
+	CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
+	if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector)) {
+			std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl;
+			return false;
+	}
+
+	CEnumEntryPtr ptrUserSet = ptrUserSetSelector->GetEntryByName(preset.toStdString().c_str());
+	if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
+			std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl;
+			return false;
+	}
+	ptrUserSetSelector->SetIntValue(ptrUserSet->GetValue());
+
+	CCommandPtr ptrUserSetLoad = m_pCam->GetNodeMap().GetNode("UserSetLoad");
+	if (!IsAvailable(ptrUserSetLoad) || !IsWritable(ptrUserSetLoad)){
+			std::cout << "Unable to load to User Set. Aborting..." << std::endl;
+	}
+	ptrUserSetLoad->Execute();
+	updateSettings(nodeMap, m_cameraSettings->getRootNode()->children()[0]);
+	m_pCam->DeInit();
+	INodeMap& genTLNodeMap = m_pCam->GetTLDeviceNodeMap();
+	INodeMap& nodeMapTLStream = m_pCam->GetTLStreamNodeMap();
+	updateSettings(genTLNodeMap, m_cameraSettings->getRootNode()->children()[1]);
+	updateSettings(nodeMapTLStream, m_cameraSettings->getRootNode()->children()[2]);
+	return true;
+}
 
 //TODO: make settingsChangedSlot more universion, can't have all those parameters (submenus specifically)
 void FLIRChameleon::settingChangedSlot(const QString& name, QList<QString> subMenus,
@@ -498,4 +543,374 @@ void FLIRChameleon::updateSettings(INodeMap& nodeMap, SettingsNode* parent) {
 
 void FLIRChameleon::streamImageSlot(QImage img) {
 	emit streamImage(img);
+}
+
+
+QString FLIRChameleon::getDefaultUserSet() {
+	m_pCam->Init();
+	INodeMap& nodeMap = m_pCam->GetNodeMap();
+	CEnumerationPtr ptrUserSetDefault = nodeMap.GetNode("UserSetDefault");
+	if (!IsAvailable(ptrUserSetDefault) || !IsReadable(ptrUserSetDefault)) {
+			std::cout << "Unable to access User Set Default(enum retrieval). Aborting..." << std::endl;
+	}
+	QString userSet = QString::fromStdString(ptrUserSetDefault->GetCurrentEntry()->GetSymbolic().c_str());
+	m_pCam->DeInit();
+	return userSet;
+}
+
+
+bool FLIRChameleon::setDefaultUserSet(const QString& userSet) {
+	m_pCam->Init();
+	INodeMap& nodeMap = m_pCam->GetNodeMap();
+	CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
+	if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector)) {
+			std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl;
+	}
+	CEnumEntryPtr ptrUserSet = ptrUserSetSelector->GetEntryByName(userSet.toStdString().c_str());
+	if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
+			std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl;
+			return false;
+	}
+	CEnumerationPtr ptrUserSetDefault = nodeMap.GetNode("UserSetDefault");
+	if (!IsAvailable(ptrUserSetDefault) || !IsWritable(ptrUserSetDefault)) {
+			std::cout << "Unable to access User Set Default(enum retrieval). Aborting..." << std::endl;
+			return false;
+	}
+	ptrUserSetDefault->SetIntValue(ptrUserSet->GetValue());
+	m_pCam->DeInit();
+	return true;
+}
+
+bool FLIRChameleon::saveUserSetToFile(const QString& userSet, const QString& path) {
+	INodeMap& nodeMapTLDevice = m_pCam->GetTLDeviceNodeMap();
+	m_pCam->Init();
+	if (m_pCam->FileSelector == NULL) {
+			std::cout << "File selector not supported on device!";
+			return false;
+	}
+
+	NodeList_t selectorList;
+	m_pCam->FileSelector.GetEntries(selectorList);
+
+	for (unsigned int i = 0; i < selectorList.size(); i++) {
+		CEnumEntryPtr node = selectorList.at(i);
+		if (!node || !IsReadable(node)) {
+				std::cout << node->GetSymbolic() << " not supported!" << std::endl;
+				continue;
+		}
+
+		if (node->GetSymbolic().compare(userSet.toStdString().c_str()) == 0) {
+				m_pCam->FileSelector.SetIntValue((int64_t)node->GetNumericValue());
+				int64_t bytesToRead = m_pCam->FileSize.GetValue();
+				if (bytesToRead == 0) {
+						std::cout << "No data available to read!" << std::endl;
+						continue;
+				}
+
+				if (openFileToRead() != true) {
+						std::cout << "Failed to open file!" << std::endl;
+						continue;
+				}
+
+				if (m_pCam->FileAccessLength.GetValue() < m_pCam->FileAccessBuffer.GetLength()) {
+						try {
+								m_pCam->FileAccessLength.SetValue(m_pCam->FileAccessBuffer.GetLength());
+						}
+						catch (Spinnaker::Exception& e) {
+								std::cout << "Unable to set FileAccessLength to FileAccessBuffer length : " << e.what() << std::endl;
+						}
+				}
+				m_pCam->FileAccessOffset.SetValue(0);
+
+				int64_t intermediateBufferSize = m_pCam->FileAccessLength.GetValue();
+				int64_t iterations = (bytesToRead / intermediateBufferSize) + (bytesToRead % intermediateBufferSize == 0 ? 0 : 1);
+
+				int64_t index = 0;
+				int64_t totalSizeRead = 0;
+				std::unique_ptr<unsigned char> dataBuffer(new unsigned char[static_cast<unsigned int>(bytesToRead)]);
+				unsigned char* pData = dataBuffer.get();
+
+				for (unsigned int i = 0; i < iterations; i++) {
+						if (!executeReadCommand()) {
+								std::cout << "Reading stream failed!" << std::endl;
+								break;
+						}
+						int64_t sizeRead = m_pCam->FileOperationResult.GetValue();
+						m_pCam->FileAccessBuffer.Get(&pData[index], sizeRead);
+						index = index + sizeRead;
+
+						totalSizeRead += sizeRead;
+				}
+
+				if (!closeFile()) {
+						std::cout << "Failed to close file!" << std::endl;
+				}
+
+				std::ofstream myfile;
+				myfile.open(path.toStdString());
+				myfile.write(reinterpret_cast<char*>(pData), totalSizeRead);
+				myfile.close();
+				m_pCam->DeInit();
+				return true;
+		}
+	}
+	return false;
+}
+
+
+bool FLIRChameleon::loadUserSetFromFile(const QString& userSet, const QString& path) {
+	INodeMap& nodeMapTLDevice = m_pCam->GetTLDeviceNodeMap();
+	m_pCam->Init();
+	INodeMap& nodeMap = m_pCam->GetNodeMap();
+
+	if (m_pCam->FileSelector == NULL) {
+			std::cout << "File selector not supported on device!" << std::endl;
+			return false;
+	}
+
+	NodeList_t selectorList;
+	m_pCam->FileSelector.GetEntries(selectorList);
+
+	for (unsigned int i = 0; i < selectorList.size(); i++)
+	{
+			CEnumEntryPtr node = selectorList.at(i);
+
+			if (!node || !IsReadable(node)) {
+					std::cout << node->GetSymbolic() << " not supported!" << std::endl;
+					continue;
+			}
+
+			if (node->GetSymbolic().compare(userSet.toStdString().c_str()) == 0)
+			{
+					m_pCam->FileSelector.SetIntValue((int64_t)node->GetNumericValue());
+					if (m_pCam->FileSize.GetValue() > 0) {
+							if (executeDeleteCommand() != true) {
+									std::cout << "Failed to delete file!" << std::endl;
+									continue;
+							}
+					}
+
+					if (openFileToWrite() != true) {
+							std::cout << "Failed to open file!" << std::endl;
+							if (!closeFile()) {
+								std::cout << "Problem opening file node." << std::endl;
+									return false;
+							}
+							if (!openFileToWrite())
+							{
+									std::cout << "Problem opening file node." << std::endl;
+									return false;
+							}
+					}
+
+					if (m_pCam->FileAccessLength.GetValue() < m_pCam->FileAccessBuffer.GetLength()) {
+							try {
+									m_pCam->FileAccessLength.SetValue(m_pCam->FileAccessBuffer.GetLength());
+							}
+							catch (Spinnaker::Exception& e) {
+									std::cout << "Unable to set FileAccessLength to FileAccessBuffer length : " << e.what() << std::endl;
+							}
+					}
+					m_pCam->FileAccessOffset.SetValue(0);
+					unsigned char pData[5000];
+
+					std::ifstream infile(path.toStdString());
+					infile.seekg(0, std::ios::end);
+					size_t length = infile.tellg();
+					infile.seekg(0, std::ios::beg);
+					if (length > sizeof (pData))
+					{
+							length = sizeof (pData);
+					}
+					infile.read(reinterpret_cast<char*>(pData), length);
+
+					int64_t totalBytesToWrite = length;
+					int64_t intermediateBufferSize = m_pCam->FileAccessLength.GetValue();
+					int64_t writeIterations = (totalBytesToWrite / intermediateBufferSize) +
+																		(totalBytesToWrite % intermediateBufferSize == 0 ? 0 : 1);
+
+					if (totalBytesToWrite == 0) {
+							std::cout << "Empty Image. No data will be written to camera." << std::endl;
+							return false;
+					}
+
+					int64_t index = 0;
+					int64_t bytesLeftToWrite = totalBytesToWrite;
+					int64_t totalBytesWritten = 0;
+					bool paddingRequired = false;
+					int numPaddings = 0;
+
+					for (unsigned int i = 0; i < writeIterations; i++)
+					{
+							if (intermediateBufferSize > bytesLeftToWrite) {
+									unsigned int remainder = bytesLeftToWrite % 4;
+									if (remainder != 0)	{
+											paddingRequired = true;
+											numPaddings = 4 - remainder;
+									}
+							}
+
+							int64_t tmpBufferSize = intermediateBufferSize <= bytesLeftToWrite
+																					? intermediateBufferSize
+																					: (bytesLeftToWrite + numPaddings);
+							std::unique_ptr<unsigned char> tmpBuffer(
+									new unsigned char[static_cast<unsigned int>(tmpBufferSize)]);
+							memcpy(
+									tmpBuffer.get(),
+									&pData[index],
+									static_cast<unsigned int>(
+											(intermediateBufferSize <= bytesLeftToWrite) ? intermediateBufferSize : bytesLeftToWrite));
+
+							if (paddingRequired) {
+									for (int j = 0; j < numPaddings; j++) {
+											unsigned char* pTmpBuffer = tmpBuffer.get();
+											pTmpBuffer[bytesLeftToWrite + j] = 255;
+									}
+							}
+
+							// Update index for next write iteration
+							index = index +
+											(intermediateBufferSize <= bytesLeftToWrite ? intermediateBufferSize : bytesLeftToWrite);
+
+							m_pCam->FileAccessBuffer.Set(tmpBuffer.get(), tmpBufferSize);
+
+							if (intermediateBufferSize > bytesLeftToWrite) {
+									// Update FileAccessLength node appropriately to prevent garbage data outside the range of
+									// the uploaded file to be written to the camera
+									m_pCam->FileAccessLength.SetValue(bytesLeftToWrite);
+							}
+
+							// Perform Write command
+							if (!executeWriteCommand())
+							{
+									std::cout << "Writing to stream failed!" << std::endl;
+									break;
+							}
+
+							int64_t sizeWritten = m_pCam->FileOperationResult.GetValue();
+
+							totalBytesWritten += sizeWritten;
+							bytesLeftToWrite = totalBytesToWrite - totalBytesWritten;
+					}
+					if (!closeFile())
+					{
+							std::cout << "Failed to close file!" << std::endl;
+					}
+			}
+	}
+	m_pCam->DeInit();
+}
+
+
+bool FLIRChameleon::openFileToRead() {
+  bool result = true;
+  std::cout << "Opening file for reading..." << std::endl;
+  try {
+      m_pCam->FileOperationSelector.SetValue(FileOperationSelector_Open);
+      m_pCam->FileOpenMode.SetValue(FileOpenMode_Read);
+      m_pCam->FileOperationExecute.Execute();
+      if (m_pCam->FileOperationStatus.GetValue() != FileOperationStatus_Success) {
+          std::cout << "Failed to open file for reading!" << std::endl;
+          return false;
+      }
+  }
+  catch (Spinnaker::Exception& e) {
+      std::cout << "Unexpected exception : " << e.what() << std::endl;
+      result = false;
+  }
+  return result;
+}
+
+
+bool FLIRChameleon::openFileToWrite() {
+    bool result = true;
+    try {
+        m_pCam->FileOperationSelector.SetValue(FileOperationSelector_Open);
+        m_pCam->FileOpenMode.SetValue(FileOpenMode_Write);
+        m_pCam->FileOperationExecute.Execute();
+
+        if (m_pCam->FileOperationStatus.GetValue() != FileOperationStatus_Success) {
+            std::cout << "Failed to open file for writing!" << std::endl;
+            return false;
+        }
+    }
+    catch (Spinnaker::Exception& e)
+    {
+        std::cout << "Unexpected exception : " << e.what() << std::endl;
+        result = false;
+    }
+    return result;
+}
+
+
+bool FLIRChameleon::closeFile() {
+  bool result = true;
+  try {
+      m_pCam->FileOperationSelector.SetValue(FileOperationSelector_Close);
+      m_pCam->FileOperationExecute.Execute();
+
+      if (m_pCam->FileOperationStatus.GetValue() != FileOperationStatus_Success) {
+          std::cout << "Failed to close file!" << std::endl;
+          return false;
+      }
+  }
+  catch (Spinnaker::Exception& e) {
+      std::cout << "Unexpected exception : " << e.what() << std::endl;
+      result = false;
+  }
+}
+
+bool FLIRChameleon::executeReadCommand() {
+  bool result = true;
+  try {
+      m_pCam->FileOperationSelector.SetValue(FileOperationSelector_Read);
+      m_pCam->FileOperationExecute.Execute();
+      if (m_pCam->FileOperationStatus.GetValue() != FileOperationStatus_Success) {
+          std::cout << "Failed to read file!" << std::endl;
+          return false;
+      }
+  }
+  catch (Spinnaker::Exception& e) {
+      std::cout << "Unexpected exception : " << e.what() << std::endl;
+      result = false;
+  }
+  return result;
+}
+
+
+bool FLIRChameleon::executeWriteCommand() {
+    bool result = true;
+    try {
+        m_pCam->FileOperationSelector.SetValue(FileOperationSelector_Write);
+        m_pCam->FileOperationExecute.Execute();
+        if (m_pCam->FileOperationStatus.GetValue() != FileOperationStatus_Success) {
+            std::cout << "Failed to write to file!" << std::endl;
+            return false;
+        }
+    }
+    catch (Spinnaker::Exception& e)
+    {
+        std::cout << "Unexpected exception : " << e.what() << std::endl;
+        result = false;
+    }
+    return result;
+}
+
+
+bool FLIRChameleon::executeDeleteCommand() {
+    bool result = true;
+    try {
+        m_pCam->FileOperationSelector.SetValue(FileOperationSelector_Delete);
+        m_pCam->FileOperationExecute.Execute();
+
+        if (m_pCam->FileOperationStatus.GetValue() != FileOperationStatus_Success) {
+            std::cout << "Failed to delete file!" << std::endl;
+            return false;
+        }
+    }
+    catch (Spinnaker::Exception& e) {
+        std::cout << "Unexpected exception : " << e.what() << std::endl;
+        result = false;
+    }
+    return result;
 }

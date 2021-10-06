@@ -42,6 +42,12 @@ class FLIRChameleon : public CameraInterface {
 		explicit FLIRChameleon(const QString& cameraName, const QString& serialNumber);
 		~FLIRChameleon();
 		QThread workerThread;
+		bool savePreset(const QString& preset);
+		bool loadPreset(const QString& preset);
+		bool saveUserSetToFile(const QString& userSet, const QString& path);
+		bool loadUserSetFromFile(const QString& userSet, const QString& path);
+		QString getDefaultUserSet();
+		bool setDefaultUserSet(const QString &userSet);
 
 	public slots:
 		void settingChangedSlot(const QString& name, QList<QString> subMenus, SettingsNode::nodeType type,
@@ -50,6 +56,7 @@ class FLIRChameleon : public CameraInterface {
 		void stopAcquisitionSlot();
 		void pauseSlot() {}
 		void continueSlot() {}
+
 
 	signals:
 		void startAcquisition();
@@ -62,6 +69,13 @@ class FLIRChameleon : public CameraInterface {
 
 		int createSettingsTreeFromCam(Spinnaker::GenApi::CNodePtr node, SettingsNode *settingsNode);
 		void updateSettings(Spinnaker::GenApi::INodeMap& nodeMap, SettingsNode *settingsNode);
+
+		bool openFileToRead();
+		bool openFileToWrite();
+		bool closeFile();
+		bool executeReadCommand();
+		bool executeWriteCommand();
+		bool executeDeleteCommand();
 
 	private slots:
 		void streamImageSlot(QImage img);

@@ -27,6 +27,7 @@ class SaveCameraPresetsInterface : public QDialog {
 
 	public:
 		explicit SaveCameraPresetsInterface(QWidget *parent = nullptr) {};
+		virtual QString getActivePreset() = 0;
 
 	signals:
 

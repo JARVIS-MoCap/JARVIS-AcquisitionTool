@@ -32,7 +32,8 @@ class TestCamera : public CameraInterface {
 		explicit TestCamera(QString cameraName, const QString& example1 = "", const QString& example2 = "");
 		~TestCamera();
 		QThread workerThread;
-		void loadPreset() {};
+		bool savePreset(const QString&) {}
+		bool loadPreset(const QString&) {};
 
 	public slots:
 		void settingChangedSlot(const QString& name, QList<QString> subMenus,SettingsNode::nodeType type,

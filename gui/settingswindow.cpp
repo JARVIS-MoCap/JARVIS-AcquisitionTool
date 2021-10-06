@@ -5,14 +5,15 @@
  *------------------------------------------------------------*/
 
 #include "settingswindow.hpp"
+#include "saveflirpresetswindow.hpp"
+#include "loadflirpresetswindow.hpp"
+#include "camerainterface.hpp"
 
 #include <QLineEdit>
 #include <QComboBox>
 #include <QCheckBox>
 #include <QMessageBox>
-
-#include "saveflirpresetswindow.hpp"
-#include "loadflirpresetswindow.hpp"
+#include <QGroupBox>
 
 
 SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObject *activeSettings, const QString &presetType) :
@@ -40,6 +41,11 @@ SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObj
 	settingsLabel->setFont(fonts["bold"]);
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  advancedSimpleButton = new QToolButton(this);
+  advancedSimpleAction = new QAction(this);
+  createToolBarButton(advancedSimpleButton, advancedSimpleAction, QIcon::fromTheme("show"), true,
+        true, QSize(35,35));
+  connect(advancedSimpleAction, &QAction::toggled, this, &SettingsWindow::advancedSimpleToggledSlot);
 	expandButton = new QToolButton(this);
 	expandAction = new QAction(this);
 	createToolBarButton(expandButton, expandAction, QIcon::fromTheme("plusminus"), true,
@@ -57,6 +63,7 @@ SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObj
 	connect(loadPresetAction, &QAction::triggered, this, &SettingsWindow::loadPresetsClickedSlot);
 	toolBar->addWidget(settingsLabel);
 	toolBar->addWidget(spacer);
+  toolBar->addWidget(advancedSimpleButton);
 	toolBar->addWidget(expandButton);
 	toolBar->addWidget(savePresetButton);
 	toolBar->addWidget(loadPresetButton);
@@ -76,6 +83,15 @@ SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObj
 	searchBar->addWidget(searchLabel);
 	searchBar->addWidget(searchEdit);
 
+  QGroupBox *simpleBox = new QGroupBox();
+  simpleBox->setStyleSheet("QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
+  QGridLayout *simplelayout = new QGridLayout(simpleBox);
+  QLabel *testLabel = new QLabel("Test");
+  simplelayout->addWidget(testLabel,0,0);
+  advancedSimpleStackWidget = new QStackedWidget(this);
+  advancedSimpleStackWidget->addWidget(simpleBox);
+
+
 	QWidget *toolTipWidget = new QWidget(mainSplitter);
 	QGridLayout *tooltiplayout = new QGridLayout(toolTipWidget);
 	toolTipBox = new QTextEdit(mainSplitter);
@@ -88,14 +104,18 @@ SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObj
 	mainSplitter->setSizes({1000,0});
 	setSettingsObjectSlot(m_activeSettings);
 	layout->setMenuBar(searchBar);
-	layout->addWidget(m_activeSettings->settingsTree(),0,0);
+  searchBar->hide();
+	layout->addWidget(advancedSimpleStackWidget,0,0);
 }
 
 
 void SettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
+  if (m_activeSettings != nullptr) {
+    advancedSimpleStackWidget->removeWidget(m_activeSettings->settingsTree());
+  }
 	toolTipBox->setText("");
 	if (newSettings == nullptr) {
-		mainSplitter->setSizes({1000,0});
+		//mainSplitter->setSizes({1000,100});
 		savePresetAction->setEnabled(false);
 		loadPresetAction->setEnabled(false);
 		m_activeSettings = new settingsObject();
@@ -106,19 +126,30 @@ void SettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
 		m_activeSettings->settingsTree()->setHeaderLabels(ColumnNames);
 	}
 	else {
-		mainSplitter->setSizes({1000,100});
-		m_activeSettings->settingsTree()->hide();
+    std::cout << "setSettingsObjectSlot" << std::endl;
+		//mainSplitter->setSizes({1000,100});
 		m_activeSettings = newSettings;
 		m_activeSettings->setSettingsTree(newSettings->settingsTree());
 		savePresetAction->setEnabled(true);
 		loadPresetAction->setEnabled(true);
 		connect(m_activeSettings->settingsTree(), SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(treeItemActivatedSlot(QTreeWidgetItem*, int)));
 	}
-	layout->addWidget(m_activeSettings->settingsTree(),0,0);
-	m_activeSettings->settingsTree()->show();
-	m_activeSettings->settingsTree()->raise();
+  advancedSimpleStackWidget->addWidget(m_activeSettings->settingsTree());
 }
 
+
+void SettingsWindow::advancedSimpleToggledSlot(bool toggle) {
+  if (toggle) {
+    advancedSimpleStackWidget->setCurrentIndex(1);
+    searchBar->show();
+  	mainSplitter->setSizes({1000,100});
+  }
+  else {
+    advancedSimpleStackWidget->setCurrentIndex(0);
+    searchBar->hide();
+  	mainSplitter->setSizes({1000,0});
+  }
+}
 
 void SettingsWindow::saveSettingsLayer(SettingsNode* node) {
 	for (const auto& child : node->children()) {
@@ -209,16 +240,10 @@ void SettingsWindow::savePresetsClickedSlot() {
   else if (m_presetType == "cameraSettings") {
     if (m_activeSettings != nullptr) {
       if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
-        saveCameraPresetsWindow = new SaveFlirPresetsWindow();
+        FLIRChameleon *cam = static_cast<FLIRChameleon*>(m_activeSettings->parent());
+        saveCameraPresetsWindow = new SaveFlirPresetsWindow(cam);
       }
-      int dialogCode = saveCameraPresetsWindow->exec();
-      if(dialogCode == QDialog::Accepted) {
-        //savePreset("");
-        std::cout << "Saving Preset" << std::endl;
-      }
-      if(dialogCode == QDialog::Rejected) {
-        std::cout << "Aborting Saving" << std::endl;
-      }
+      saveCameraPresetsWindow->show();
     }
   }
 }
@@ -232,16 +257,10 @@ void SettingsWindow::loadPresetsClickedSlot() {
   else if (m_presetType == "cameraSettings") {
     if (m_activeSettings != nullptr) {
       if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
-        loadCameraPresetsWindow = new LoadFlirPresetsWindow();
+        FLIRChameleon *cam = static_cast<FLIRChameleon*>(m_activeSettings->parent());
+        loadCameraPresetsWindow = new LoadFlirPresetsWindow(cam);
       }
-      int dialogCode = loadCameraPresetsWindow->exec();
-      if(dialogCode == QDialog::Accepted) {
-        //loadPreset("");
-        std::cout << "Saving Preset" << std::endl;
-      }
-      if(dialogCode == QDialog::Rejected) {
-        std::cout << "Aborting Loading" << std::endl;
-      }
+      loadCameraPresetsWindow->exec();
     }
   }
 }
@@ -255,7 +274,10 @@ void SettingsWindow::savePreset(const QString& preset) {
     settings->endGroup();
   }
   else if (m_presetType == "cameraSettings") {
-    std::cout << "Call userset stuff here" << std::endl;
+    if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
+      //CameraInterface *cam = static_cast<CameraInterface*>(m_activeSettings->parent());
+      //cam->savePreset(preset);
+    }
   }
 }
 
