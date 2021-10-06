@@ -12,9 +12,9 @@
 #include "triggerinterface.hpp"
 #include "controlbar.hpp"
 #include "streamingwidget.hpp"
-#include "settingswindow.hpp"
+#include "camerasettingswindow.hpp"
+#include "triggersettingswindow.hpp"
 #include "camselectorwindow.hpp"
-#include "timestampwindow.hpp"
 
 #include <QMainWindow>
 
@@ -26,7 +26,6 @@ class AcquisitionMode : public QMainWindow {
 	public slots:
 		void camSelectedSlot(CameraInterface * cam);
 		void triggerInstanceChangedSlot();
-		void openTimeStampWindowSlot();
 
 
 	signals:
@@ -38,10 +37,9 @@ class AcquisitionMode : public QMainWindow {
 		CamSelectorWindow *camSelector;
 		StreamingWidget *streamingWidget;
 		ControlBar *controlBar;
-		SettingsWindow *camSettingsWindow;
-		SettingsWindow *triggerSettingsWindow;
-		SettingsWindow *streamingSettingsWindow;
-		TimeStampWindow *timeStampWindow;
+		CameraSettingsWindow *camSettingsWindow;
+		TriggerSettingsWindow *triggerSettingsWindow;
+		//SettingsWindow *streamingSettingsWindow;
 
 	private slots:
 		void loadCameraPresetSlot(settingsObject* activeSettings);

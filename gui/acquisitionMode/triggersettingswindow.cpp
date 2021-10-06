@@ -1,13 +1,14 @@
 /*------------------------------------------------------------
- *  settingswinow.cpp
+ *  triggersettingswinow.cpp
  *  Created: 23. October 2020
  *  Author:   Timo Hüser
  *------------------------------------------------------------*/
 
-#include "settingswindow.hpp"
+#include "triggersettingswindow.hpp"
 #include "saveflirpresetswindow.hpp"
 #include "loadflirpresetswindow.hpp"
 #include "camerainterface.hpp"
+#include "labelwithtooltip.hpp"
 
 #include <QLineEdit>
 #include <QComboBox>
@@ -16,17 +17,15 @@
 #include <QGroupBox>
 
 
-SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObject *activeSettings, const QString &presetType) :
-      QDockWidget(parent, Qt::Window), m_activeSettings{activeSettings}, m_presetType(presetType) {
+TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, const QString& name, settingsObject *activeSettings) :
+      QDockWidget(parent, Qt::Window), m_activeSettings(activeSettings) {
 	settings = new QSettings();
 	setMinimumSize(325,300);
 	setWindowTitle(name);
-  if (m_presetType == "default") {
-    loadPresetsWindow = new PresetsWindow(&presets, "load", name + "/");
-  	savePresetsWindow = new PresetsWindow(&presets, "save", name + "/");
-  	connect(loadPresetsWindow, SIGNAL(loadPreset(QString)), this, SLOT(loadPresetSlot(QString)));
-  	connect(savePresetsWindow, SIGNAL(savePreset(QString)), this, SLOT(savePresetSlot(QString)));
-  }
+  loadPresetsWindow = new PresetsWindow(&presets, "load", name + "/");
+	savePresetsWindow = new PresetsWindow(&presets, "save", name + "/");
+	connect(loadPresetsWindow, SIGNAL(loadPreset(QString)), this, SLOT(loadPresetSlot(QString)));
+	connect(savePresetsWindow, SIGNAL(savePreset(QString)), this, SLOT(savePresetSlot(QString)));
 	settingsName = name;
 	mainSplitter = new QSplitter(Qt::Vertical, this);
 	mainWidget = new QWidget (mainSplitter);
@@ -45,22 +44,22 @@ SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObj
   advancedSimpleAction = new QAction(this);
   createToolBarButton(advancedSimpleButton, advancedSimpleAction, QIcon::fromTheme("show"), true,
         true, QSize(35,35));
-  connect(advancedSimpleAction, &QAction::toggled, this, &SettingsWindow::advancedSimpleToggledSlot);
+  connect(advancedSimpleAction, &QAction::toggled, this, &TriggerSettingsWindow::advancedSimpleToggledSlot);
 	expandButton = new QToolButton(this);
 	expandAction = new QAction(this);
 	createToolBarButton(expandButton, expandAction, QIcon::fromTheme("plusminus"), true,
 				false, QSize(35,35));
-	connect(expandAction, &QAction::triggered, this, &SettingsWindow::expandClickedSlot);
+	connect(expandAction, &QAction::triggered, this, &TriggerSettingsWindow::expandClickedSlot);
 	savePresetButton = new QToolButton(this);
 	savePresetAction = new QAction(this);
 	createToolBarButton(savePresetButton, savePresetAction, QIcon::fromTheme("upload"), true,
 				false, QSize(35,35));
-	connect(savePresetAction, &QAction::triggered, this, &SettingsWindow::savePresetsClickedSlot);
+	connect(savePresetAction, &QAction::triggered, this, &TriggerSettingsWindow::savePresetsClickedSlot);
 	loadPresetButton = new QToolButton(this);
 	loadPresetAction = new QAction(this);
 	createToolBarButton(loadPresetButton, loadPresetAction, QIcon::fromTheme("download"), true,
 				false, QSize(35,35));
-	connect(loadPresetAction, &QAction::triggered, this, &SettingsWindow::loadPresetsClickedSlot);
+	connect(loadPresetAction, &QAction::triggered, this, &TriggerSettingsWindow::loadPresetsClickedSlot);
 	toolBar->addWidget(settingsLabel);
 	toolBar->addWidget(spacer);
   toolBar->addWidget(advancedSimpleButton);
@@ -86,8 +85,16 @@ SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObj
   QGroupBox *simpleBox = new QGroupBox();
   simpleBox->setStyleSheet("QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
   QGridLayout *simplelayout = new QGridLayout(simpleBox);
-  QLabel *testLabel = new QLabel("Test");
-  simplelayout->addWidget(testLabel,0,0);
+  LabelWithToolTip *frameRateLabel = new LabelWithToolTip("  FrameRate");
+  frameRateEdit = new QSpinBox(this);
+  frameRateEdit->setRange(0,100);
+
+  QWidget *bottomSpacer = new QWidget(simpleBox);
+  bottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  simplelayout->addWidget(frameRateLabel,0,0);
+  simplelayout->addWidget(frameRateEdit,0,1);
+  simplelayout->addWidget(bottomSpacer,1,0,1,2);
+
   advancedSimpleStackWidget = new QStackedWidget(this);
   advancedSimpleStackWidget->addWidget(simpleBox);
 
@@ -109,13 +116,12 @@ SettingsWindow::SettingsWindow(QWidget *parent, const QString& name, settingsObj
 }
 
 
-void SettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
+void TriggerSettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
   if (m_activeSettings != nullptr) {
     advancedSimpleStackWidget->removeWidget(m_activeSettings->settingsTree());
   }
 	toolTipBox->setText("");
 	if (newSettings == nullptr) {
-		//mainSplitter->setSizes({1000,100});
 		savePresetAction->setEnabled(false);
 		loadPresetAction->setEnabled(false);
 		m_activeSettings = new settingsObject();
@@ -126,8 +132,6 @@ void SettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
 		m_activeSettings->settingsTree()->setHeaderLabels(ColumnNames);
 	}
 	else {
-    std::cout << "setSettingsObjectSlot" << std::endl;
-		//mainSplitter->setSizes({1000,100});
 		m_activeSettings = newSettings;
 		m_activeSettings->setSettingsTree(newSettings->settingsTree());
 		savePresetAction->setEnabled(true);
@@ -138,7 +142,7 @@ void SettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
 }
 
 
-void SettingsWindow::advancedSimpleToggledSlot(bool toggle) {
+void TriggerSettingsWindow::advancedSimpleToggledSlot(bool toggle) {
   if (toggle) {
     advancedSimpleStackWidget->setCurrentIndex(1);
     searchBar->show();
@@ -151,7 +155,7 @@ void SettingsWindow::advancedSimpleToggledSlot(bool toggle) {
   }
 }
 
-void SettingsWindow::saveSettingsLayer(SettingsNode* node) {
+void TriggerSettingsWindow::saveSettingsLayer(SettingsNode* node) {
 	for (const auto& child : node->children()) {
 			SettingsNode::nodeType type = child->type();
 			if (type == SettingsNode::String || type == SettingsNode::Integer || type == SettingsNode::Float) {
@@ -168,7 +172,7 @@ void SettingsWindow::saveSettingsLayer(SettingsNode* node) {
 }
 
 
-void SettingsWindow::loadSettingsLayer(SettingsNode* node) {
+void TriggerSettingsWindow::loadSettingsLayer(SettingsNode* node) {
 	for (const auto& child : node->children()) {
 		SettingsNode::nodeType type = child->type();
 		if (type == SettingsNode::String || type == SettingsNode::Integer || type == SettingsNode::Float) {
@@ -190,7 +194,7 @@ void SettingsWindow::loadSettingsLayer(SettingsNode* node) {
 }
 
 
-int SettingsWindow::searchRecursive(QTreeWidgetItem *parent, QList<QTreeWidgetItem *> results) {
+int TriggerSettingsWindow::searchRecursive(QTreeWidgetItem *parent, QList<QTreeWidgetItem *> results) {
 	int count = 0;
 	for  (int j = 0; j < parent->childCount(); j++) {
 		QTreeWidgetItem *child = parent->child(j);
@@ -204,7 +208,7 @@ int SettingsWindow::searchRecursive(QTreeWidgetItem *parent, QList<QTreeWidgetIt
 }
 
 
-void SettingsWindow::searchEditedSlot(const QString& text) {
+void TriggerSettingsWindow::searchEditedSlot(const QString& text) {
 	QList<QTreeWidgetItem *>  results = m_activeSettings->settingsTree()->findItems(text, Qt::MatchContains | Qt::MatchRecursive);
 	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount(); i++ ) {
 		QTreeWidgetItem *item = m_activeSettings->settingsTree()->topLevelItem(i);
@@ -213,7 +217,7 @@ void SettingsWindow::searchEditedSlot(const QString& text) {
 }
 
 
-void SettingsWindow::expandClickedSlot() {
+void TriggerSettingsWindow::expandClickedSlot() {
 	int expandedCount = 0;
 	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount(); i++ ) {
 		QTreeWidgetItem *item = m_activeSettings->settingsTree()->topLevelItem(i);
@@ -226,67 +230,37 @@ void SettingsWindow::expandClickedSlot() {
 }
 
 
-void SettingsWindow::treeItemActivatedSlot(QTreeWidgetItem* item, int) {
+void TriggerSettingsWindow::treeItemActivatedSlot(QTreeWidgetItem* item, int) {
 	SettingsNode* node = m_activeSettings->findNode(item->text(0));
 	if (node != nullptr) toolTipBox->setText(node->description());
 }
 
 
-void SettingsWindow::savePresetsClickedSlot() {
-  if (m_presetType == "default") {
-    savePresetsWindow->updateListSlot();
-    savePresetsWindow->show();
-  }
-  else if (m_presetType == "cameraSettings") {
-    if (m_activeSettings != nullptr) {
-      if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
-        FLIRChameleon *cam = static_cast<FLIRChameleon*>(m_activeSettings->parent());
-        saveCameraPresetsWindow = new SaveFlirPresetsWindow(cam);
-      }
-      saveCameraPresetsWindow->show();
-    }
-  }
+void TriggerSettingsWindow::savePresetsClickedSlot() {
+  savePresetsWindow->updateListSlot();
+  savePresetsWindow->show();
 }
 
 
-void SettingsWindow::loadPresetsClickedSlot() {
-  if (m_presetType == "default") {
-  	loadPresetsWindow->updateListSlot();
-  	loadPresetsWindow->show();
-  }
-  else if (m_presetType == "cameraSettings") {
-    if (m_activeSettings != nullptr) {
-      if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
-        FLIRChameleon *cam = static_cast<FLIRChameleon*>(m_activeSettings->parent());
-        loadCameraPresetsWindow = new LoadFlirPresetsWindow(cam);
-      }
-      loadCameraPresetsWindow->exec();
-    }
-  }
+void TriggerSettingsWindow::loadPresetsClickedSlot() {
+	loadPresetsWindow->updateListSlot();
+	loadPresetsWindow->show();
 }
 
 
-void SettingsWindow::savePreset(const QString& preset) {
-  if (m_presetType == "default") {
-    settings->beginGroup(preset);
-    settings->setValue("cameraType", m_activeSettings->getRootNode()->name());
-    saveSettingsLayer(m_activeSettings->getRootNode());
-    settings->endGroup();
-  }
-  else if (m_presetType == "cameraSettings") {
-    if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
-      //CameraInterface *cam = static_cast<CameraInterface*>(m_activeSettings->parent());
-      //cam->savePreset(preset);
-    }
-  }
+void TriggerSettingsWindow::savePresetSlot(const QString& preset) {
+  settings->beginGroup(preset);
+  settings->setValue("triggerType", m_activeSettings->getRootNode()->name());
+  saveSettingsLayer(m_activeSettings->getRootNode());
+  settings->endGroup();
 }
 
 
-void SettingsWindow::loadPreset(const QString& preset) {
+void TriggerSettingsWindow::loadPresetSlot(const QString& preset) {
 	settings->beginGroup(preset);
-	if (settings->value("cameraType") != m_activeSettings->getRootNode()->name()) {
+	if (settings->value("triggerType") != m_activeSettings->getRootNode()->name()) {
 		QMessageBox *wrongCamMsg = new QMessageBox();
-		wrongCamMsg->setText("Preset for wrong camera type!");
+		wrongCamMsg->setText("Preset for wrong trigger type!");
 		wrongCamMsg->show();
 		settings->endGroup();
 		return;

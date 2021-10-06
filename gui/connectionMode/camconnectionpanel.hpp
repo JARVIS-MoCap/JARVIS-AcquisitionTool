@@ -36,29 +36,31 @@ class CamConnectionPanel : public QFrame {
 		//InfoMode
 		QLineEdit *infoToolBarLabel;
 
-private:
-	//AddMode
-	QPushButton *addButton;
-	//ConfigureMode
-	QWidget *camConfigureContainer;
-	QToolBar *configToolBar;
-	QToolButton *confirmButton;
-	QAction *confirmAction;
-	QToolButton *exitButton;
-	QAction *exitAction;
-	QWidget *camConfigureWidget;
-	QGridLayout *camconfigurelayout;
-	QLineEdit *camNameEdit;
-	//InfoMode
-	QWidget *camInfoContainer;
-	QToolBar *infoToolBar;
-	QToolButton *deleteButton;
-	QAction *deleteAction;
-	QWidget *camInfoWidget;
-	QGridLayout *caminfolayout;
-	QLabel *camStatusInfoIcon;
-	QLabel *camStatusInfo;
-	QPushButton *camStatusButton;
+	public slots:
+		void statusUpdatedSlot(statusType, QString);
+	private:
+		//AddMode
+		QPushButton *addButton;
+		//ConfigureMode
+		QWidget *camConfigureContainer;
+		QToolBar *configToolBar;
+		QToolButton *confirmButton;
+		QAction *confirmAction;
+		QToolButton *exitButton;
+		QAction *exitAction;
+		QWidget *camConfigureWidget;
+		QGridLayout *camconfigurelayout;
+		QLineEdit *camNameEdit;
+		//InfoMode
+		QWidget *camInfoContainer;
+		QToolBar *infoToolBar;
+		QToolButton *deleteButton;
+		QAction *deleteAction;
+		QWidget *camInfoWidget;
+		QGridLayout *caminfolayout;
+		QLabel *camStatusInfoIcon;
+		QLabel *camStatusInfo;
+		QPushButton *camStatusButton;
 
 	signals:
 		void camListChanged();
@@ -72,7 +74,6 @@ private:
 		void deleteCamClickedSlot();
 		void typeComboChangedSlot(QString);
 		void nameEditedSlot();
-		void statusUpdatedSlot(statusType, QString);
 		void showLogClickedSlot();
 		void logsClearedSlot();
 		bool eventFilter(QObject*, QEvent*);

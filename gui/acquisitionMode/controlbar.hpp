@@ -31,12 +31,10 @@ class ControlBar : public QToolBar {
 		void startAcquisition(AcquisitionSpecs);
 		void stopAcquisition();
 		void updateStreamingPanels(StreamingWidget::layoutType);
-		void openTimeStampWindow();
 		void recordingInfoFileCreated(QFile *file, QTime *time);
 		void acquisitionStarted(int width);
 
 	private:
-		//SerialInterface *serialInterface;
 		QFile *m_recordingInfoFile;
 		QSettings *settings;
 		QDir saveFileDir;
@@ -55,8 +53,6 @@ class ControlBar : public QToolBar {
 		QLineEdit *recordingNameEdit;
 		QToolButton *saveFolderButton;
 		QAction *saveFolderAction;
-		QToolButton *timeStampButton;
-		QAction *timeStampAction;
 
 		StreamingWidget::layoutType m_activeLayout;
 		QMap<QString, QIcon> iconList;

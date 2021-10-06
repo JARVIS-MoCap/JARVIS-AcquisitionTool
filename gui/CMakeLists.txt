@@ -11,18 +11,14 @@ add_library(${PROJECT_NAME}
     mainbar.hpp
     presetswindow.hpp
     presetswindow.cpp
-    settingswindow.hpp
-    settingswindow.cpp
     imageviewer.hpp
 		imageviewer.cpp
-		streamingpanel.cpp
     streamingpanel.hpp
-    savecamerapresetsinterface.hpp
-    loadcamerapresetsinterface.hpp
-    saveflirpresetswindow.hpp
-    saveflirpresetswindow.cpp
-    loadflirpresetswindow.hpp
-    loadflirpresetswindow.cpp
+		streamingpanel.cpp
+    labelwithtooltip.hpp
+    labelwithtooltip.cpp
+    toggleswitch.cpp
+    toggleswitch.hpp
 )
 
 target_include_directories(${PROJECT_NAME}

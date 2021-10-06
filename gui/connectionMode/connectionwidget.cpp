@@ -186,8 +186,8 @@ void ConnectionWidget::camLoadPresetSlot(QString preset) {
 
 			camPanel->camConfigInterface->loadPreset(settings);
 			camPanel->camera = camPanel->camConfigInterface->getCamera(cameraName);
-			//connect(camPanel->camera, &CameraInterface::statusUpdated,
-			//				camPanel, &CamConnectionPanel::statusUpdatedSlot);
+			connect(camPanel->camera, &CameraInterface::statusUpdated,
+							camPanel, &CamConnectionPanel::statusUpdatedSlot);
 			camPanel->infoToolBarLabel->setText(cameraName);
 			CameraInterface::cameraList.append(camPanel->camera);
 

@@ -14,7 +14,6 @@
 
 
 ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
-	//serialInterface = new SerialInterface();
 	settings = new QSettings();
 	QString saveDirSettings = settings->value("recordingSaveFolder").toString();
 	if (saveDirSettings == "") saveDirSettings = "../Savefiles";
@@ -58,11 +57,6 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
 	createToolBarButton(saveFolderButton, saveFolderAction, QIcon::fromTheme("folder"), true,
 											false, QSize(50,50));
 	connect(saveFolderAction, &QAction::triggered, this, &ControlBar::saveFolderClickedSlot);
-	timeStampButton = new QToolButton(this);
-	timeStampAction = new QAction(this);
-	createToolBarButton(timeStampButton, timeStampAction, QIcon::fromTheme("timestamp"), true,
-											false, QSize(50,50));
-	connect(timeStampAction, &QAction::triggered, this, &ControlBar::openTimeStampWindow);
 
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -108,8 +102,6 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
 	this->addSeparator();
 	this->addWidget(recordingNameEdit);
 	this->addWidget(saveFolderButton);
-	this->addSeparator();
-	this->addWidget(timeStampButton);
 	this->addWidget(spacer);
 	defaultVisAction = this->addWidget(defaultButton);
 	oneBigVisAction = this->addWidget(oneBigButton);

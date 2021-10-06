@@ -532,6 +532,9 @@ void FLIRChameleon::updateSettings(INodeMap& nodeMap, SettingsNode* parent) {
 					static_cast<QComboBox*>(child->dataField())->setCurrentText(ptrCurrentEnumEntryNode->GetSymbolic().c_str());
 					child->dataField()->blockSignals(false);
 					child->setLocked(!writeable);
+					if (child->name() == "ExposureAuto") {
+						std::cout << ptrCurrentEnumEntryNode->GetSymbolic() << std::endl;
+					}
 				}
 			}
 			catch (Spinnaker::Exception& e) {

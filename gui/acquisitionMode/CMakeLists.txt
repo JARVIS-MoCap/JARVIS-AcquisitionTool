@@ -10,8 +10,16 @@ add_library(${PROJECT_NAME}
     controlbar.cpp
     streamingwidget.hpp
     streamingwidget.cpp
-    timestampwindow.hpp
-		timestampwindow.cpp
+    camerasettingswindow.hpp
+    camerasettingswindow.cpp
+    triggersettingswindow.hpp
+    triggersettingswindow.cpp
+    savecamerapresetsinterface.hpp
+    loadcamerapresetsinterface.hpp
+    saveflirpresetswindow.hpp
+    saveflirpresetswindow.cpp
+    loadflirpresetswindow.hpp
+    loadflirpresetswindow.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -24,6 +32,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   Qt5::Widgets
   src
+  gui
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wunused)

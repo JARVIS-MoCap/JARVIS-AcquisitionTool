@@ -1,11 +1,11 @@
 /*------------------------------------------------------------
- *  settingswinow.hpp
+ *  camerasettingswindow.hpp
  *  Created: 23. October 2020
  *  Author:   Timo Hüser
  *------------------------------------------------------------*/
 
-#ifndef SETTINGSWINDOW_H
-#define SETTINGSWINDOW_H
+#ifndef CAMERASETTINGSWINDOW_H
+#define CAMERASETTINGSWINDOW_H
 
 #include "globals.hpp"
 #include "presetswindow.hpp"
@@ -13,17 +13,19 @@
 #include "settingsobject.hpp"
 #include "savecamerapresetsinterface.hpp"
 #include "loadcamerapresetsinterface.hpp"
-
+#include "toggleswitch.hpp"
 
 #include <QDockWidget>
 #include <QSplitter>
 #include <QTextEdit>
 #include <QStackedWidget>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
 
-class SettingsWindow : public QDockWidget {
+class CameraSettingsWindow : public QDockWidget {
 	Q_OBJECT
 	public:
-		explicit SettingsWindow(QWidget *parent = nullptr, const QString& name = "", settingsObject *activeSettings = nullptr, const QString &presetType = "default");
+		explicit CameraSettingsWindow(QWidget *parent = nullptr, const QString& name = "", settingsObject *activeSettings = nullptr);
 
 	public slots:
 		void setSettingsObjectSlot(settingsObject*);
@@ -36,11 +38,8 @@ class SettingsWindow : public QDockWidget {
 		QString settingsName;
 		QGridLayout *layout;
 		QList<QString> presets;
-		PresetsWindow *loadPresetsWindow;
-		PresetsWindow *savePresetsWindow;
 		SaveCameraPresetsInterface *saveCameraPresetsWindow;
 		LoadCameraPresetsInterface *loadCameraPresetsWindow;
-
 
 		QSplitter *mainSplitter;
 		QWidget *mainWidget;
@@ -60,16 +59,24 @@ class SettingsWindow : public QDockWidget {
 		QLineEdit *searchEdit;
 
 		QStackedWidget *advancedSimpleStackWidget;
+		ToggleSwitch *exposureToggle;
+		QSpinBox *exposureEdit;
+		ToggleSwitch *gainToggle;
+		QDoubleSpinBox *gainEdit;
+		QSpinBox *widthEdit;
+		QSpinBox *heightEdit;
+		QSpinBox *horizontalOffsetEdit;
+		QSpinBox *verticalOffsetEdit;
+		ToggleSwitch *flipHorizontalToggle;
+		ToggleSwitch *flipVerticalToggle;
+
+
 		settingsObject *m_activeSettings = nullptr;
-		QString m_presetType;
 
 		void saveSettingsLayer(SettingsNode* node);
 		void loadSettingsLayer(SettingsNode* node);
 
 		int searchRecursive(QTreeWidgetItem * parent, QList<QTreeWidgetItem *> results);
-
-		void savePreset(const QString& preset);
-		void loadPreset(const QString& preset);
 
 	private slots:
 		void searchEditedSlot(const QString& text);
