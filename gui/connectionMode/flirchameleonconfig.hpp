@@ -32,9 +32,11 @@ class FlirChameleonConfig : public CamConfigInterface {
 		void savePreset(QSettings *settings);
 		CameraInterface* getCamera(const QString &cameraName);
 
+	public slots:
+		void updateDeviceIDs();
+
 	private:
 		FlirConfigBackend *configBackend;
-		void updateDeviceIDs();
 
 	private slots:
 		void updateCamIDs();

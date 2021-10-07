@@ -157,7 +157,6 @@ CamConnectionPanel::~CamConnectionPanel() {
 	delete camera;
 	camera = nullptr;
 	delete statusLogWindow;
-  std::cout << "destroying connection panel" << std::endl;
 }
 
 void CamConnectionPanel::addClickedSlot() {
@@ -228,6 +227,7 @@ void CamConnectionPanel::typeComboChangedSlot(QString type) {
   }
   else if (type == "FLIR Chameleon") {
     camConfigInterface = new FlirChameleonConfig(this);
+		connect(this, &CamConnectionPanel::otherCamListChanged, static_cast<FlirChameleonConfig*>(camConfigInterface), &FlirChameleonConfig::updateDeviceIDs);
   }
   camconfigurelayout->addWidget(camConfigInterface->configEditBox, 2, 0,1,2);
   caminfolayout->addWidget(camConfigInterface->configInfoBox,0,0,1,5);

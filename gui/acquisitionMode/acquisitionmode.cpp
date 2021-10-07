@@ -16,10 +16,10 @@ AcquisitionMode::AcquisitionMode(QMainWindow *parent) : QMainWindow(parent) {
 	this->resizeDocks({camSelector}, {175}, Qt::Vertical);
 
 
-	camSettingsWindow = new CameraSettingsWindow(parent, "Camera Settings", nullptr);
+	camSettingsWindow = new CameraSettingsWindow(parent, nullptr);
 	this->addDockWidget(Qt::LeftDockWidgetArea, camSettingsWindow);
 
-	triggerSettingsWindow = new TriggerSettingsWindow(parent, "Trigger Settings");
+	triggerSettingsWindow = new TriggerSettingsWindow(parent);
 	this->addDockWidget(Qt::LeftDockWidgetArea, triggerSettingsWindow);
 	this->tabifyDockWidget(camSettingsWindow, triggerSettingsWindow);
 	camSettingsWindow->raise();
@@ -46,7 +46,9 @@ AcquisitionMode::AcquisitionMode(QMainWindow *parent) : QMainWindow(parent) {
 
 
 void AcquisitionMode::camSelectedSlot(CameraInterface *cam) {
-	if (cam == nullptr) camSettingsWindow->setSettingsObjectSlot(nullptr);
+	if (cam == nullptr) {
+		camSettingsWindow->setSettingsObjectSlot(nullptr);
+	}
 	else {
 		camSettingsWindow->setSettingsObjectSlot(cam->cameraSettings());
 	}

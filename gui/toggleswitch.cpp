@@ -86,18 +86,20 @@ QSize ToggleSwitch::sizeHint() const {
 
 
 void ToggleSwitch::setToggled(bool toggle) {
-	m_switch = toggle;
-	m_thumb = m_switch ? m_brush : QBrush(QColor(32, 100, 164));
-	if (m_switch) {
-		m_anim->setStartValue(m_height / 2);
-		m_anim->setEndValue(width() - m_height);
-		m_anim->setDuration(120);
-		m_anim->start();
-	}
-	else {
-		m_anim->setStartValue(offset());
-		m_anim->setEndValue(m_height / 2);
-		m_anim->setDuration(120);
-		m_anim->start();
+	if (m_switch != toggle) {
+		m_switch = toggle;
+		m_thumb = m_switch ? m_brush : QBrush(QColor(32, 100, 164));
+		if (m_switch) {
+			m_anim->setStartValue(m_height / 2);
+			m_anim->setEndValue(width() - m_height);
+			m_anim->setDuration(120);
+			m_anim->start();
+		}
+		else {
+			m_anim->setStartValue(offset());
+			m_anim->setEndValue(m_height / 2);
+			m_anim->setDuration(120);
+			m_anim->start();
+		}
 	}
 }

@@ -64,6 +64,7 @@ class CamConnectionPanel : public QFrame {
 
 	signals:
 		void camListChanged();
+		void otherCamListChanged();
 		void camAdded(CameraInterface *);
 		void statusUpdated(CameraInterface*, statusType, QString);
 
@@ -72,11 +73,14 @@ class CamConnectionPanel : public QFrame {
 		void exitConfigClickedSlot();
 		void confirmConfigClickedSlot();
 		void deleteCamClickedSlot();
-		void typeComboChangedSlot(QString);
 		void nameEditedSlot();
 		void showLogClickedSlot();
 		void logsClearedSlot();
 		bool eventFilter(QObject*, QEvent*);
+
+	public slots:
+		void typeComboChangedSlot(QString);
+
 };
 
 #endif

@@ -14,6 +14,8 @@
 #include "savecamerapresetsinterface.hpp"
 #include "loadcamerapresetsinterface.hpp"
 #include "toggleswitch.hpp"
+#include "camerainterface.hpp"
+
 
 #include <QDockWidget>
 #include <QSplitter>
@@ -25,7 +27,7 @@
 class CameraSettingsWindow : public QDockWidget {
 	Q_OBJECT
 	public:
-		explicit CameraSettingsWindow(QWidget *parent = nullptr, const QString& name = "", settingsObject *activeSettings = nullptr);
+		explicit CameraSettingsWindow(QWidget *parent = nullptr, settingsObject *activeSettings = nullptr);
 
 	public slots:
 		void setSettingsObjectSlot(settingsObject*);
@@ -35,11 +37,11 @@ class CameraSettingsWindow : public QDockWidget {
 
 	private:
 		QSettings *settings;
-		QString settingsName;
 		QGridLayout *layout;
-		QList<QString> presets;
+		CameraInterface *m_cam;
 		SaveCameraPresetsInterface *saveCameraPresetsWindow;
 		LoadCameraPresetsInterface *loadCameraPresetsWindow;
+		QLabel *settingsLabel;
 
 		QSplitter *mainSplitter;
 		QWidget *mainWidget;
@@ -60,7 +62,7 @@ class CameraSettingsWindow : public QDockWidget {
 
 		QStackedWidget *advancedSimpleStackWidget;
 		ToggleSwitch *exposureToggle;
-		QSpinBox *exposureEdit;
+		QDoubleSpinBox *exposureEdit;
 		ToggleSwitch *gainToggle;
 		QDoubleSpinBox *gainEdit;
 		QSpinBox *widthEdit;
@@ -80,11 +82,24 @@ class CameraSettingsWindow : public QDockWidget {
 
 	private slots:
 		void searchEditedSlot(const QString& text);
+		void searchReturnPressedSlot();
 		void advancedSimpleToggledSlot(bool toggle);
 		void expandClickedSlot();
 		void treeItemActivatedSlot(QTreeWidgetItem* item, int column);
 		void savePresetsClickedSlot();
 		void loadPresetsClickedSlot();
+		void simpleSettingChangedSlot(const QString& settingName, const QString& value, bool enabled, double min, double max);
+
+		void exposureAutoToggledSlot(bool toggle);
+		void exposureEditChangedSlot(double val);
+		void gainAutoToggledSlot(bool toggle);
+		void gainEditChangedSlot(double val);
+		void widthEditChangedSlot(int val);
+		void heightEditChangedSlot(int val);
+		void horizontalOffsetEditChangedSlot(int val);
+		void verticalOffsetEditChangedSlot(int val);
+		void flipHorizontalToggledSlot(bool toggle);
+		void flipVerticalToggledSlot(bool toggle);
 };
 
 #endif

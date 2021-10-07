@@ -5,6 +5,8 @@
  *------------------------------------------------------------*/
 
 #include "flirconfigbackend.hpp"
+#include "camerainterface.hpp"
+#include "flirchameleon.hpp"
 
 
 #include <QApplication>
@@ -23,7 +25,14 @@ FlirConfigBackend::FlirConfigBackend(QObject *parent) : QObject(parent), m_camSy
 }*/
 
 QList<QString> FlirConfigBackend::getCameraIDs() {
-	return cameraIDList;
+	QList<QString> availableCameraIDList = cameraIDList;
+	for (CameraInterface* cam : CameraInterface::cameraList) {
+		if (cam->cameraType() == CameraInterface::flirChameleon) {
+			availableCameraIDList.removeAll(static_cast<FLIRChameleon*>(cam)->getDeviceID());
+		}
+		//std::cout << static_cast<FLIRChameleon*>(cam)->getDeviceID().toStdString() << std::endl;
+	}
+	return availableCameraIDList;
 }
 
 void FlirConfigBackend::updateIDs() {

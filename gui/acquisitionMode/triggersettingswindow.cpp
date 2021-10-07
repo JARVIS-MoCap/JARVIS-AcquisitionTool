@@ -17,16 +17,16 @@
 #include <QGroupBox>
 
 
-TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, const QString& name, settingsObject *activeSettings) :
+TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, settingsObject *activeSettings) :
       QDockWidget(parent, Qt::Window), m_activeSettings(activeSettings) {
 	settings = new QSettings();
 	setMinimumSize(325,300);
-	setWindowTitle(name);
-  loadPresetsWindow = new PresetsWindow(&presets, "load", name + "/");
-	savePresetsWindow = new PresetsWindow(&presets, "save", name + "/");
+	setWindowTitle("Trigger Settings");
+  loadPresetsWindow = new PresetsWindow(&presets, "load", "Trigger Settings/");
+	savePresetsWindow = new PresetsWindow(&presets, "save", "Trigger Settings/");
 	connect(loadPresetsWindow, SIGNAL(loadPreset(QString)), this, SLOT(loadPresetSlot(QString)));
 	connect(savePresetsWindow, SIGNAL(savePreset(QString)), this, SLOT(savePresetSlot(QString)));
-	settingsName = name;
+	settingsName = "Trigger Settings";
 	mainSplitter = new QSplitter(Qt::Vertical, this);
 	mainWidget = new QWidget (mainSplitter);
 	setWidget(mainSplitter);
@@ -36,7 +36,7 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, const QString& nam
 	toolBar->setFixedHeight(40);
 	toolBar->setIconSize(QSize(25,25));
 	toolBar->setStyleSheet("QToolBar {background-color: palette(base);}");
-	QLabel *settingsLabel = new QLabel(name);
+	QLabel *settingsLabel = new QLabel("Trigger Settings");
 	settingsLabel->setFont(fonts["bold"]);
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

@@ -64,7 +64,8 @@ class CameraInterface : public QObject {
 		statusType cameraStatus() const {return m_cameraStatus;}
 		virtual bool savePreset(const QString& preset) = 0;
 		virtual bool loadPreset(const QString& preset) = 0;
-		//bool saveUserSetToFile(const QString& path);
+		virtual void getSimpleSettingsValues() = 0;
+		virtual void changeSimpleSetting(const QString& setting, const QString& val) = 0;
 
 	public slots:
 		virtual void settingChangedSlot(const QString& name, QList<QString> subMenus,
@@ -77,6 +78,7 @@ class CameraInterface : public QObject {
 	signals:
 		void streamImage(QImage);
 		void statusUpdated(statusType status, const QString& statusMessage);
+		void simpleSettingChanged(const QString& settingName, const QString& value, bool enabled, double min, double max);
 
 	protected:
 		QSettings *settings = new QSettings();

@@ -132,7 +132,12 @@ void ControlBar::recordClickedSlot(bool toggled) {
 		acquisitionSpecs.record = true; //TODO: not hard code those values
 		acquisitionSpecs.recordingDir = recordingDir;
 		acquisitionSpecs.recorderType =CudaRecorderType;
-		acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
+		if (TriggerInterface::triggerInstance != nullptr) {
+			acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
+		}
+		else {
+			acquisitionSpecs.frameRate = 100;
+		}
 		acquisitionSpecs.streamingSamplingRatio = 4;
 		m_recordingInfoFile = new QFile(recordingDir.filePath("RecordingInfo.txt"));
 		if (m_recordingInfoFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -157,7 +162,9 @@ void ControlBar::recordClickedSlot(bool toggled) {
 			}
 		}
 		emit acquisitionStarted(320); 	//TODO: this is very temporary, this needs to be done by camerainterface
-		TriggerInterface::triggerInstance->enable();
+		if (TriggerInterface::triggerInstance != nullptr) {
+			TriggerInterface::triggerInstance->enable();
+		}
 	}
 }
 
@@ -165,7 +172,12 @@ void ControlBar::recordClickedSlot(bool toggled) {
 void ControlBar::startClickedSlot(bool toggled) {
 	if (toggled) {
 		AcquisitionSpecs acquisitionSpecs;
-		acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
+		if (TriggerInterface::triggerInstance != nullptr) {
+			acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
+		}
+		else {
+			acquisitionSpecs.frameRate = 100;
+		}
 		acquisitionSpecs.recorderType = CudaRecorderType;
 		acquisitionSpecs.streamingSamplingRatio = 2;
 		emit startAcquisition(acquisitionSpecs);
@@ -175,7 +187,9 @@ void ControlBar::startClickedSlot(bool toggled) {
 		stopAction->setEnabled(true);
 		recordingTimer->start(100);
 		emit acquisitionStarted(640); 	//TODO: this is very temporary, this needs to be done by camerainterface
-		TriggerInterface::triggerInstance->enable();
+		if (TriggerInterface::triggerInstance != nullptr) {
+			TriggerInterface::triggerInstance->enable();
+		}
 	}
 }
 
@@ -183,17 +197,23 @@ void ControlBar::startClickedSlot(bool toggled) {
 void ControlBar::pauseClickedSlot(bool toggled) {
 	if (toggled) {
 		recordingTimer->stop();
-		TriggerInterface::triggerInstance->disable();
+		if (TriggerInterface::triggerInstance != nullptr) {
+			TriggerInterface::triggerInstance->disable();
+		}
 	}
 	else {
 		recordingTimer->start(100);
-		TriggerInterface::triggerInstance->enable();
+		if (TriggerInterface::triggerInstance != nullptr) {
+			TriggerInterface::triggerInstance->enable();
+		}
 	}
 }
 
 
 void ControlBar::stopClickedSlot() {
-	TriggerInterface::triggerInstance->disable();
+	if (TriggerInterface::triggerInstance != nullptr) {
+		TriggerInterface::triggerInstance->disable();
+	}
 	emit stopAcquisition();
 	recordAction->setChecked(false);
 	startAction->setChecked(false);

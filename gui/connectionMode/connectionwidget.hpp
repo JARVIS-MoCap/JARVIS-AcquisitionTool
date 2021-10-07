@@ -41,6 +41,8 @@ class ConnectionWidget : public QWidget {
 		PresetsWindow *camLoadPresetsWindow;
 		PresetsWindow *camSavePresetsWindow;
 		QToolBar *camToolBar;
+		QToolButton *autoDetectCamerasButton;
+		QAction *autoDetectCamerasAction;
 		QToolButton *camSavePresetButton;
 		QAction *camSavePresetAction;
 		QToolButton *camLoadPresetButton;
@@ -73,6 +75,7 @@ class ConnectionWidget : public QWidget {
 		void triggerLoadPresetsClickedSlot();
 		void triggerLoadPresetSlot(QString);
 		void triggerSavePresetSlot(QString);
+		void autoDetectCamerasClicked();
 };
 
 #endif

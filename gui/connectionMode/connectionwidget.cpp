@@ -13,6 +13,10 @@
 #include "flirchameleon.hpp"
 #include "triggerinterface.hpp"
 #include "testtrigger.hpp"
+#include "flirconfigbackend.hpp"
+#include "flirchameleonconfig.hpp"
+
+#include <QMessageBox>
 
 
 ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window) {
@@ -51,6 +55,13 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 	camLabel->setFont(fonts["big"]);
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	autoDetectCamerasButton = new QToolButton(camToolBar);
+	autoDetectCamerasAction = new QAction(camToolBar);
+	createToolBarButton(autoDetectCamerasButton, autoDetectCamerasAction,
+					QIcon::fromTheme("detect_cameras"), true, false, QSize(40,40));
+	autoDetectCamerasButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+	autoDetectCamerasAction->setIconText("Auto Detect Cameras");
+	connect(autoDetectCamerasAction, &QAction::triggered, this, &ConnectionWidget::autoDetectCamerasClicked);
 	camSavePresetButton = new QToolButton(camToolBar);
 	camSavePresetAction = new QAction(camToolBar);
 	createToolBarButton(camSavePresetButton, camSavePresetAction,
@@ -65,6 +76,7 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 				this, &ConnectionWidget::camLoadPresetsClickedSlot);
 	camToolBar->addWidget(camLabel);
 	camToolBar->addWidget(spacer);
+	camToolBar->addWidget(autoDetectCamerasButton);
 	camToolBar->addWidget(camSavePresetButton);
 	camToolBar->addWidget(camLoadPresetButton);
 	int idx = 0;
@@ -78,6 +90,8 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 						this, &ConnectionWidget::camAddedSlot);
 		connect(camPanel, &CamConnectionPanel::statusUpdated,
 						this, &ConnectionWidget::statusUpdatedSlot);
+		connect(this, &ConnectionWidget::camListChanged,
+						camPanel, &CamConnectionPanel::otherCamListChanged);
 	}
 	camlayout->addWidget(camToolBar,0,0);
 	camlayout->addWidget(camPanelWidget,1,0);
@@ -269,4 +283,55 @@ void ConnectionWidget::triggerSavePresetSlot(QString preset) {
 	settings->setValue("example2Info", triggerPanel->example2Info->text());*/
 	settings->setValue("triggerType", triggerPanel->triggerTypeCombo->currentText());
 	settings->endGroup();
+}
+
+
+void ConnectionWidget::autoDetectCamerasClicked() {
+	if (CameraInterface::cameraList.size() != 0) {
+		QMessageBox::StandardButton reply;
+		reply = QMessageBox::question(this, "", "Auto detect Cameras? All currently connected Cameras will be removed!\n",
+																	QMessageBox::Yes|QMessageBox::No);
+
+		if (reply == QMessageBox::No) {
+			return;
+		}
+	}
+	for (auto &camPanel : camPanels) {
+		delete camPanel;
+	}
+	int idx = 0;
+	FlirConfigBackend *configBackend = FlirConfigBackend::getInstance();
+	QList<QString> flirCameraList = configBackend->getCameraIDs();
+	for (auto &camPanel : camPanels) {
+		camPanel = new CamConnectionPanel(this);
+		campanellayout->addWidget(camPanel, idx/(NUM_CAMS/3), idx%(NUM_CAMS/3));
+		connect(camPanel, &CamConnectionPanel::camListChanged,
+						this, &ConnectionWidget::camListChangedSlot);
+		connect(camPanel, &CamConnectionPanel::camAdded,
+						this, &ConnectionWidget::camAddedSlot);
+		connect(camPanel, &CamConnectionPanel::statusUpdated,
+						this, &ConnectionWidget::statusUpdatedSlot);
+
+		if(idx < flirCameraList.size()) {
+			camPanel->camTypeCombo->setCurrentText("FLIR Chameleon");
+			QString cameraName = "Camera_" + QString::number(idx);
+			static_cast<FlirChameleonConfig*>(camPanel->camConfigInterface)->camIDInfo->setText(flirCameraList[idx]);
+			camPanel->camera = camPanel->camConfigInterface->getCamera(cameraName);
+			connect(camPanel->camera, &CameraInterface::statusUpdated,
+							camPanel, &CamConnectionPanel::statusUpdatedSlot);
+			camPanel->infoToolBarLabel->setText(cameraName);
+			CameraInterface::cameraList.append(camPanel->camera);
+
+			statusLog statusLog;
+			statusLog.type = Connecting;
+			statusLog.time = new QTime(0,0);
+			statusLog.time->restart();
+			statusLog.message = "";
+			camPanel->statusLogWindow->statusLogList.push_back(statusLog);
+			camPanel->stackWidget->setCurrentIndex(2);
+			emit camAdded(camPanel->camera);
+		}
+		idx++;
+	}
+	emit camListChanged();
 }

@@ -24,7 +24,7 @@
 class TriggerSettingsWindow : public QDockWidget {
 	Q_OBJECT
 	public:
-		explicit TriggerSettingsWindow(QWidget *parent = nullptr, const QString& name = "", settingsObject *activeSettings = nullptr);
+		explicit TriggerSettingsWindow(QWidget *parent = nullptr, settingsObject *activeSettings = nullptr);
 
 	public slots:
 		void setSettingsObjectSlot(settingsObject*);

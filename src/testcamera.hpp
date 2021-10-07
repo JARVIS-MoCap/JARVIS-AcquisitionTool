@@ -34,6 +34,9 @@ class TestCamera : public CameraInterface {
 		QThread workerThread;
 		bool savePreset(const QString&) {}
 		bool loadPreset(const QString&) {};
+		void getSimpleSettingsValues() {}
+		void changeSimpleSetting(const QString& setting, const QString& val) {}
+
 
 	public slots:
 		void settingChangedSlot(const QString& name, QList<QString> subMenus,SettingsNode::nodeType type,
