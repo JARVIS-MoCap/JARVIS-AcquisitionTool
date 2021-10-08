@@ -61,14 +61,14 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	iconList["Default"] = QIcon::fromTheme("panels/default");
-	iconList["DefaultActive"] = QIcon::fromTheme("panels/default_active");
-	iconList["OneBig"] = QIcon::fromTheme("panels/oneBig");
-	iconList["OneBigActive"] = QIcon::fromTheme("panels/oneBig_active");
-	iconList["TwoBig"] = QIcon::fromTheme("panels/twoBig");
-	iconList["TwoBigActive"] = QIcon::fromTheme("panels/twoBig_active");
-	iconList["FourBig"] = QIcon::fromTheme("panels/fourBig");
-	iconList["FourBigActive"] = QIcon::fromTheme("panels/fourBig_active");
+	iconList["Default"] = QIcon::fromTheme("default");
+	iconList["DefaultActive"] = QIcon::fromTheme("default_active");
+	iconList["OneBig"] = QIcon::fromTheme("oneBig");
+	iconList["OneBigActive"] = QIcon::fromTheme("oneBig_active");
+	iconList["TwoBig"] = QIcon::fromTheme("twoBig");
+	iconList["TwoBigActive"] = QIcon::fromTheme("twoBig_active");
+	iconList["FourBig"] = QIcon::fromTheme("fourBig");
+	iconList["FourBigActive"] = QIcon::fromTheme("fourBig_active");
 
 	m_activeLayout = StreamingWidget::Default;
 	defaultButton = new QToolButton(this);

@@ -290,8 +290,14 @@ void FLIRChameleon::createSettings() {
 
 	INodeMap& nodeMapTLStream = m_pCam->GetTLStreamNodeMap();
 	CIntegerPtr ptrNode  = nodeMapTLStream.GetNode("StreamBufferCountManual");
-	if (IsAvailable(ptrNode) && IsWritable(ptrNode))
-		ptrNode->SetValue(55);
+	try {
+		if (IsAvailable(ptrNode) && IsWritable(ptrNode))
+			ptrNode->SetValue(55);
+	}
+	catch (Spinnaker::Exception& e) {
+		//if this error occurs try sudo sh -c 'echo 1 >/proc/sys/vm/drop_caches' and rerun
+		std::cout << "Error: " << e.what() << std::endl;
+	}
 	categoryNode *streamLayerNode = new categoryNode(m_cameraSettingsRootNode, "Stream Parameters");
 	createSettingsTreeFromCam(nodeMapTLStream.GetNode("Root"), streamLayerNode);
 
