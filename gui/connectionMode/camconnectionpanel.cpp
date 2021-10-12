@@ -39,7 +39,7 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 	configToolBar->setFixedHeight(40);
 	configToolBar->setIconSize(QSize(25,25));
 	QLabel *configToolBarLabel = new QLabel("Configure...");
-	configToolBarLabel->setFont(fonts["big"]);
+	configToolBarLabel->setFont(QFont("Sans Serif", 12, QFont::Bold));
 	QWidget *configSpacer = new QWidget();
 	configSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	confirmButton = new QToolButton(this);
@@ -84,7 +84,7 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 	infoToolBar->setFixedHeight(40);
 	infoToolBar->setIconSize(QSize(25,25));
 	infoToolBarLabel = new QLineEdit(infoToolBar);
-	infoToolBarLabel->setFont(fonts["big"]);
+	infoToolBarLabel->setFont(QFont("Sans Serif", 12, QFont::Bold));
 	infoToolBarLabel->setFrame(false);
 	infoToolBarLabel->installEventFilter(this);
 	infoToolBarLabel->setReadOnly(true);

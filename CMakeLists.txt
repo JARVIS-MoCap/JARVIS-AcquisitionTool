@@ -2,17 +2,28 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 
 
-project(CameraContoller VERSION 1.0.0  LANGUAGES CXX CUDA) #removed CUDA here!!
+project(CameraController VERSION 1.0.0  LANGUAGES CXX CUDA) #removed CUDA here!!
 
-find_package(Qt5 COMPONENTS Widgets Core Gui Charts SerialPort REQUIRED)
+#find_package(Qt5 COMPONENTS Widgets Core Gui Charts SerialPort REQUIRED)
+
+set(Qt5_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5")
+set(Qt5Core_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5Core")
+set(Qt5Widgets_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5Widgets")
+set(Qt5Charts_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5Charts")
+set(Qt5SerialPort_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5SerialPort")
+
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Charts REQUIRED)
+find_package(Qt5SerialPort REQUIRED)
+
+message (STATUS "QT DIRECTORY ${Qt5Core_DIR}")
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-option(USE_FLIR "Include Flir Spinnaker Library" ON)
-if (USE_FLIR)
-add_definitions(-DFLIR_CHAMELEON)
-endif(USE_FLIR)
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 # detect operating system and host processor
 message(STATUS "We are on a ${CMAKE_SYSTEM_NAME} system")

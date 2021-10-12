@@ -10,7 +10,10 @@
 int dev_malloc(void **p, size_t s) { return (int)cudaMalloc(p, s); }
 int dev_free(void *p) { return (int)cudaFree(p); }
 
-CudaJPEGEncoder::CudaJPEGEncoder(int width, int height, int streamingSamplingRatio) : m_frameWidth {width}, m_frameHeight{height}, m_streamingSamplingRatio{streamingSamplingRatio} {
+CudaJPEGEncoder::CudaJPEGEncoder(int width, int height, const std::string videoPath,
+      int frameRate, bool saveRecording, int streamingSamplingRatio) :
+      m_frameWidth {width}, m_frameHeight{height}, m_saveRecording(saveRecording),
+      m_streamingSamplingRatio{streamingSamplingRatio} {
   encode_params_t params;
   params.dev = 0;         //Device number of GPU to be used
   params.quality = 95;    //JPEG compression quality factor
@@ -55,6 +58,12 @@ CudaJPEGEncoder::CudaJPEGEncoder(int width, int height, int streamingSamplingRat
   streamingRect.width=m_frameWidth/m_streamingSamplingRatio;
   streamingRect.height=m_frameHeight/m_streamingSamplingRatio;
 
+  if (m_saveRecording) {
+    std::string FFMPEGCommandString = "ffmpeg -hide_banner -loglevel error -y -f image2pipe -r " +
+                                      std::to_string(frameRate) + " -i pipe: -codec copy " + videoPath;
+    char* FFMPEGCommand = const_cast<char*>(FFMPEGCommandString.c_str());
+    m_pipeout = popen(FFMPEGCommand, "w");
+  }
 }
 
 CudaJPEGEncoder::~CudaJPEGEncoder() {
@@ -63,10 +72,15 @@ CudaJPEGEncoder::~CudaJPEGEncoder() {
   checkCudaErrors(nvjpegEncoderStateDestroy(encoder_state));
   checkCudaErrors(nvjpegJpegStateDestroy(jpeg_state));
   checkCudaErrors(nvjpegDestroy(nvjpeg_handle));
+
+  if (m_saveRecording) {
+    fflush(m_pipeout);
+    pclose(m_pipeout);
+  }
 }
 
 
-unsigned char * CudaJPEGEncoder::encodeImage(unsigned char * frameData, std::string &output_filename, bool saveRecording) {
+unsigned char * CudaJPEGEncoder::encodeImage(unsigned char * frameData, std::string &output_filename) {
     memcpy(data_pinned, frameData, m_frameWidth * m_frameHeight);
     cudaMemcpy(pBuffer, data_pinned, m_frameWidth * m_frameHeight, cudaMemcpyHostToDevice);
 
@@ -78,10 +92,12 @@ unsigned char * CudaJPEGEncoder::encodeImage(unsigned char * frameData, std::str
        NPPI_BAYER_RGGB, NPPI_INTER_UNDEFINED, stream);
 
     //Resizing of RGB image for streaming
-    nppiResize_8u_C3R_Ctx(pBuffer2, m_frameWidth*3, fullSize, fullRect, pBuffer3, m_frameWidth/m_streamingSamplingRatio*3, streamingSize, streamingRect, NPPI_INTER_CUBIC, stream);
+    nppiResize_8u_C3R_Ctx(pBuffer2, m_frameWidth*3, fullSize, fullRect,
+                          pBuffer3, m_frameWidth/m_streamingSamplingRatio*3,
+                          streamingSize, streamingRect, NPPI_INTER_CUBIC, stream);
 
 
-    if (saveRecording) {
+    if (m_saveRecording) {
       nvjpegImage_t imgdesc2 =
       {
           {
@@ -113,11 +129,16 @@ unsigned char * CudaJPEGEncoder::encodeImage(unsigned char * frameData, std::str
               &length, NULL);
 
       //Write jpeg image to file
-      std::ofstream outputFile(output_filename.c_str(), std::ios::out | std::ios::binary);
-      outputFile.write(reinterpret_cast<const char *>(obuffer.data()), static_cast<int>(length));
+      //std::ofstream outputFile(output_filename.c_str(), std::ios::out | std::ios::binary);
+      //outputFile.write(reinterpret_cast<const char *>(obuffer.data()), static_cast<int>(length));
+      if (m_saveRecording) {
+        fwrite(reinterpret_cast<const char *>(obuffer.data()), 1 ,static_cast<int>(length), m_pipeout);
+      }
   }
 
-  cudaMemcpy(receive_data_pinned, pBuffer3, m_frameWidth/m_streamingSamplingRatio * m_frameHeight/m_streamingSamplingRatio*3, cudaMemcpyDeviceToHost);
+  cudaMemcpy(receive_data_pinned, pBuffer3,
+        m_frameWidth/m_streamingSamplingRatio * m_frameHeight/m_streamingSamplingRatio*3,
+        cudaMemcpyDeviceToHost);
 
   return receive_data_pinned;
 }

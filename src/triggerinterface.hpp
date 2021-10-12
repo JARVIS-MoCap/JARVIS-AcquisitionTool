@@ -28,6 +28,7 @@ class TriggerInterface : public QObject {
 		int getFrameRate() const {return m_frameRate;}
 		virtual void enable() = 0;
 		virtual void disable() = 0;
+		virtual void changeSimpleSetting(const QString& setting, const QString& value) = 0;
 
 	signals:
 		void statusUpdated(statusType status, const QString& statusMessage);

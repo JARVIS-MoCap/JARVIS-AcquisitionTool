@@ -67,3 +67,12 @@ void ArduinoTrigger::settingChangedSlot(const QString& name, QList<QString> subM
 			m_frameRate = val.toInt();
 		}
 }
+
+void ArduinoTrigger::changeSimpleSetting(const QString& setting, const QString& value) {
+	std::cout << setting.toStdString() << ", " << value.toStdString() << std::endl;
+	if (setting == "FrameRate") {
+		m_frameRate = value.toInt();
+		static_cast<intNode*>(m_triggerSettings->findNode("FrameRate"))->setValue(m_frameRate);
+	}
+
+}

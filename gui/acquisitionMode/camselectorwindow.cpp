@@ -24,7 +24,7 @@ CamSelectorWindow::CamSelectorWindow(QWidget *parent) : QDockWidget(parent, Qt::
 	toolBar->setIconSize(QSize(25,25));
 	toolBar->setStyleSheet("QToolBar {background-color: palette(base);}");
 	QLabel *toolBarLabel = new QLabel("Cameras");
-	toolBarLabel->setFont(fonts["bold"]);
+	toolBarLabel->setFont(QFont("Sans Serif", 11, QFont::Bold));
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	toolBar->addWidget(toolBarLabel);
@@ -84,8 +84,8 @@ void CamSelectorWindow::camVisibilityToggledSlot(CameraInterface* cam, bool togg
 
 void CamSelectorWindow::selectionChangedSlot(int row,int) {
 	for (int i = 0; i < camsTable->rowCount(); i++) {
-		if (i == row) camsTable->item(i,0)->setFont(fonts["bold"]);
-		else camsTable->item(i,0)->setFont(fonts["default"]);
+		if (i == row) camsTable->item(i,0)->setFont(QFont("Sans Serif", 11, QFont::Bold));
+		else camsTable->item(i,0)->setFont(QFont("Sans Serif", 11));
 	}
 	emit cameraSelected(CameraInterface::cameraList[row]);
 }

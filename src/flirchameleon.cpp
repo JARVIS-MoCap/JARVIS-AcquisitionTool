@@ -238,7 +238,9 @@ void FLIRChameleon::startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs) {
 	if (!m_isStreaming) {
 		m_pCam->Init();
 		INodeMap& appLayerNodeMap = m_pCam->GetNodeMap();
-		acquisitionSpecs.frameRate = m_frameRate;
+		if(TriggerInterface::triggerInstance == nullptr) {
+			acquisitionSpecs.frameRate = m_frameRate;
+		}
 		acquisitionSpecs.frameSize = m_frameSize;
 		acquisitionSpecs.pixelFormat = m_pixelFormat;
 		try {

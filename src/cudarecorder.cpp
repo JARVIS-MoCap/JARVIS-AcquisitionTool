@@ -11,12 +11,23 @@
 
 CudaRecorder::CudaRecorder(const QString& cameraName, const AcquisitionSpecs& acquisitionSpecs)
 			: RecordingInterface{cameraName, acquisitionSpecs} {
+	std::string outvideoName_str;
 	if (acquisitionSpecs.record) {
-		acquisitionSpecs.recordingDir.mkdir(cameraName);
 		m_recordingDir = acquisitionSpecs.recordingDir;
-		m_recordingDir.cd(cameraName);
+		if (true) {
+			std::stringstream videoName;
+			videoName << m_recordingDir.path().toStdString() << "/" << cameraName.toStdString() << ".avi";
+			outvideoName_str = videoName.str();
+		}
+		else {
+			acquisitionSpecs.recordingDir.mkdir(cameraName);
+			m_recordingDir.cd(cameraName);
+		}
+
 	}
-	m_cudaJPEGEncoder = new CudaJPEGEncoder(acquisitionSpecs.frameSize.width, acquisitionSpecs.frameSize.height, acquisitionSpecs.streamingSamplingRatio);
+	m_cudaJPEGEncoder = new CudaJPEGEncoder(acquisitionSpecs.frameSize.width,
+		acquisitionSpecs.frameSize.height, outvideoName_str, acquisitionSpecs.frameRate,
+		 m_acquisitionSpecs.record, acquisitionSpecs.streamingSamplingRatio);
 }
 
 CudaRecorder::~CudaRecorder() {
@@ -27,7 +38,7 @@ QImage CudaRecorder::recordFrame(uchar * frame) {
 	std::stringstream fileName;
 	fileName << m_recordingDir.path().toStdString() << "/Frame_" << m_frameCount << ".jpg";
 	std::string outName = fileName.str();
-	uchar * img_data = m_cudaJPEGEncoder->encodeImage(frame, outName, m_acquisitionSpecs.record);
+	uchar * img_data = m_cudaJPEGEncoder->encodeImage(frame, outName);
 	QImage img = QImage(img_data, m_acquisitionSpecs.frameSize.width/m_acquisitionSpecs.streamingSamplingRatio, m_acquisitionSpecs.frameSize.height/m_acquisitionSpecs.streamingSamplingRatio, QImage::Format_RGB888);
 	//QPixmap pix = QPixmap();
 	//pix.convertFromImage(img);

@@ -20,7 +20,7 @@ StreamingPanel::StreamingPanel(CameraInterface * camera, QWidget *parent)
 	toolBar->setIconSize(QSize(16,16));
 	toolBar->setStyleSheet("QToolBar {background-color: palette(base);}");
 	camNameLabel = new QLabel("Camera",this);
-	camNameLabel->setFont(fonts["bold"]);
+	camNameLabel->setFont(QFont("Sans Serif", 11, QFont::Bold));
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	closeButton = new QToolButton(this);

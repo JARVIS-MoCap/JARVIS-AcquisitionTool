@@ -80,6 +80,7 @@ class TriggerSettingsWindow : public QDockWidget {
 		void loadPresetsClickedSlot();
 		void savePresetSlot(const QString& preset);
 		void loadPresetSlot(const QString& preset);
+		void frameRateEditChangedSlot(int val);
 };
 
 #endif

@@ -52,7 +52,7 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 	camToolBar->setFixedHeight(45);
 	camToolBar->setIconSize(QSize(35,35));
 	QLabel *camLabel = new QLabel("Cameras", camToolBar);
-	camLabel->setFont(fonts["big"]);
+	camLabel->setFont(QFont("Sans Serif", 12, QFont::Bold));
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	autoDetectCamerasButton = new QToolButton(camToolBar);
@@ -111,7 +111,7 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 	triggerToolBar->setFixedHeight(45);
 	triggerToolBar->setIconSize(QSize(35,35));
 	QLabel *triggerLabel = new QLabel("Trigger", triggerToolBar);
-	triggerLabel->setFont(fonts["big"]);
+	triggerLabel->setFont(QFont("Sans Serif", 12, QFont::Bold));
 	QWidget *triggerSpacer = new QWidget();
 	triggerSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	triggerSavePresetButton = new QToolButton(triggerToolBar);

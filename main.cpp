@@ -34,15 +34,15 @@ int main(int argc, char **argv)
 	QIcon::setThemeSearchPaths(themeSearchPaths);
 	QIcon::setThemeName("DarkIconTheme");
 
-	QPixmap pixmap("/home/trackingsetup/Pictures/Screenshot from 2021-04-21 15-58-12.png");
-  QSplashScreen splash(pixmap);
-  splash.show();
+	//QPixmap pixmap("/home/trackingsetup/Pictures/Screenshot from 2021-04-21 15-58-12.png");
+  //QSplashScreen splash(pixmap);
+  //splash.show();
   app.processEvents();
-	delayl(100);
+	//delayl(100);
 	FlirConfigBackend::getInstance();
 
 	MainWindow m_window;
 	m_window.show();
-	splash.finish(&m_window);
+	//splash.finish(&m_window);
 	return app.exec();
 }

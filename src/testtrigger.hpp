@@ -19,6 +19,7 @@ class TestTrigger : public TriggerInterface {
 		~TestTrigger();
 		void enable() {}
 		void disable() {}
+		void changeSimpleSetting(const QString& setting, const QString& value) {}
 
 	private:
 		void createSettings();

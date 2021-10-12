@@ -18,9 +18,10 @@ int nvJPEGEncode();
 
 class CudaJPEGEncoder {
   public:
-    explicit CudaJPEGEncoder(int width, int height, int streamingSamplingRatio = 1);
+    explicit CudaJPEGEncoder(int width, int height, const std::string videoPath, int frameRate,
+          bool saveRecording, int streamingSamplingRatio = 1);
     ~CudaJPEGEncoder();
-    unsigned char * encodeImage(unsigned char *frameData, std::string &output_filename, bool saveRecording = false);
+    unsigned char * encodeImage(unsigned char *frameData, std::string &output_filename);
 
   private:
     struct encode_params_t {
@@ -35,6 +36,7 @@ class CudaJPEGEncoder {
 
     int m_frameHeight;
     int m_frameWidth;
+    bool m_saveRecording;
     int m_streamingSamplingRatio;
 
     nvjpegEncoderParams_t encode_params;
@@ -53,6 +55,8 @@ class CudaJPEGEncoder {
     NppiRect fullRect;
     NppiSize streamingSize;
     NppiRect streamingRect;
+
+    FILE *m_pipeout;
 
 };
 

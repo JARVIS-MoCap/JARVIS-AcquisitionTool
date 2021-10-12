@@ -35,7 +35,6 @@ enum RecorderType {RawRecorderType, BaseRecorderType, CudaRecorderType};
 enum PixelFormat {PixelFormat_BayerRG8};
 extern QMap<statusType, QIcon> statusIcons;
 extern QMap<statusType, QString> statusTexts;
-extern const QMap<QString, QFont> fonts;
 
 //Not have this live in global forever please, thank you <3!
 typedef struct frameSize_t {

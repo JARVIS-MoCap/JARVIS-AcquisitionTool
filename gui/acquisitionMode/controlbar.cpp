@@ -129,9 +129,9 @@ void ControlBar::recordClickedSlot(bool toggled) {
 		QDir recordingDir = saveFileDir;
 		recordingDir.cd(recordingName);
 		AcquisitionSpecs acquisitionSpecs;
-		acquisitionSpecs.record = true; //TODO: not hard code those values
+		acquisitionSpecs.record = true;
 		acquisitionSpecs.recordingDir = recordingDir;
-		acquisitionSpecs.recorderType =CudaRecorderType;
+		acquisitionSpecs.recorderType = CudaRecorderType;
 		if (TriggerInterface::triggerInstance != nullptr) {
 			acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
 		}
@@ -139,13 +139,6 @@ void ControlBar::recordClickedSlot(bool toggled) {
 			acquisitionSpecs.frameRate = 100;
 		}
 		acquisitionSpecs.streamingSamplingRatio = 4;
-		m_recordingInfoFile = new QFile(recordingDir.filePath("RecordingInfo.txt"));
-		if (m_recordingInfoFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
-			QTextStream out(m_recordingInfoFile);
-			out << "Store Recodringspecs here\n\n";
-			m_recordingInfoFile->close();
-		}
-		emit recordingInfoFileCreated(m_recordingInfoFile, recordingTime);
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);
 		recordAction->setEnabled(false);
@@ -161,7 +154,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 				if (!cam->isStreaming()) trigger = false;
 			}
 		}
-		emit acquisitionStarted(320); 	//TODO: this is very temporary, this needs to be done by camerainterface
+		emit acquisitionStarted(320);
 		if (TriggerInterface::triggerInstance != nullptr) {
 			TriggerInterface::triggerInstance->enable();
 		}
@@ -186,7 +179,7 @@ void ControlBar::startClickedSlot(bool toggled) {
 		pauseAction->setEnabled(true);
 		stopAction->setEnabled(true);
 		recordingTimer->start(100);
-		emit acquisitionStarted(640); 	//TODO: this is very temporary, this needs to be done by camerainterface
+		emit acquisitionStarted(640);
 		if (TriggerInterface::triggerInstance != nullptr) {
 			TriggerInterface::triggerInstance->enable();
 		}

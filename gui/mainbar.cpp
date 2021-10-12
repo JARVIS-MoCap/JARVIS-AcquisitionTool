@@ -15,7 +15,7 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
 	QWidget *nameSpacer = new QWidget(this);
 	nameSpacer->setMinimumSize(5,5);
 	QLabel *nameLabel = new QLabel(this);
-	nameLabel->setFont(fonts["headline"]);
+	nameLabel->setFont(QFont("Sans Serif", 20, QFont::Bold));
 	nameLabel->setText("<font color=#2664a3>Camera</font><font color=#64a420>Controller</font>");
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

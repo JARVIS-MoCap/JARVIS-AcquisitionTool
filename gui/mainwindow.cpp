@@ -19,13 +19,7 @@
 //----- global parameters shared by multiple widgets -----//
 QList<CameraInterface*> CameraInterface::cameraList;
 TriggerInterface *TriggerInterface::triggerInstance;
-const QMap<QString, QFont> fonts = {{"default", QFont("Sans Serif", 11)},
-																		{"bold", QFont("Sans Serif", 11, QFont::Bold)},
-																		{"big", QFont("Sans Serif", 12, QFont::Bold)},
-																		{"verybig", QFont("Sans Serif", 14, QFont::Bold)},
-																		{"headline", QFont("Sans Serif", 20, QFont::Bold)},
-																		{"infotext", QFont("Sans Serif", 24, QFont::Bold)},
-																		{"unit", QFont("Sans Serif", 10, QFont::Bold)}};
+
 QMap<statusType, QIcon> statusIcons;
 QMap<statusType, QString>statusTexts;
 

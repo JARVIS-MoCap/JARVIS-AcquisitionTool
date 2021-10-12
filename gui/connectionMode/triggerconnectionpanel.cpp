@@ -41,7 +41,7 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) :
 	configToolBar->setFixedHeight(40);
 	configToolBar->setIconSize(QSize(25,25));
 	QLabel *configToolBarLabel = new QLabel("Configure...");
-	configToolBarLabel->setFont(fonts["big"]);
+	configToolBarLabel->setFont(QFont("Sans Serif", 12, QFont::Bold));
 	QWidget *configSpacer = new QWidget();
 	configSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	confirmButton = new QToolButton(this);
@@ -90,7 +90,7 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) :
 	infoToolBar->setFixedHeight(40);
 	infoToolBar->setIconSize(QSize(25,25));
 	QLabel *infoToolBarLabel = new QLabel("Trigger");
-	infoToolBarLabel->setFont(fonts["big"]);
+	infoToolBarLabel->setFont(QFont("Sans Serif", 12, QFont::Bold));
 	QWidget	*infoSpacer = new QWidget();
 	infoSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	deleteButton = new QToolButton(this);

@@ -9,6 +9,7 @@
 #include "loadflirpresetswindow.hpp"
 #include "camerainterface.hpp"
 #include "labelwithtooltip.hpp"
+#include "triggerinterface.hpp"
 
 #include <QLineEdit>
 #include <QComboBox>
@@ -37,7 +38,7 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, settingsObject *ac
 	toolBar->setIconSize(QSize(25,25));
 	toolBar->setStyleSheet("QToolBar {background-color: palette(base);}");
 	QLabel *settingsLabel = new QLabel("Trigger Settings");
-	settingsLabel->setFont(fonts["bold"]);
+	settingsLabel->setFont(QFont("Sans Serif", 11, QFont::Bold));
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   advancedSimpleButton = new QToolButton(this);
@@ -85,9 +86,12 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, settingsObject *ac
   QGroupBox *simpleBox = new QGroupBox();
   simpleBox->setStyleSheet("QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
   QGridLayout *simplelayout = new QGridLayout(simpleBox);
-  LabelWithToolTip *frameRateLabel = new LabelWithToolTip("  FrameRate");
+  LabelWithToolTip *frameRateLabel = new LabelWithToolTip("FrameRate");
   frameRateEdit = new QSpinBox(this);
-  frameRateEdit->setRange(0,100);
+  frameRateEdit->setRange(0,170);
+  frameRateEdit->setEnabled(false);
+  connect(frameRateEdit, QOverload<int>::of(&QSpinBox::valueChanged), this, &TriggerSettingsWindow::frameRateEditChangedSlot);
+
 
   QWidget *bottomSpacer = new QWidget(simpleBox);
   bottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -130,6 +134,7 @@ void TriggerSettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
 		QStringList ColumnNames;
 		ColumnNames << "" << "";
 		m_activeSettings->settingsTree()->setHeaderLabels(ColumnNames);
+    frameRateEdit->setEnabled(false);
 	}
 	else {
 		m_activeSettings = newSettings;
@@ -137,6 +142,8 @@ void TriggerSettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
 		savePresetAction->setEnabled(true);
 		loadPresetAction->setEnabled(true);
 		connect(m_activeSettings->settingsTree(), SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(treeItemActivatedSlot(QTreeWidgetItem*, int)));
+    frameRateEdit->setEnabled(true);
+    frameRateEdit->setValue(TriggerInterface::triggerInstance->getFrameRate());
 	}
   advancedSimpleStackWidget->addWidget(m_activeSettings->settingsTree());
 }
@@ -268,4 +275,10 @@ void TriggerSettingsWindow::loadPresetSlot(const QString& preset) {
 	loadSettingsLayer(m_activeSettings->getRootNode());
 	emit loadPreset(m_activeSettings);
 	settings->endGroup();
+}
+
+
+void TriggerSettingsWindow::frameRateEditChangedSlot(int val) {
+  std::cout << "FrameRate Edit: " << val << std::endl;
+  TriggerInterface::triggerInstance->changeSimpleSetting("FrameRate", QString::number(val));
 }

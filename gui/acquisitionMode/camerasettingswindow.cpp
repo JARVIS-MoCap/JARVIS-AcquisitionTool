@@ -31,7 +31,7 @@ CameraSettingsWindow::CameraSettingsWindow(QWidget *parent, settingsObject *acti
 	toolBar->setIconSize(QSize(25,25));
 	toolBar->setStyleSheet("QToolBar {background-color: palette(base);}");
 	settingsLabel = new QLabel("Camera Settings");
-	settingsLabel->setFont(fonts["bold"]);
+	settingsLabel->setFont(QFont("Sans Serif", 11, QFont::Bold));
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   advancedSimpleButton = new QToolButton(this);

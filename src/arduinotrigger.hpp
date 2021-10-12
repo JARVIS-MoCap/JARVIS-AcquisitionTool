@@ -22,6 +22,7 @@ class ArduinoTrigger : public TriggerInterface {
 
 		void enable();
 		void disable();
+		void changeSimpleSetting(const QString& setting, const QString& value);
 
 	private:
 		SerialInterface *serialInterface;
