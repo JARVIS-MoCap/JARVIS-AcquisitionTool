@@ -1,7 +1,7 @@
 project (src)
 
 set(OpenCV_STATIC ON)
-set(OpenCV_DIR "../libs/OpenCV_4.5.1/Ubuntu_1804/lib/cmake/opencv4")
+set(OpenCV_DIR "../libs/OpenCV_4.5.1/Ubuntu_2004/lib/cmake/opencv4")
 find_package(OpenCV REQUIRED)
 message(STATUS "OPENCV_DIR ${OpenCV_DIR}")
 

@@ -2,15 +2,15 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 
 
-project(CameraController VERSION 1.0.0  LANGUAGES CXX CUDA) #removed CUDA here!!
+project(CameraController VERSION 1.0.0  LANGUAGES CXX CUDA)
 
 #find_package(Qt5 COMPONENTS Widgets Core Gui Charts SerialPort REQUIRED)
 
-set(Qt5_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5")
-set(Qt5Core_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5Core")
-set(Qt5Widgets_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5Widgets")
-set(Qt5Charts_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5Charts")
-set(Qt5SerialPort_DIR "libs/Qt_5.15.2/Ubuntu_1804/lib/cmake/Qt5SerialPort")
+set(Qt5_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5")
+set(Qt5Core_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5Core")
+set(Qt5Widgets_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5Widgets")
+set(Qt5Charts_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5Charts")
+set(Qt5SerialPort_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5SerialPort")
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)

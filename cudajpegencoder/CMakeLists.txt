@@ -1,9 +1,13 @@
 project (cudajpegencoder LANGUAGES CXX CUDA)
 find_package(OpenCV REQUIRED)
-find_package(CUDA)
-add_compile_options("-O3")
- add_compile_options("-m64")
+find_package(CUDA REQUIRED)
 
+
+add_compile_options("-O3")
+add_compile_options("-m64")
+
+
+message(${CULIBOS_LIBRARY})
 
 add_library(${PROJECT_NAME}
   exception.h
@@ -24,9 +28,13 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
+  ${CUDNN_LIBRARY}
+  ${CULIBOS_LIBRARY}
   ${OpenCV_LIBS}
-  -lnvjpeg
-  -lnppc
-  -lnppicc
-  -lnppig
+  ${CUDA_LIBRARIES}
+  -lnvjpeg_static
+  -lnppc_static
+  -lnppicc_static
+  -lnppig_static
+  -lculibos
 )
