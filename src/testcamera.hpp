@@ -36,6 +36,8 @@ class TestCamera : public CameraInterface {
 		bool loadPreset(const QString&) {};
 		void getSimpleSettingsValues() {}
 		void changeSimpleSetting(const QString& setting, const QString& val) {}
+		int getBufferUsage() {return 10;}
+		int getBufferSize() {return 100;}
 
 
 	public slots:

@@ -22,6 +22,11 @@ AcquisitionMode::AcquisitionMode(QMainWindow *parent) : QMainWindow(parent) {
 	triggerSettingsWindow = new TriggerSettingsWindow(parent);
 	this->addDockWidget(Qt::LeftDockWidgetArea, triggerSettingsWindow);
 	this->tabifyDockWidget(camSettingsWindow, triggerSettingsWindow);
+
+	monitoringWindow = new MonitoringWindow(parent);
+	this->addDockWidget(Qt::LeftDockWidgetArea, monitoringWindow);
+	this->tabifyDockWidget(camSettingsWindow, monitoringWindow);
+
 	camSettingsWindow->raise();
 
 	streamingWidget = new StreamingWidget(this);
@@ -33,6 +38,7 @@ AcquisitionMode::AcquisitionMode(QMainWindow *parent) : QMainWindow(parent) {
 
 	//<- Outgoing Signals
 	connect(this, &AcquisitionMode::camListChanged, camSelector, &CamSelectorWindow::updateListSlot);
+	connect(this, &AcquisitionMode::camListChanged, monitoringWindow, &MonitoringWindow::updateListSlot);
 	connect(this, &AcquisitionMode::statusUpdated, camSelector, &CamSelectorWindow::statusUpdatedSlot);
 	connect(this, &AcquisitionMode::camListChanged, controlBar, &ControlBar::updateListSlot);
 	connect(this, &AcquisitionMode::camAdded, controlBar, &ControlBar::camAddedSlot);

@@ -20,12 +20,12 @@ FlirConfigBackend::FlirConfigBackend(QObject *parent) : QObject(parent), m_camSy
 }
 
 
-/*FlirConfigBackend::~FlirConfigBackend() {
-	m_camSystem->ReleaseInstance(); Not sure if need/allowed here
-}*/
+FlirConfigBackend::~FlirConfigBackend() {
+	m_camSystem->ReleaseInstance(); //Not sure if need/allowed here
+}
 
 QList<QString> FlirConfigBackend::getCameraIDs() {
-	QList<QString> availableCameraIDList = cameraIDList;
+	QList<QString> availableCameraIDList = m_cameraIDList;
 	for (CameraInterface* cam : CameraInterface::cameraList) {
 		if (cam->cameraType() == CameraInterface::flirChameleon) {
 			availableCameraIDList.removeAll(static_cast<FLIRChameleon*>(cam)->getDeviceID());
@@ -36,13 +36,21 @@ QList<QString> FlirConfigBackend::getCameraIDs() {
 }
 
 void FlirConfigBackend::updateIDs() {
-	cameraIDList.clear();
+	m_cameraIDList.clear();
 	CameraList cameraList = m_camSystem->GetCameras();
 	unsigned int numCameras = cameraList.GetSize();
 	for (unsigned int i = 0; i < numCameras; ++i) {
 	 CameraPtr pCamera = cameraList.GetByIndex(i);
 	 pCamera->Init();
-	 cameraIDList.append(QString::fromStdString(pCamera->DeviceSerialNumber.GetValue().c_str()));
+	 m_cameraIDList.append(QString::fromStdString(pCamera->DeviceSerialNumber.GetValue().c_str()));
 	 pCamera->DeInit();
 	}
+}
+
+bool FlirConfigBackend::checkCamList() {
+	CameraList cameraList = m_camSystem->GetCameras();
+	if (cameraList.GetSize() != m_cameraIDList.size()) {
+		return false;
+	}
+	return true;
 }

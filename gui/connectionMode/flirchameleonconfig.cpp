@@ -53,7 +53,7 @@ void FlirChameleonConfig::updateDeviceIDs() {
 
 
 bool FlirChameleonConfig::confirmConfigClicked() {
-  if (camIDCombo->currentText() != "") {
+  if (camIDCombo->currentText() != "" && configBackend->checkCamList()) {
     camIDInfo->setText(camIDCombo->currentText());
     return true;
   }

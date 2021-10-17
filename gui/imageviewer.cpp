@@ -17,16 +17,27 @@ void ImageViewer::scale(float s) {
 
 
 void ImageViewer::fitToScreen(int imageWidth) {
-	m_scale = static_cast<float>(this->size().width())/imageWidth;
+	if (imageWidth == 0) {
+		m_scale = static_cast<float>(this->size().width())/m_image.size().width();
+	}
+	else {
+		m_scale = static_cast<float>(this->size().width())/imageWidth;
+	}
 	m_delta = QPoint(0,0);
 	update();
 }
 
 void ImageViewer::setImage(QImage img) {
+	int old_imageWidth = m_image.size().width();
 	m_image = img;
 	m_rect = m_image.rect();
 	m_rect.translate(-m_rect.center());
-	update();
+	if (old_imageWidth != m_image.size().width()) {
+		fitToScreen();
+	}
+	else {
+		update();
+	}
 }
 
 
@@ -53,7 +64,7 @@ void ImageViewer::mousePressEvent(QMouseEvent *event) {
 
 void ImageViewer::mouseDoubleClickEvent(QMouseEvent *event) {
 	if (event->button() == Qt::LeftButton) {
-		fitToScreen(m_image.size().width());
+		fitToScreen();
 		update();
 	}
 }

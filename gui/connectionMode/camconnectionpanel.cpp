@@ -170,45 +170,53 @@ void CamConnectionPanel::exitConfigClickedSlot() {
 
 
 void CamConnectionPanel::confirmConfigClickedSlot() {
-	QString cameraName;
-	if (camNameEdit->text() == "") cameraName = "Camera_" +
-				QString::number(CameraInterface::cameraList.size());
-	else cameraName = camNameEdit->text();
-  if (camConfigInterface->confirmConfigClicked()) {
-		camera = camConfigInterface->getCamera(cameraName);
-		connect(camera, &CameraInterface::statusUpdated,
-						this, &CamConnectionPanel::statusUpdatedSlot);
-		infoToolBarLabel->setText(cameraName);
-		CameraInterface::cameraList.append(camera);
-
-		statusLog statusLog;
-		statusLog.type = Connecting;
-		statusLog.time = new QTime(0,0);
-		statusLog.time->restart();
-		statusLog.message = "";
-		statusLogWindow->statusLogList.push_back(statusLog);
-		stackWidget->setCurrentIndex(2);
-		emit camListChanged();
-		emit camAdded(camera);
+	bool streaming = false;
+	for (const auto &cam : CameraInterface::cameraList) {
+			if (cam->isStreaming()) streaming = true;
 	}
-	else {
-		QErrorMessage errorMessage;
-		errorMessage.showMessage(
-		"No camera selected! Make sure there is a camera plugged in and you're usb permissions are set correctly!");
-		errorMessage.exec();
-		return;
+	if (!streaming) {
+		QString cameraName;
+		if (camNameEdit->text() == "") cameraName = "Camera_" +
+					QString::number(CameraInterface::cameraList.size());
+		else cameraName = camNameEdit->text();
+	  if (camConfigInterface->confirmConfigClicked()) {
+			camera = camConfigInterface->getCamera(cameraName);
+			connect(camera, &CameraInterface::statusUpdated,
+							this, &CamConnectionPanel::statusUpdatedSlot);
+			infoToolBarLabel->setText(cameraName);
+			CameraInterface::cameraList.append(camera);
+
+			statusLog statusLog;
+			statusLog.type = Connecting;
+			statusLog.time = new QTime(0,0);
+			statusLog.time->restart();
+			statusLog.message = "";
+			statusLogWindow->statusLogList.push_back(statusLog);
+			stackWidget->setCurrentIndex(2);
+			emit camListChanged();
+			emit camAdded(camera);
+		}
+		else {
+			QErrorMessage errorMessage;
+			errorMessage.showMessage(
+			"No camera selected! Make sure there is a camera plugged in and you're usb permissions are set correctly!");
+			errorMessage.exec();
+			return;
+		}
 	}
 }
 
 
 void CamConnectionPanel::deleteCamClickedSlot() {
-	CameraInterface::cameraList.removeAll(camera);
-	delete camera;
-	camera = nullptr;
-	stackWidget->setCurrentIndex(0);
-	camStatusInfoIcon->setPixmap(statusIcons[Connecting].pixmap(QSize(20, 20)));
-	camStatusInfo->setText(statusTexts[Connecting]);
-	emit camListChanged();
+	if (!camera->isStreaming()) {
+		CameraInterface::cameraList.removeAll(camera);
+		delete camera;
+		camera = nullptr;
+		stackWidget->setCurrentIndex(0);
+		camStatusInfoIcon->setPixmap(statusIcons[Connecting].pixmap(QSize(20, 20)));
+		camStatusInfo->setText(statusTexts[Connecting]);
+		emit camListChanged();
+	}
 }
 
 

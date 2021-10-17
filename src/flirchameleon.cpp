@@ -33,13 +33,13 @@ FlirWorker::~FlirWorker() {
 
 
 void FlirWorker::acquireImages() {
-	int time_buffer = 0;
+	unsigned long frameIndex = 0;
 	forever {
 		try {
 			if (TriggerInterface::triggerInstance == nullptr && QThread::currentThread()->isInterruptionRequested()) break;
-			ImagePtr pResultImage = m_pCam->GetNextImage(50);
+			ImagePtr pResultImage = m_pCam->GetNextImage(2000/m_acquisitionSpecs.frameRate);
 			if (pResultImage->IsIncomplete()) {
-				std::cout << "INCOMPLETE" << std::endl;
+				emit statusUpdated(statusType::Error, "Incomplete Image received");
 			}
 			else {
 				auto t1 = std::chrono::high_resolution_clock::now();
@@ -48,9 +48,12 @@ void FlirWorker::acquireImages() {
 				emit streamImage(img);
 				auto t2 = std::chrono::high_resolution_clock::now();
 				auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-				time_buffer += duration - 10000;
-				if (time_buffer < 0) time_buffer = 0;
-				if (time_buffer > 20000) std::cout << time_buffer << std::endl;
+				if (frameIndex > 0 && frameIndex%(std::max(1,m_acquisitionSpecs.frameRate/8)) == 0) {
+					emit latencyAndFrameNumberUpdate(duration, frameIndex);
+				}
+				frameIndex++;
+				//if (time_buffer < 0) time_buffer = 0;
+				//if (time_buffer > 20000) std::cout << time_buffer << std::endl;
 			}
 		}
 		catch (Spinnaker::Exception& e)
@@ -59,9 +62,13 @@ void FlirWorker::acquireImages() {
 					if (QThread::currentThread()->isInterruptionRequested()) {
 						return;
 					}
+					else {
+						emit statusUpdated(statusType::Error, e.what());
+					}
 				}
 				else {
-					std::cout << "ErrorWorker: " << e.what() << std::endl;
+					emit statusUpdated(statusType::Error, e.what());
+					delayl(1000);
 				}
 		}
 
@@ -81,7 +88,6 @@ FLIRChameleon::FLIRChameleon(const QString& cameraName, const QString& serialNum
 			<< spinnakerLibraryVersion.build << std::endl << std::endl;
 	CameraList cameraList = m_camSystem->GetCameras();
 	m_pCam = cameraList.GetBySerial(m_serialNumber.toStdString());
-
 	createSettings();
 	QTimer *timer = new QTimer(this);
 	connect(timer, &QTimer::timeout, this, &FLIRChameleon::statusInitReady);
@@ -93,64 +99,90 @@ FLIRChameleon::FLIRChameleon(const QString& cameraName, const QString& serialNum
 FLIRChameleon::~FLIRChameleon() {
 	if (m_pCam->IsInitialized()) m_pCam->DeInit();
 	m_pCam = nullptr;
-	if (cameraList.size() == 0) m_camSystem->ReleaseInstance();
+	//if (cameraList.size() == 0) m_camSystem->ReleaseInstance();
 	delete (m_cameraSettings);
 }
 
 
 bool FLIRChameleon::savePreset(const QString& preset) {
-	m_pCam->Init();
-	INodeMap& nodeMap = m_pCam->GetNodeMap();
-	CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
-	if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector)) {
-			std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl;
-			return false;
-	}
+	try {
+		bool deinit = false;
+		if (!m_pCam->IsInitialized()) {
+			m_pCam->Init();
+			deinit = true;
+		}
+		INodeMap& nodeMap = m_pCam->GetNodeMap();
+		CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
+		if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector)) {
+				std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl;
+				return false;
+		}
 
-	CEnumEntryPtr ptrUserSet = ptrUserSetSelector->GetEntryByName(preset.toStdString().c_str());
-	if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
-			std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl;
-			return false;
-	}
-	ptrUserSetSelector->SetIntValue(ptrUserSet->GetValue());
+		CEnumEntryPtr ptrUserSet = ptrUserSetSelector->GetEntryByName(preset.toStdString().c_str());
+		if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
+				std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl;
+				return false;
+		}
+		ptrUserSetSelector->SetIntValue(ptrUserSet->GetValue());
 
-	CCommandPtr ptrUserSetSave = m_pCam->GetNodeMap().GetNode("UserSetSave");
-	if (!IsAvailable(ptrUserSetSave) || !IsWritable(ptrUserSetSave)){
-			std::cout << "Unable to save to User Set. Aborting..." << std::endl;
+		CCommandPtr ptrUserSetSave = m_pCam->GetNodeMap().GetNode("UserSetSave");
+		if (!IsAvailable(ptrUserSetSave) || !IsWritable(ptrUserSetSave)){
+				std::cout << "Unable to save to User Set. Aborting..." << std::endl;
+		}
+		ptrUserSetSave->Execute();
+		if (deinit) {
+			m_pCam->DeInit();
+		}
 	}
-	ptrUserSetSave->Execute();
-	m_pCam->DeInit();
+	catch (Spinnaker::Exception& e) {
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
+		return false;
+	}
 	return true;
 }
 
 bool FLIRChameleon::loadPreset(const QString& preset) {
-	m_pCam->Init();
-	INodeMap& nodeMap = m_pCam->GetNodeMap();
-	CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
-	if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector)) {
-			std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl;
-			return false;
-	}
+	try {
+		bool deinit = false;
+		if (!m_pCam->IsInitialized()) {
+			m_pCam->Init();
+			deinit = true;
+		}
+		INodeMap& nodeMap = m_pCam->GetNodeMap();
+		CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
+		if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector)) {
+				std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl;
+				return false;
+		}
 
-	CEnumEntryPtr ptrUserSet = ptrUserSetSelector->GetEntryByName(preset.toStdString().c_str());
-	if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
-			std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl;
-			return false;
-	}
-	ptrUserSetSelector->SetIntValue(ptrUserSet->GetValue());
+		CEnumEntryPtr ptrUserSet = ptrUserSetSelector->GetEntryByName(preset.toStdString().c_str());
+		if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
+				std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl;
+				return false;
+		}
+		ptrUserSetSelector->SetIntValue(ptrUserSet->GetValue());
 
-	CCommandPtr ptrUserSetLoad = m_pCam->GetNodeMap().GetNode("UserSetLoad");
-	if (!IsAvailable(ptrUserSetLoad) || !IsWritable(ptrUserSetLoad)){
-			std::cout << "Unable to load to User Set. Aborting..." << std::endl;
+		CCommandPtr ptrUserSetLoad = m_pCam->GetNodeMap().GetNode("UserSetLoad");
+		if (!IsAvailable(ptrUserSetLoad) || !IsWritable(ptrUserSetLoad)){
+				std::cout << "Unable to load to User Set. Aborting..." << std::endl;
+		}
+		ptrUserSetLoad->Execute();
+		updateSettings(nodeMap, m_cameraSettings->getRootNode()->children()[0]);
+		if (deinit) {
+			m_pCam->DeInit();
+		}
+		INodeMap& genTLNodeMap = m_pCam->GetTLDeviceNodeMap();
+		INodeMap& nodeMapTLStream = m_pCam->GetTLStreamNodeMap();
+		updateSettings(genTLNodeMap, m_cameraSettings->getRootNode()->children()[1]);
+		updateSettings(nodeMapTLStream, m_cameraSettings->getRootNode()->children()[2]);
+		return true;
 	}
-	ptrUserSetLoad->Execute();
-	updateSettings(nodeMap, m_cameraSettings->getRootNode()->children()[0]);
-	m_pCam->DeInit();
-	INodeMap& genTLNodeMap = m_pCam->GetTLDeviceNodeMap();
-	INodeMap& nodeMapTLStream = m_pCam->GetTLStreamNodeMap();
-	updateSettings(genTLNodeMap, m_cameraSettings->getRootNode()->children()[1]);
-	updateSettings(nodeMapTLStream, m_cameraSettings->getRootNode()->children()[2]);
-	return true;
+	catch (Spinnaker::Exception& e) {
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
+		return false;
+	}
 }
 
 //TODO: make settingsChangedSlot more universion, can't have all those parameters (submenus specifically)
@@ -230,34 +262,46 @@ void FLIRChameleon::settingChangedSlot(const QString& name, QList<QString> subMe
 	}
 	catch (Spinnaker::Exception& e) {
 		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
 	}
 }
 
 
 void FLIRChameleon::startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs) {
 	if (!m_isStreaming) {
-		m_pCam->Init();
-		INodeMap& appLayerNodeMap = m_pCam->GetNodeMap();
-		if(TriggerInterface::triggerInstance == nullptr) {
-			acquisitionSpecs.frameRate = m_frameRate;
-		}
-		acquisitionSpecs.frameSize = m_frameSize;
-		acquisitionSpecs.pixelFormat = m_pixelFormat;
 		try {
+			m_pCam->Init();
+			INodeMap& appLayerNodeMap = m_pCam->GetNodeMap();
+			updateSettings(appLayerNodeMap, m_cameraSettings->findNode("Pixel Format", m_cameraSettings->getRootNode()->children()[0]));
+			updateSettings(appLayerNodeMap, m_cameraSettings->findNode("Width", m_cameraSettings->getRootNode()->children()[0]));
+			updateSettings(appLayerNodeMap, m_cameraSettings->findNode("Height", m_cameraSettings->getRootNode()->children()[0]));
+			if(TriggerInterface::triggerInstance == nullptr) {
+				acquisitionSpecs.frameRate = m_frameRate;
+			}
+			acquisitionSpecs.frameSize = m_frameSize;
+			acquisitionSpecs.pixelFormat = m_pixelFormat;
 			m_acquisitionWorker = new FlirWorker(m_pCam, m_cameraName,acquisitionSpecs);
 			m_acquisitionWorker->moveToThread(&workerThread);
 			connect(this, &FLIRChameleon::startAcquisition, m_acquisitionWorker, &AcquisitionWorker::acquireImages);
-			connect(m_acquisitionWorker, &AcquisitionWorker::streamImage, this, &FLIRChameleon::streamImageSlot);
+			connect(m_acquisitionWorker, &AcquisitionWorker::streamImage, this, &FLIRChameleon::streamImage);
+			connect(m_acquisitionWorker, &AcquisitionWorker::latencyAndFrameNumberUpdate, this, &FLIRChameleon::latencyAndFrameNumberUpdate);
+			connect(m_acquisitionWorker, &AcquisitionWorker::statusUpdated, this, &FLIRChameleon::statusUpdated);
 			connect(&workerThread, &QThread::finished, m_acquisitionWorker, &AcquisitionWorker::deleteLater);
 			m_pCam->BeginAcquisition();
-			updateSettings(appLayerNodeMap, m_cameraSettings->getRootNode()->children()[0]);
+			updateSettings(appLayerNodeMap, m_cameraSettings->findNode("Exposure Auto", m_cameraSettings->getRootNode()->children()[0]));
+			updateSettings(appLayerNodeMap, m_cameraSettings->findNode("Exposure Time", m_cameraSettings->getRootNode()->children()[0]));
+			updateSettings(appLayerNodeMap, m_cameraSettings->findNode("Gain Auto", m_cameraSettings->getRootNode()->children()[0]));
+			updateSettings(appLayerNodeMap, m_cameraSettings->findNode("Gain", m_cameraSettings->getRootNode()->children()[0]));
+			updateSettings(appLayerNodeMap, m_cameraSettings->findNode("Width", m_cameraSettings->getRootNode()->children()[0]));
+			updateSettings(appLayerNodeMap, m_cameraSettings->findNode("Height", m_cameraSettings->getRootNode()->children()[0]));
 			workerThread.start();
 			emit startAcquisition();
-			emit statusUpdated(Streaming, "");
+			emit statusUpdated(Streaming, "Started Streaming");
 			m_isStreaming = true;
 		}
 		catch (Spinnaker::Exception& e) {
 			std::cout << "Error: " << e.what() << std::endl;
+			emit statusUpdated(statusType::Error, e.what());
 		}
 	}
 }
@@ -274,12 +318,13 @@ void FLIRChameleon::stopAcquisitionSlot() {
 		INodeMap& appLayerNodeMap = m_pCam->GetNodeMap();
 		updateSettings(appLayerNodeMap, m_cameraSettings->getRootNode()->children()[0]);
 		m_pCam->DeInit();
+		emit statusUpdated(Ready, "Stopped Streaming");
 	}
 	catch (Spinnaker::Exception& e) {
-		std::cout << "ErrorEnd: " << e.what() << std::endl;
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Error, e.what());
 	}
 	m_isStreaming = false;
-	emit statusUpdated(Ready, "Stopped Streaming");
 }
 
 
@@ -299,6 +344,7 @@ void FLIRChameleon::createSettings() {
 	catch (Spinnaker::Exception& e) {
 		//if this error occurs try sudo sh -c 'echo 1 >/proc/sys/vm/drop_caches' and rerun
 		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
 	}
 	categoryNode *streamLayerNode = new categoryNode(m_cameraSettingsRootNode, "Stream Parameters");
 	createSettingsTreeFromCam(nodeMapTLStream.GetNode("Root"), streamLayerNode);
@@ -379,7 +425,7 @@ int FLIRChameleon::createSettingsTreeFromCam(CNodePtr node, SettingsNode *settin
 					float min = ptrFloatNode->GetMin();
 					floatNode *fNode = new floatNode(settingsNode, name);
 					if (name == "AcquisitionFrameRate") {
-						m_frameRate = value;
+						m_frameRate = std::max(1,static_cast<int>(value));
 					}
 					fNode->setDescription(description);
 					fNode->setDisplayName(displayName);
@@ -431,6 +477,7 @@ int FLIRChameleon::createSettingsTreeFromCam(CNodePtr node, SettingsNode *settin
   	}
   catch (Spinnaker::Exception& e) {
     std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
     result = -1;
   }
   return result;
@@ -442,98 +489,151 @@ void FLIRChameleon::updateSettings(INodeMap& nodeMap, SettingsNode* parent) {
 																	 "GainAuto", "Gain",
 																	 "Width", "Height", "OffsetX", "OffsetY",
 																 	 "ReverseX", "ReverseY"};
+if(parent->type() == SettingsNode::Root || parent->type() == SettingsNode::Category) {
 	for (const auto & child : parent->children()) {
-		if (child->type() == SettingsNode::Category) {
-			updateSettings(nodeMap, child);
+		updateSettings(nodeMap, child);
+	}
+}
+else {
+		try {
+			CNodePtr ptrNode = nodeMap.GetNode(parent->name().toStdString().c_str());
+			if (!IsAvailable(ptrNode) || !IsReadable(ptrNode)) {
+					return;
+			}
+			bool writeable = IsWritable(ptrNode);
+
+			if (ptrNode->GetPrincipalInterfaceType() == intfIString) {
+				CStringPtr ptrStringNode = static_cast<CStringPtr>(ptrNode);
+				QString value = QString::fromStdString(ptrStringNode->GetValue().c_str());
+				parent->dataField()->blockSignals(true);
+				static_cast<QLineEdit*>(parent->dataField())->setText(value);
+				parent->dataField()->blockSignals(false);
+				parent->setLocked(!writeable);
+			}
+			else if (ptrNode->GetPrincipalInterfaceType() == intfIInteger) {
+				CIntegerPtr ptrIntegerNode = static_cast<CIntegerPtr>(ptrNode);
+				int value = ptrIntegerNode->GetValue();
+				int max = ptrIntegerNode->GetMax();
+				int min = ptrIntegerNode->GetMin();
+				parent->dataField()->blockSignals(true);
+				if (parent->name() == "Width") {
+					m_frameSize.width = value;
+				}
+				else if (parent->name() == "Height") {
+					m_frameSize.height = value;
+				}
+				static_cast<intNode*>(parent)->setValue(value);
+				static_cast<intNode*>(parent)->setMinValue(min);
+				static_cast<intNode*>(parent)->setMaxValue(max);
+				parent->dataField()->blockSignals(false);
+				parent->setLocked(!writeable);
+				if (simpleSettings.contains(parent->name())) {
+					emit simpleSettingChanged(parent->name(), QString::number(ptrIntegerNode->GetValue()), writeable, min, max);
+				}
+			}
+			else if (ptrNode->GetPrincipalInterfaceType() == intfIFloat) {
+				CFloatPtr ptrFloatNode = static_cast<CFloatPtr>(ptrNode);
+				float value = ptrFloatNode->GetValue();
+				float max = ptrFloatNode->GetMax();
+				float min = ptrFloatNode->GetMin();
+				parent->dataField()->blockSignals(true);
+				static_cast<floatNode*>(parent)->setValue(value);
+				static_cast<floatNode*>(parent)->setMinValue(min);
+				static_cast<floatNode*>(parent)->setMaxValue(max);
+				parent->dataField()->blockSignals(false);
+				parent->setLocked(!writeable);
+				if (simpleSettings.contains(parent->name())) {
+					emit simpleSettingChanged(parent->name(), QString::number(ptrFloatNode->GetValue()), writeable, min, max);
+				}
+				if (parent->name() == "AcquisitionFrameRate") {
+					m_frameRate = std::max(1,static_cast<int>(ptrFloatNode->GetValue()));
+				}
+			}
+			else if (ptrNode->GetPrincipalInterfaceType() == intfIBoolean) {
+				CBooleanPtr ptrBooleanNode = static_cast<CBooleanPtr>(ptrNode);
+				bool value = ptrBooleanNode->GetValue();
+				parent->dataField()->blockSignals(true);
+				static_cast<boolNode*>(parent)->setValue(value);
+				parent->dataField()->blockSignals(false);
+				parent->setLocked(!writeable);
+				if (simpleSettings.contains(parent->name())) {
+					emit simpleSettingChanged(parent->name(), QString::number(ptrBooleanNode->GetValue()), writeable, 0,0);
+
+				}
+			}
+			else if (ptrNode->GetPrincipalInterfaceType() == intfIEnumeration) {
+				parent->dataField()->blockSignals(true);
+				CEnumerationPtr ptrEnumerationNode = static_cast<CEnumerationPtr>(ptrNode);
+				CEnumEntryPtr ptrCurrentEnumEntryNode = ptrEnumerationNode->GetCurrentEntry();
+				NodeList_t entries;
+				ptrEnumerationNode->GetEntries(entries);
+				NodeList_t::const_iterator it;
+				static_cast<enumNode*>(parent)->clearItems();
+				for (it = entries.begin(); it != entries.end(); ++it) {
+					CEnumEntryPtr ptrEnumEntryNode = *it;
+					if (IsAvailable(ptrEnumEntryNode) && IsReadable(ptrEnumEntryNode)) {
+						QString symbolic = QString::fromStdString(ptrEnumEntryNode->GetSymbolic().c_str());
+						enumItemNode *itemNode = new enumItemNode(parent, symbolic);
+						static_cast<enumNode*>(parent)->addItem(itemNode);
+						if (ptrCurrentEnumEntryNode == ptrEnumEntryNode) static_cast<enumNode*>(parent)->setCurrentItem(itemNode);
+					}
+				}
+				static_cast<QComboBox*>(parent->dataField())->setCurrentText(ptrCurrentEnumEntryNode->GetSymbolic().c_str());
+				parent->dataField()->blockSignals(false);
+				parent->setLocked(!writeable);
+				if (simpleSettings.contains(parent->name()))  {
+					emit simpleSettingChanged(parent->name(), QString::fromStdString(ptrCurrentEnumEntryNode->GetSymbolic().c_str()), writeable,0,0);
+				}
+				QString camPixelFormat = QString::fromStdString(ptrCurrentEnumEntryNode->GetSymbolic().c_str());
+				if (parent->name() == "PixelFormat") {
+					if (camPixelFormat == "BayerRG8") {
+						m_pixelFormat = PixelFormat::BayerRG8;
+					}
+					else if (camPixelFormat == "BayerGB8") {
+						m_pixelFormat = PixelFormat::BayerGB8;
+					}
+					else if (camPixelFormat == "BayerGR8") {
+						m_pixelFormat = PixelFormat::BayerGR8;
+					}
+					else if (camPixelFormat == "BayerBG8") {
+						m_pixelFormat = PixelFormat::BayerBG8;
+					}
+					else if (camPixelFormat == "BGR8") {
+						m_pixelFormat = PixelFormat::BGR8;
+					}
+					else if (camPixelFormat == "Mono8") {
+						m_pixelFormat = PixelFormat::Mono8;
+					}
+					else if (camPixelFormat == "YCbCr422_8") {
+						m_pixelFormat = PixelFormat::YCbCr422;
+					}
+				}
+			}
 		}
-		else {
-			try {
-				CNodePtr ptrNode = nodeMap.GetNode(child->name().toStdString().c_str());
-				if (!IsAvailable(ptrNode) || !IsReadable(ptrNode)) {
-						continue;
-				}
-				bool writeable = IsWritable(ptrNode);
-
-				if (ptrNode->GetPrincipalInterfaceType() == intfIString) {
-					CStringPtr ptrStringNode = static_cast<CStringPtr>(ptrNode);
-					QString value = QString::fromStdString(ptrStringNode->GetValue().c_str());
-					child->dataField()->blockSignals(true);
-					static_cast<QLineEdit*>(child->dataField())->setText(value);
-					child->dataField()->blockSignals(false);
-					child->setLocked(!writeable);
-				}
-				else if (ptrNode->GetPrincipalInterfaceType() == intfIInteger) {
-					CIntegerPtr ptrIntegerNode = static_cast<CIntegerPtr>(ptrNode);
-					int value = ptrIntegerNode->GetValue();
-					int max = ptrIntegerNode->GetMax();
-					int min = ptrIntegerNode->GetMin();
-					child->dataField()->blockSignals(true);
-					if (child->name() == "Width") {
-						m_frameSize.width = value;
-					}
-					else if (child->name() == "Height") {
-						m_frameSize.height = value;
-					}
-					static_cast<intNode*>(child)->setValue(value);
-					static_cast<intNode*>(child)->setMinValue(min);
-					static_cast<intNode*>(child)->setMaxValue(max);
-					child->dataField()->blockSignals(false);
-					child->setLocked(!writeable);
-					if (simpleSettings.contains(child->name())) {
-						emit simpleSettingChanged(child->name(), QString::number(ptrIntegerNode->GetValue()), writeable, min, max);
-					}
-				}
-				else if (ptrNode->GetPrincipalInterfaceType() == intfIFloat) {
-					CFloatPtr ptrFloatNode = static_cast<CFloatPtr>(ptrNode);
-					float value = ptrFloatNode->GetValue();
-					float max = ptrFloatNode->GetMax();
-					float min = ptrFloatNode->GetMin();
-					child->dataField()->blockSignals(true);
-					static_cast<floatNode*>(child)->setValue(value);
-					static_cast<floatNode*>(child)->setMinValue(min);
-					static_cast<floatNode*>(child)->setMaxValue(max);
-					child->dataField()->blockSignals(false);
-					child->setLocked(!writeable);
-					if (simpleSettings.contains(child->name())) {
-						emit simpleSettingChanged(child->name(), QString::number(ptrFloatNode->GetValue()), writeable, min, max);
-					}
-				}
-				else if (ptrNode->GetPrincipalInterfaceType() == intfIBoolean) {
-					CBooleanPtr ptrBooleanNode = static_cast<CBooleanPtr>(ptrNode);
-					bool value = ptrBooleanNode->GetValue();
-					child->dataField()->blockSignals(true);
-					static_cast<boolNode*>(child)->setValue(value);
-					child->dataField()->blockSignals(false);
-					child->setLocked(!writeable);
-					if (simpleSettings.contains(child->name())) {
-						emit simpleSettingChanged(child->name(), QString::number(ptrBooleanNode->GetValue()), writeable, 0,0);
-
-					}
-				}
-				else if (ptrNode->GetPrincipalInterfaceType() == intfIEnumeration) {
-					CEnumerationPtr ptrEnumerationNode = static_cast<CEnumerationPtr>(ptrNode);
-					CEnumEntryPtr ptrCurrentEnumEntryNode = ptrEnumerationNode->GetCurrentEntry();
-					child->dataField()->blockSignals(true);
-					static_cast<QComboBox*>(child->dataField())->setCurrentText(ptrCurrentEnumEntryNode->GetSymbolic().c_str());
-					child->dataField()->blockSignals(false);
-					child->setLocked(!writeable);
-					if (simpleSettings.contains(child->name()))  {
-						emit simpleSettingChanged(child->name(), QString::fromStdString(ptrCurrentEnumEntryNode->GetSymbolic().c_str()), writeable,0,0);
-					}
-				}
-			}
-			catch (Spinnaker::Exception& e) {
-				std::cout << "Error: " << e.what() << std::endl;
-			}
+		catch (Spinnaker::Exception& e) {
+			std::cout << "Error: " << e.what() << std::endl;
+			emit statusUpdated(statusType::Warning, e.what());
 		}
 	}
 }
 
 void FLIRChameleon::getSimpleSettingsValues() {
-	m_pCam->Init();
-	INodeMap& appLayerNodeMap = m_pCam->GetNodeMap();
-	updateSettings(appLayerNodeMap, m_cameraSettings->getRootNode()->children()[0]);
-	m_pCam->DeInit();
+	try {
+		bool deinit = false;
+		if(!m_pCam->IsInitialized()) {
+			m_pCam->Init();
+			deinit = true;
+		}
+		INodeMap& appLayerNodeMap = m_pCam->GetNodeMap();
+		updateSettings(appLayerNodeMap, m_cameraSettings->getRootNode()->children()[0]);
+		if (deinit) {
+			m_pCam->DeInit();
+		}
+	}
+	catch (Spinnaker::Exception& e) {
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
+	}
 }
 
 
@@ -555,45 +655,100 @@ void FLIRChameleon::changeSimpleSetting(const QString& setting, const QString& v
 	}
 }
 
-
+//TODO:: probably delete since now done by signal relay
 void FLIRChameleon::streamImageSlot(QImage img) {
 	emit streamImage(img);
 }
 
+int FLIRChameleon::getBufferUsage() {
+	int bufferState = 0;
+	INodeMap& nodeMapTLStream = m_pCam->GetTLStreamNodeMap();
+	CIntegerPtr ptrNode  = nodeMapTLStream.GetNode("StreamOutputBufferCount");
+	try {
+		if (IsAvailable(ptrNode))
+			bufferState = ptrNode->GetValue();
+	}
+	catch (Spinnaker::Exception& e) {
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
+	}
+	return bufferState;
+}
+
+int FLIRChameleon::getBufferSize() {
+	int bufferSize = 0;
+	INodeMap& nodeMapTLStream = m_pCam->GetTLStreamNodeMap();
+	CIntegerPtr ptrNode  = nodeMapTLStream.GetNode("StreamBufferCountResult");
+	try {
+		if (IsAvailable(ptrNode))
+			bufferSize = ptrNode->GetValue();
+	}
+	catch (Spinnaker::Exception& e) {
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
+	}
+	return bufferSize;
+}
 
 QString FLIRChameleon::getDefaultUserSet() {
-	m_pCam->Init();
-	INodeMap& nodeMap = m_pCam->GetNodeMap();
-	CEnumerationPtr ptrUserSetDefault = nodeMap.GetNode("UserSetDefault");
-	if (!IsAvailable(ptrUserSetDefault) || !IsReadable(ptrUserSetDefault)) {
-			std::cout << "Unable to access User Set Default(enum retrieval). Aborting..." << std::endl;
+	try {
+		bool deinit = false;
+		if (!m_pCam->IsInitialized()) {
+			m_pCam->Init();
+			deinit = true;
+		}
+		INodeMap& nodeMap = m_pCam->GetNodeMap();
+		CEnumerationPtr ptrUserSetDefault = nodeMap.GetNode("UserSetDefault");
+		if (!IsAvailable(ptrUserSetDefault) || !IsReadable(ptrUserSetDefault)) {
+				std::cout << "Unable to access User Set Default(enum retrieval). Aborting..." << std::endl;
+		}
+		QString userSet = QString::fromStdString(ptrUserSetDefault->GetCurrentEntry()->GetSymbolic().c_str());
+		if (deinit) {
+			m_pCam->DeInit();
+		}
+		return userSet;
 	}
-	QString userSet = QString::fromStdString(ptrUserSetDefault->GetCurrentEntry()->GetSymbolic().c_str());
-	m_pCam->DeInit();
-	return userSet;
+	catch (Spinnaker::Exception& e) {
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
+		return "Default";
+	}
 }
 
 
 bool FLIRChameleon::setDefaultUserSet(const QString& userSet) {
-	m_pCam->Init();
-	INodeMap& nodeMap = m_pCam->GetNodeMap();
-	CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
-	if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector)) {
-			std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl;
+	try {
+		bool deinit = false;
+		if (!m_pCam->IsInitialized()) {
+			m_pCam->Init();
+			deinit = true;
+		}
+		INodeMap& nodeMap = m_pCam->GetNodeMap();
+		CEnumerationPtr ptrUserSetSelector = nodeMap.GetNode("UserSetSelector");
+		if (!IsAvailable(ptrUserSetSelector) || !IsWritable(ptrUserSetSelector)) {
+				std::cout << "Unable to access User Set Selector (enum retrieval). Aborting..." << std::endl;
+		}
+		CEnumEntryPtr ptrUserSet = ptrUserSetSelector->GetEntryByName(userSet.toStdString().c_str());
+		if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
+				std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl;
+				return false;
+		}
+		CEnumerationPtr ptrUserSetDefault = nodeMap.GetNode("UserSetDefault");
+		if (!IsAvailable(ptrUserSetDefault) || !IsWritable(ptrUserSetDefault)) {
+				std::cout << "Unable to access User Set Default(enum retrieval). Aborting..." << std::endl;
+				return false;
+		}
+		ptrUserSetDefault->SetIntValue(ptrUserSet->GetValue());
+		if (deinit) {
+			m_pCam->DeInit();
+		}
+		return true;
 	}
-	CEnumEntryPtr ptrUserSet = ptrUserSetSelector->GetEntryByName(userSet.toStdString().c_str());
-	if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
-			std::cout << "Unable to access User Set (entry retrieval). Aborting..." << std::endl;
-			return false;
+	catch (Spinnaker::Exception& e) {
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
+		return false;
 	}
-	CEnumerationPtr ptrUserSetDefault = nodeMap.GetNode("UserSetDefault");
-	if (!IsAvailable(ptrUserSetDefault) || !IsWritable(ptrUserSetDefault)) {
-			std::cout << "Unable to access User Set Default(enum retrieval). Aborting..." << std::endl;
-			return false;
-	}
-	ptrUserSetDefault->SetIntValue(ptrUserSet->GetValue());
-	m_pCam->DeInit();
-	return true;
 }
 
 bool FLIRChameleon::saveUserSetToFile(const QString& userSet, const QString& path) {
@@ -831,6 +986,7 @@ bool FLIRChameleon::openFileToRead() {
   }
   catch (Spinnaker::Exception& e) {
       std::cout << "Unexpected exception : " << e.what() << std::endl;
+			emit statusUpdated(statusType::Warning, e.what());
       result = false;
   }
   return result;
@@ -852,6 +1008,7 @@ bool FLIRChameleon::openFileToWrite() {
     catch (Spinnaker::Exception& e)
     {
         std::cout << "Unexpected exception : " << e.what() << std::endl;
+				emit statusUpdated(statusType::Warning, e.what());
         result = false;
     }
     return result;
@@ -871,6 +1028,7 @@ bool FLIRChameleon::closeFile() {
   }
   catch (Spinnaker::Exception& e) {
       std::cout << "Unexpected exception : " << e.what() << std::endl;
+			emit statusUpdated(statusType::Warning, e.what());
       result = false;
   }
 }
@@ -887,6 +1045,7 @@ bool FLIRChameleon::executeReadCommand() {
   }
   catch (Spinnaker::Exception& e) {
       std::cout << "Unexpected exception : " << e.what() << std::endl;
+			emit statusUpdated(statusType::Warning, e.what());
       result = false;
   }
   return result;
@@ -906,6 +1065,7 @@ bool FLIRChameleon::executeWriteCommand() {
     catch (Spinnaker::Exception& e)
     {
         std::cout << "Unexpected exception : " << e.what() << std::endl;
+				emit statusUpdated(statusType::Warning, e.what());
         result = false;
     }
     return result;
@@ -925,6 +1085,7 @@ bool FLIRChameleon::executeDeleteCommand() {
     }
     catch (Spinnaker::Exception& e) {
         std::cout << "Unexpected exception : " << e.what() << std::endl;
+				emit statusUpdated(statusType::Warning, e.what());
         result = false;
     }
     return result;

@@ -257,9 +257,9 @@ void CameraSettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
 		connect(m_activeSettings->settingsTree(), SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(treeItemActivatedSlot(QTreeWidgetItem*, int)));
     m_cam = static_cast<CameraInterface*>(m_activeSettings->parent());
     connect(m_cam, &CameraInterface::simpleSettingChanged, this, &CameraSettingsWindow::simpleSettingChangedSlot);
-    if (!m_cam->isStreaming()) {
-      m_cam->getSimpleSettingsValues();
-    }
+    //if (!m_cam->isStreaming()) {
+    m_cam->getSimpleSettingsValues();
+    //}
     settingsLabel->setText(m_cam->cameraName() + " Settings");
     advancedSimpleAction->setEnabled(true);
 	}

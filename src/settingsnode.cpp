@@ -76,6 +76,9 @@ void enumNode::addItem(enumItemNode* item) {
 	m_enumItems.append(item);
 }
 
+void enumNode::clearItems() {
+	static_cast<QComboBox*>(m_dataField)->clear();
+}
 
 boolNode::boolNode(SettingsNode *parent, const QString& name)
 			: SettingsNode{Boolean, parent, name} {

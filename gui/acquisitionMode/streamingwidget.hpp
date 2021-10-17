@@ -27,7 +27,7 @@ class StreamingWidget : public QWidget {
 
 	public slots:
 	 void updateStreamingPanelsSlot(StreamingWidget::layoutType layout);
-	 void acquisitionStartedSlot(int width); 
+	 void acquisitionStartedSlot(); 
 
 	signals:
 		void togglePanel(CameraInterface* cam, bool toggle);

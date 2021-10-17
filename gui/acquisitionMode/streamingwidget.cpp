@@ -23,9 +23,9 @@ StreamingWidget::StreamingWidget(QWidget *parent) : QWidget(parent) {
 	biglayout->setMargin(0);
 }
 
-void StreamingWidget::acquisitionStartedSlot(int width) {
+void StreamingWidget::acquisitionStartedSlot() {
 	for (const auto& panel : streamingPanels) {
-		panel->imgViewer->fitToScreen(width);
+		panel->imgViewer->fitToScreen();
 	}
 }
 
@@ -91,7 +91,7 @@ void StreamingWidget::setSinglePanel(StreamingPanel *panel, int row, int col, in
 	panel->imgViewer->setSize(width,height-m_toolBarHeight);
 	panel->imgViewer->setMaximumSize(width, height-m_toolBarHeight);
 	panel->imgViewer->setMinimumSize(width, height-m_toolBarHeight);
-	panel->imgViewer->fitToScreen(1280);
+	panel->imgViewer->fitToScreen();
 	panel->imgViewer->setMinimumSize(minWidth,0);
 }
 

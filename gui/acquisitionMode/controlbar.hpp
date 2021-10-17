@@ -32,7 +32,7 @@ class ControlBar : public QToolBar {
 		void stopAcquisition();
 		void updateStreamingPanels(StreamingWidget::layoutType);
 		void recordingInfoFileCreated(QFile *file, QTime *time);
-		void acquisitionStarted(int width);
+		void acquisitionStarted();
 
 	private:
 		QFile *m_recordingInfoFile;

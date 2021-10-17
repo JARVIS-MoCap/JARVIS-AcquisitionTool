@@ -12,9 +12,9 @@
 #include "settingsobject.hpp"
 #include "recordinginterface.hpp"
 #include "baserecorder.hpp"
-
-#include "cudarecorder.hpp"
-
+#ifdef USE_CUDA
+	#include "cudarecorder.hpp"
+#endif
 #include <QTreeWidget>
 #include <QThread>
 
@@ -27,10 +27,12 @@ class AcquisitionWorker : public QObject {
 			if (m_acquisitionSpecs.recorderType == BaseRecorderType) {
 				m_recordingInterface = new BaseRecoder(cameraName, acquisitionSpecs);
 			}
+#ifdef USE_CUDA
 			else if (m_acquisitionSpecs.recorderType == CudaRecorderType) {
 				m_recordingInterface = new CudaRecorder(cameraName, acquisitionSpecs);
 				std::cout << "Cuda support" << std::endl;
 			}
+#endif
 	}
 
 	public slots:
@@ -44,6 +46,9 @@ class AcquisitionWorker : public QObject {
 	signals:
 		//void streamImage(QPixmap);
 		void streamImage(QImage);
+		void latencyAndFrameNumberUpdate(int latency, unsigned long frameNumber);
+		void statusUpdated(statusType status, const QString& statusMessage);
+
 };
 
 
@@ -66,6 +71,8 @@ class CameraInterface : public QObject {
 		virtual bool loadPreset(const QString& preset) = 0;
 		virtual void getSimpleSettingsValues() = 0;
 		virtual void changeSimpleSetting(const QString& setting, const QString& val) = 0;
+		virtual int getBufferUsage() = 0;
+		virtual int getBufferSize() = 0;
 
 	public slots:
 		virtual void settingChangedSlot(const QString& name, QList<QString> subMenus,
@@ -77,6 +84,7 @@ class CameraInterface : public QObject {
 
 	signals:
 		void streamImage(QImage);
+		void latencyAndFrameNumberUpdate(int latency, unsigned long frameNumber);
 		void statusUpdated(statusType status, const QString& statusMessage);
 		void simpleSettingChanged(const QString& settingName, const QString& value, bool enabled, double min, double max);
 
@@ -92,10 +100,12 @@ class CameraInterface : public QObject {
 
 		frameRate_t m_frameRate = 100;
 		frameSize_t m_frameSize {1280,1024};
-		PixelFormat m_pixelFormat = PixelFormat_BayerRG8;
+		PixelFormat m_pixelFormat = PixelFormat::BayerRG8;
 
 	protected slots:
-		void statusInitReady() {emit statusUpdated(Ready, "");};
+		void statusInitReady() {emit statusUpdated(Ready, "Camera initialized");};
+		void statusInitFailed() {emit statusUpdated(Error, "Camera Initialisation Failed!");};
+
 };
 
 

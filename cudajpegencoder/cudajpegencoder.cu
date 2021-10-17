@@ -10,10 +10,13 @@
 int dev_malloc(void **p, size_t s) { return (int)cudaMalloc(p, s); }
 int dev_free(void *p) { return (int)cudaFree(p); }
 
+enum PixelFormat {BayerRG8, BayerGB8, BayerGR8, BayerBG8, BGR8, Mono8, YCbCr422};
+
+
 CudaJPEGEncoder::CudaJPEGEncoder(int width, int height, const std::string videoPath,
-      int frameRate, bool saveRecording, int streamingSamplingRatio) :
+      int frameRate, bool saveRecording, int format, int streamingSamplingRatio) :
       m_frameWidth {width}, m_frameHeight{height}, m_saveRecording(saveRecording),
-      m_streamingSamplingRatio{streamingSamplingRatio} {
+      m_format(format), m_streamingSamplingRatio{streamingSamplingRatio} {
   encode_params_t params;
   params.dev = 0;         //Device number of GPU to be used
   params.quality = 95;    //JPEG compression quality factor
@@ -37,9 +40,20 @@ CudaJPEGEncoder::CudaJPEGEncoder(int width, int height, const std::string videoP
   checkCudaErrors(nvjpegEncoderParamsSetSamplingFactors(encode_params, NVJPEG_CSS_420, NULL));
 
   //Allocation of memory on GPU and host
-  checkCudaErrors(cudaMallocHost((void**)&data_pinned, m_frameWidth * m_frameHeight) );
-  checkCudaErrors(cudaMallocHost((void**)&receive_data_pinned, m_frameWidth * m_frameHeight*3) );
-  checkCudaErrors(cudaMalloc(&pBuffer, m_frameWidth * m_frameHeight));
+  if (format == BayerRG8 || format == BayerGB8 || format == BayerGR8 ||
+      format == BayerBG8 || format == Mono8) {
+    checkCudaErrors(cudaMallocHost((void**)&data_pinned, m_frameWidth * m_frameHeight) );
+    checkCudaErrors(cudaMalloc(&pBuffer, m_frameWidth * m_frameHeight));
+  }
+  else if (format == BGR8){
+    checkCudaErrors(cudaMallocHost((void**)&data_pinned, m_frameWidth * m_frameHeight * 3) );
+    checkCudaErrors(cudaMalloc(&pBuffer, m_frameWidth * m_frameHeight * 3));
+  }
+  else if (format == YCbCr422) {
+    checkCudaErrors(cudaMallocHost((void**)&data_pinned, m_frameWidth * m_frameHeight * 2) );
+    checkCudaErrors(cudaMalloc(&pBuffer, m_frameWidth * m_frameHeight * 2));
+  }
+  checkCudaErrors(cudaMallocHost((void**)&receive_data_pinned, m_frameWidth * m_frameHeight * 3) );
   checkCudaErrors(cudaMalloc(&pBuffer2, m_frameWidth * m_frameHeight * 3));
   checkCudaErrors(cudaMalloc(&pBuffer3, m_frameWidth/m_streamingSamplingRatio * m_frameHeight/m_streamingSamplingRatio * 3));
 
@@ -81,15 +95,47 @@ CudaJPEGEncoder::~CudaJPEGEncoder() {
 
 
 unsigned char * CudaJPEGEncoder::encodeImage(unsigned char * frameData, std::string &output_filename) {
+  if (m_format == BayerRG8 || m_format == BayerGB8 || m_format == BayerGR8 ||
+      m_format == BayerBG8 || m_format == Mono8) {
     memcpy(data_pinned, frameData, m_frameWidth * m_frameHeight);
     cudaMemcpy(pBuffer, data_pinned, m_frameWidth * m_frameHeight, cudaMemcpyHostToDevice);
+  }
+  else if (m_format == BGR8) {
+    memcpy(data_pinned, frameData, m_frameWidth * m_frameHeight * 3);
+    cudaMemcpy(pBuffer, data_pinned, m_frameWidth * m_frameHeight * 3, cudaMemcpyHostToDevice);
+  }
+  else if (m_format == YCbCr422) {
+    memcpy(data_pinned, frameData, m_frameWidth * m_frameHeight * 2);
+    cudaMemcpy(pBuffer, data_pinned, m_frameWidth * m_frameHeight * 2, cudaMemcpyHostToDevice);
+  }
 
     NppStreamContext stream;
     nppGetStreamContext (&stream);
 
     //Conversion from BayerRG8 to RGB888
-    nppiCFAToRGB_8u_C1C3R_Ctx (pBuffer, m_frameWidth, fullSize, fullRect, pBuffer2, m_frameWidth*3,
-       NPPI_BAYER_RGGB, NPPI_INTER_UNDEFINED, stream);
+    if(m_format == BayerRG8 || m_format == Mono8) {
+      nppiCFAToRGB_8u_C1C3R_Ctx (pBuffer, m_frameWidth, fullSize, fullRect, pBuffer2, m_frameWidth*3,
+         NPPI_BAYER_RGGB, NPPI_INTER_UNDEFINED, stream);
+    }
+    else if(m_format == BayerGB8) {
+      nppiCFAToRGB_8u_C1C3R_Ctx (pBuffer, m_frameWidth, fullSize, fullRect, pBuffer2, m_frameWidth*3,
+         NPPI_BAYER_GBRG, NPPI_INTER_UNDEFINED, stream);
+    }
+    else if(m_format == BayerGR8) {
+      nppiCFAToRGB_8u_C1C3R_Ctx (pBuffer, m_frameWidth, fullSize, fullRect, pBuffer2, m_frameWidth*3,
+         NPPI_BAYER_GRBG, NPPI_INTER_UNDEFINED, stream);
+    }
+    else if(m_format == BayerBG8) {
+      nppiCFAToRGB_8u_C1C3R_Ctx (pBuffer, m_frameWidth, fullSize, fullRect, pBuffer2, m_frameWidth*3,
+         NPPI_BAYER_BGGR, NPPI_INTER_UNDEFINED, stream);
+    }
+    else if (m_format == BGR8) {
+      Npp32f aTwist[3][4] = {{0,0,1,0},{0,1,0,0},{1,0,0,0}};
+      nppiColorTwist32f_8u_C3R_Ctx(pBuffer, m_frameWidth*3, pBuffer2, m_frameWidth*3, fullSize, aTwist, stream);
+    }
+    else if (m_format == YCbCr422) {
+      nppiYUV422ToRGB_8u_C2C3R_Ctx(pBuffer, m_frameWidth*2, pBuffer2, m_frameWidth*3, fullSize, stream);
+    }
 
     //Resizing of RGB image for streaming
     nppiResize_8u_C3R_Ctx(pBuffer2, m_frameWidth*3, fullSize, fullRect,

@@ -164,6 +164,7 @@ class enumNode : public SettingsNode {
 		explicit enumNode(SettingsNode *parent, const QString& name);
 
 		void addItem(enumItemNode* item);
+		void clearItems();
 		enumItemNode *item(int i) const {return m_enumItems[i];}
 		QList<enumItemNode*> items() const {return m_enumItems;}
 		void setCurrentItem(enumItemNode* item) {static_cast<QComboBox*>(m_dataField)->setCurrentText(item->displayName());}

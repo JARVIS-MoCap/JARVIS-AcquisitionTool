@@ -13,7 +13,7 @@ class ImageViewer : public QWidget {
 	Q_OBJECT
 	public:
 		void scale(float s);
-		void fitToScreen(int imageWidth);
+		void fitToScreen(int imageWidth = 0);
 		void setSize(int w, int h) {m_size = QSize(w,h);}
 		QSize sizeHint() const override {return m_size;}
 

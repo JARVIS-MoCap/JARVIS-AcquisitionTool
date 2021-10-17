@@ -14,12 +14,22 @@
 #include <npp.h>
 #include <nppi.h>
 
+// #include <nppidei.h>
+// #include <nppif.h>
+// #include <nppig.h>
+// #include <nppim.h>
+// #include <nppist.h>
+// #include <nppisu.h>
+// #include <nppitc.h>
+// #include <npps.h>
+
+
 int nvJPEGEncode();
 
 class CudaJPEGEncoder {
   public:
     explicit CudaJPEGEncoder(int width, int height, const std::string videoPath, int frameRate,
-          bool saveRecording, int streamingSamplingRatio = 1);
+          bool saveRecording, int format, int streamingSamplingRatio = 1);
     ~CudaJPEGEncoder();
     unsigned char * encodeImage(unsigned char *frameData, std::string &output_filename);
 
@@ -37,6 +47,7 @@ class CudaJPEGEncoder {
     int m_frameHeight;
     int m_frameWidth;
     bool m_saveRecording;
+    int m_format;
     int m_streamingSamplingRatio;
 
     nvjpegEncoderParams_t encode_params;
@@ -53,6 +64,8 @@ class CudaJPEGEncoder {
 
     NppiSize fullSize;
     NppiRect fullRect;
+    NppiSize fullSize16;
+    NppiRect fullRect16;
     NppiSize streamingSize;
     NppiRect streamingRect;
 

@@ -14,6 +14,7 @@
 #include "streamingwidget.hpp"
 #include "camerasettingswindow.hpp"
 #include "triggersettingswindow.hpp"
+#include "monitoringwindow.hpp"
 #include "camselectorwindow.hpp"
 
 #include <QMainWindow>
@@ -39,7 +40,7 @@ class AcquisitionMode : public QMainWindow {
 		ControlBar *controlBar;
 		CameraSettingsWindow *camSettingsWindow;
 		TriggerSettingsWindow *triggerSettingsWindow;
-		//SettingsWindow *streamingSettingsWindow;
+		MonitoringWindow *monitoringWindow;
 
 	private slots:
 		void loadCameraPresetSlot(settingsObject* activeSettings);

@@ -32,7 +32,7 @@ inline void delayl(int ms) {
 //----- Structs Definitions ----//
 enum statusType {Connecting, Ready, Streaming, Warning, Error};
 enum RecorderType {RawRecorderType, BaseRecorderType, CudaRecorderType};
-enum PixelFormat {PixelFormat_BayerRG8};
+enum PixelFormat {BayerRG8, BayerGB8, BayerGR8, BayerBG8, BGR8, Mono8, YCbCr422};
 extern QMap<statusType, QIcon> statusIcons;
 extern QMap<statusType, QString> statusTexts;
 

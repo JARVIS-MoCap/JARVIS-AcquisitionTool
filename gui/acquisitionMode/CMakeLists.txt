@@ -20,6 +20,10 @@ add_library(${PROJECT_NAME}
     saveflirpresetswindow.cpp
     loadflirpresetswindow.hpp
     loadflirpresetswindow.cpp
+    monitoringwindow.hpp
+    monitoringwindow.cpp
+    latencychartview.hpp
+    latencychartview.cpp
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -31,6 +35,7 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   Qt5::Widgets
+  Qt5::Charts
   src
   gui
 )

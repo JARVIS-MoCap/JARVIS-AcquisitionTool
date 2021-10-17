@@ -154,7 +154,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 				if (!cam->isStreaming()) trigger = false;
 			}
 		}
-		emit acquisitionStarted(320);
+		emit acquisitionStarted();
 		if (TriggerInterface::triggerInstance != nullptr) {
 			TriggerInterface::triggerInstance->enable();
 		}
@@ -179,7 +179,7 @@ void ControlBar::startClickedSlot(bool toggled) {
 		pauseAction->setEnabled(true);
 		stopAction->setEnabled(true);
 		recordingTimer->start(100);
-		emit acquisitionStarted(640);
+		emit acquisitionStarted();
 		if (TriggerInterface::triggerInstance != nullptr) {
 			TriggerInterface::triggerInstance->enable();
 		}

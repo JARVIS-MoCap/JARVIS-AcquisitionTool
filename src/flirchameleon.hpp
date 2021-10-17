@@ -51,6 +51,8 @@ class FLIRChameleon : public CameraInterface {
 		void getSimpleSettingsValues();
 		void changeSimpleSetting(const QString& setting, const QString& val);
 		const QString& getDeviceID() {return m_serialNumber;}
+		int getBufferUsage();
+		int getBufferSize();
 
 	public slots:
 		void settingChangedSlot(const QString& name, QList<QString> subMenus, SettingsNode::nodeType type,
