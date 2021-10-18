@@ -2,15 +2,28 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 
-project(CameraController VERSION 1.0.0  LANGUAGES CXX CUDA)
+project(CameraController VERSION 0.3.0  LANGUAGES CXX CUDA)
+
+if(APPLE)
+  set(OS_LIB_DIR "MacOS")
+elseif(WIN32)
+  set(OS_LIB_DIR "Windows")
+elseif(UNIX)
+  message ("System ${CMAKE_SYSTEM}")
+  if(${CMAKE_SYSTEM} MATCHES "Linux-5.11")
+    set(OS_LIB_DIR "Ubuntu_2004")
+  else()
+    set(OS_LIB_DIR "Ubuntu_1804")
+  endif()
+endif()
 
 #find_package(Qt5 COMPONENTS Widgets Core Gui Charts SerialPort REQUIRED)
 
-set(Qt5_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5")
-set(Qt5Core_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5Core")
-set(Qt5Widgets_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5Widgets")
-set(Qt5Charts_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5Charts")
-set(Qt5SerialPort_DIR "libs/Qt_5.15.2/Ubuntu_2004/lib/cmake/Qt5SerialPort")
+set(Qt5_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5")
+set(Qt5Core_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5Core")
+set(Qt5Widgets_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5Widgets")
+set(Qt5Charts_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5Charts")
+set(Qt5SerialPort_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5SerialPort")
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
@@ -25,7 +38,7 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
-set(OpenCV_DIR "../libs/OpenCV_4.5.1/Ubuntu_2004/lib/cmake/opencv4")
+set(OpenCV_DIR "../libs/OpenCV_4.5.1/${OS_LIB_DIR}/lib/cmake/opencv4")
 find_package(OpenCV REQUIRED)
 message(STATUS "OPENCV_DIR ${OpenCV_DIR}")
 

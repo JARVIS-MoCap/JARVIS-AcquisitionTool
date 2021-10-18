@@ -38,7 +38,6 @@ QImage CudaRecorder::recordFrame(uchar * frame) {
 	std::stringstream fileName;
 	fileName << m_recordingDir.path().toStdString() << "/Frame_" << m_frameCount << ".jpg";
 	std::string outName = fileName.str();
-	int formatCode;
 	uchar * img_data = m_cudaJPEGEncoder->encodeImage(frame, outName);
 	QImage img = QImage(img_data, m_acquisitionSpecs.frameSize.width/m_acquisitionSpecs.streamingSamplingRatio, m_acquisitionSpecs.frameSize.height/m_acquisitionSpecs.streamingSamplingRatio, QImage::Format_RGB888);
 	//QPixmap pix = QPixmap();

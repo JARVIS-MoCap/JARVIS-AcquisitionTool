@@ -101,6 +101,7 @@ CameraMonitor::CameraMonitor(CameraInterface * cam, QWidget *parent) : QGroupBox
   bufferStatusBar->setMinimumSize(10,15);
   bufferStatusBar->setMaximumSize(9999,15);
   latencyChartView = new LatencyChartView();
+  latencyChartView->hide();
   QWidget *bottomSpacer = new QWidget(this);
   bottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   layout->addWidget(cameraNameLabel,0,0,1,2);
@@ -112,9 +113,12 @@ CameraMonitor::CameraMonitor(CameraInterface * cam, QWidget *parent) : QGroupBox
 
 void CameraMonitor::latencyAndFrameNumberUpdateSlot(int latency, unsigned long frameNumber) {
   m_frameNumber = frameNumber;
-  latencyChartView->update(latency);
+  if (latencyChartView->isVisible()) {
+    latencyChartView->update(latency);
+    std::cout << "Updateing" << std::endl;
+  }
   if (m_bufferUpdateCounter %10 == 0) {
-    updateBufferState();
+      updateBufferState();
   }
   m_bufferUpdateCounter = (m_bufferUpdateCounter+1)%20;
 }
@@ -136,7 +140,7 @@ void CameraMonitor::updateBufferState() {
 }
 
 void CameraMonitor::toggleGraph(bool toggle) {
-  if (toggle) {
+  if (!toggle) {
     latencyChartView->show();
   }
   else {

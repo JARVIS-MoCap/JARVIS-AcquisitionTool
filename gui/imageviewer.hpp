@@ -18,7 +18,7 @@ class ImageViewer : public QWidget {
 		QSize sizeHint() const override {return m_size;}
 
 	public slots:
-		void setImage(QImage img);
+	void setImage(const QImage & img);
 
 	private:
 		QPixmap m_pixmap;

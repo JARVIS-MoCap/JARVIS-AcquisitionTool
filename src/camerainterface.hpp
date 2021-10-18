@@ -45,7 +45,7 @@ class AcquisitionWorker : public QObject {
 
 	signals:
 		//void streamImage(QPixmap);
-		void streamImage(QImage);
+		void streamImage(const  QImage & img);
 		void latencyAndFrameNumberUpdate(int latency, unsigned long frameNumber);
 		void statusUpdated(statusType status, const QString& statusMessage);
 
@@ -83,7 +83,7 @@ class CameraInterface : public QObject {
 		virtual void continueSlot() = 0;
 
 	signals:
-		void streamImage(QImage);
+		void streamImage(const QImage & img);
 		void latencyAndFrameNumberUpdate(int latency, unsigned long frameNumber);
 		void statusUpdated(statusType status, const QString& statusMessage);
 		void simpleSettingChanged(const QString& settingName, const QString& value, bool enabled, double min, double max);

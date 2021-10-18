@@ -138,7 +138,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 		else {
 			acquisitionSpecs.frameRate = 100;
 		}
-		acquisitionSpecs.streamingSamplingRatio = 4;
+		acquisitionSpecs.streamingSamplingRatio = 8;
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);
 		recordAction->setEnabled(false);

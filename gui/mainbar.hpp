@@ -8,10 +8,13 @@
 #define MAINBAR_H
 
 #include "globals.hpp"
+#include "settingswindow.hpp"
+#include "helpwindow.hpp"
 
 #include <QLabel>
 #include <QLineEdit>
 #include <QToolBar>
+
 
 class MainBar : public QToolBar {
 	Q_OBJECT
@@ -19,8 +22,16 @@ class MainBar : public QToolBar {
 		explicit MainBar(QWidget *parent = nullptr);
 
 	private:
+		SettingsWindow *settingsWindow;
+		HelpWindow *helpWindow;
 		QToolButton *settingsButton;
 		QAction *settingsAction;
+		QToolButton *helpButton;
+		QAction *helpAction;
+
+	private slots:
+		void settingsClickedSlot();
+		void helpClickedSlot();
 };
 
 #endif

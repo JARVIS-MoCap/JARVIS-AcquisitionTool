@@ -27,7 +27,7 @@ LatencyChartView::LatencyChartView() : QChartView() {
 	chart->addSeries(lineSeries);
 	axisX = new QValueAxis;
 	axisX->setTickCount(2);
-	axisX->setLabelFormat("%d");
+	axisX->setLabelFormat("@");
 	chart->addAxis(axisX, Qt::AlignBottom);
 	lineSeries->attachAxis(axisX);
 	axisY = new QValueAxis;
@@ -36,26 +36,28 @@ LatencyChartView::LatencyChartView() : QChartView() {
 	chart->addAxis(axisY, Qt::AlignLeft);
 	lineSeries->attachAxis(axisY);
 	this->setChart(chart);
-	axisX->setRange(0, 30);
+	axisX->setRange(0, 40);
 	axisY->setRange(0, 0.9);
 	axisX->setGridLineVisible(false);
 	axisY->setGridLineVisible(false);
-	axisY->setTickCount(2);
+	axisY->setTickCount(3);
 	this->setRenderHint(QPainter::Antialiasing);
 }
 
 
 void LatencyChartView::update(int value) {
-	if (m_values.size() > 29) {
+	if (m_values.size() > 39) {
 		m_values.erase(m_values.begin());
 	}
 	m_values.push_back(static_cast<double>(value)/1000.0);
 	double maxValue = *std::max_element(m_values.begin(), m_values.end());
-	double minValue = *std::min_element(m_values.begin(), m_values.end());
-	double range = maxValue-minValue;
-	axisY->setRange(std::max(0.0,minValue-0.3*range), maxValue+0.3*range);
+	axisY->setRange(0.0, 1.3*maxValue);
 	lineSeries->clear();
+	lineSeries->blockSignals(true);
 	for (int i = 0; i < m_values.size(); i++) {
+		if (i == m_values.size()-2) {
+			lineSeries->blockSignals(false);
+		}
 		lineSeries->append(i, m_values.at(i));
 	}
 }

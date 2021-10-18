@@ -10,6 +10,12 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
 	this->setFixedHeight(60);
 	this->setMovable(false);
 
+	settingsWindow = new SettingsWindow();
+	settingsWindow->hide();
+
+	helpWindow = new HelpWindow();
+	helpWindow->hide();
+
 	QLabel *iconLabel = new QLabel(this);
 	iconLabel->setPixmap(QIcon::fromTheme("hand").pixmap(50,50));
 	QWidget *nameSpacer = new QWidget(this);
@@ -23,9 +29,27 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
 	settingsAction = new QAction(this);
 	createToolBarButton(settingsButton, settingsAction, QIcon::fromTheme("settings"),
 				true, false, QSize(50,50));
+	connect(settingsAction, &QAction::triggered, this, &MainBar::settingsClickedSlot);
+	helpButton = new QToolButton(this);
+	helpAction = new QAction(this);
+	createToolBarButton(helpButton, helpAction, QIcon::fromTheme("help"),
+				true, false, QSize(50,50));
+	connect(helpAction, &QAction::triggered, this, &MainBar::helpClickedSlot);
 	this->addWidget(iconLabel);
 	this->addWidget(nameSpacer);
 	this->addWidget(nameLabel);
 	this->addWidget(spacer);
 	this->addWidget(settingsButton);
+	this->addSeparator();
+	this->addWidget(helpButton);
+}
+
+void MainBar::settingsClickedSlot() {
+	settingsWindow->show();
+	settingsWindow->raise();
+}
+
+void MainBar::helpClickedSlot() {
+	helpWindow->show();
+	helpWindow->raise();
 }

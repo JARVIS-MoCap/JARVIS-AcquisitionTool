@@ -177,9 +177,7 @@ unsigned char * CudaJPEGEncoder::encodeImage(unsigned char * frameData, std::str
       //Write jpeg image to file
       //std::ofstream outputFile(output_filename.c_str(), std::ios::out | std::ios::binary);
       //outputFile.write(reinterpret_cast<const char *>(obuffer.data()), static_cast<int>(length));
-      if (m_saveRecording) {
-        fwrite(reinterpret_cast<const char *>(obuffer.data()), 1 ,static_cast<int>(length), m_pipeout);
-      }
+      fwrite(reinterpret_cast<const char *>(obuffer.data()), 1 ,static_cast<int>(length), m_pipeout);
   }
 
   cudaMemcpy(receive_data_pinned, pBuffer3,

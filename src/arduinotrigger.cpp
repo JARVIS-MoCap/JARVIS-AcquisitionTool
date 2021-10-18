@@ -54,7 +54,7 @@ void ArduinoTrigger::createSettings() {
 }
 
 void ArduinoTrigger::enable() {
-	serialInterface->write(1000/m_frameRate);
+	serialInterface->write(m_frameRate);
 }
 
 void ArduinoTrigger::disable() {

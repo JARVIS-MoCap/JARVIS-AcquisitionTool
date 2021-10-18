@@ -34,22 +34,26 @@ FlirWorker::~FlirWorker() {
 
 void FlirWorker::acquireImages() {
 	unsigned long frameIndex = 0;
+	int duration_sum = 0;
 	forever {
 		try {
 			if (TriggerInterface::triggerInstance == nullptr && QThread::currentThread()->isInterruptionRequested()) break;
 			ImagePtr pResultImage = m_pCam->GetNextImage(2000/m_acquisitionSpecs.frameRate);
+
 			if (pResultImage->IsIncomplete()) {
 				emit statusUpdated(statusType::Error, "Incomplete Image received");
 			}
 			else {
 				auto t1 = std::chrono::high_resolution_clock::now();
-				QImage img = m_recordingInterface->recordFrame(static_cast<uchar*>(pResultImage->GetData()));
+				m_img = m_recordingInterface->recordFrame(static_cast<uchar*>(pResultImage->GetData()));
 				pResultImage->Release();
-				emit streamImage(img);
+				emit streamImage(m_img);
 				auto t2 = std::chrono::high_resolution_clock::now();
 				auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+				duration_sum += duration;
 				if (frameIndex > 0 && frameIndex%(std::max(1,m_acquisitionSpecs.frameRate/8)) == 0) {
-					emit latencyAndFrameNumberUpdate(duration, frameIndex);
+					emit latencyAndFrameNumberUpdate(duration_sum/std::max(1,m_acquisitionSpecs.frameRate/8), frameIndex);
+					duration_sum = 0;
 				}
 				frameIndex++;
 				//if (time_buffer < 0) time_buffer = 0;
@@ -62,7 +66,7 @@ void FlirWorker::acquireImages() {
 					if (QThread::currentThread()->isInterruptionRequested()) {
 						return;
 					}
-					else {
+					else if (TriggerInterface::triggerInstance == nullptr) {
 						emit statusUpdated(statusType::Error, e.what());
 					}
 				}

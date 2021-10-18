@@ -27,7 +27,7 @@ void ImageViewer::fitToScreen(int imageWidth) {
 	update();
 }
 
-void ImageViewer::setImage(QImage img) {
+void ImageViewer::setImage(const QImage &img) {
 	int old_imageWidth = m_image.size().width();
 	m_image = img;
 	m_rect = m_image.rect();

@@ -33,6 +33,7 @@ class FlirWorker : public AcquisitionWorker {
 
 	private:
 		const Spinnaker::CameraPtr m_pCam;
+		QImage m_img;
 };
 
 

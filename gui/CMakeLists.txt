@@ -19,6 +19,10 @@ add_library(${PROJECT_NAME}
     labelwithtooltip.cpp
     toggleswitch.cpp
     toggleswitch.hpp
+    settingswindow.hpp
+    settingswindow.cpp
+    helpwindow.hpp
+    helpwindow.cpp
 )
 
 target_include_directories(${PROJECT_NAME}

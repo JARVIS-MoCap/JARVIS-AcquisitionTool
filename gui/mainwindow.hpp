@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow {
 
 	private:
 		void closeEvent(QCloseEvent *event);
-
+		
 		MainBar *mainBar;
 		QTabWidget *modesWidget;
 		AcquisitionMode *acquisitionMode;
