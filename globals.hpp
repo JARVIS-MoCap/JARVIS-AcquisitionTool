@@ -15,12 +15,6 @@
 #include <QAction>
 #include <QDir>
 
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/calib3d.hpp>
-
 #define NUM_CAMS 12
 
 inline void delayl(int ms) {
@@ -71,10 +65,6 @@ typedef struct statusLog {
 	QString message;
 } statusLog;
 
-typedef struct CameraIntrinsics {
-	cv::Mat cameraMatrix;
-	cv::Mat distortionCoefficients;
-} CameraIntrinsics;
 
 void createToolBarButton(QToolButton * button, QAction* action, QIcon icon,
 			bool enabled = true, bool checkable = false, QSize minSize = QSize(20,20));

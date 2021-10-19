@@ -38,7 +38,7 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
-set(OpenCV_DIR "../libs/OpenCV_4.5.1/${OS_LIB_DIR}/lib/cmake/opencv4")
+set(OpenCV_DIR "libs/OpenCV_4.5.1/${OS_LIB_DIR}/lib/cmake/opencv4")
 find_package(OpenCV REQUIRED)
 message(STATUS "OPENCV_DIR ${OpenCV_DIR}")
 
