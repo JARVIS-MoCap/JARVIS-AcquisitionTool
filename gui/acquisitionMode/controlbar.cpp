@@ -138,7 +138,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 		else {
 			acquisitionSpecs.frameRate = 100;
 		}
-		acquisitionSpecs.streamingSamplingRatio = 8;
+		acquisitionSpecs.streamingSamplingRatio = globalSettings.streamingSubsamplingRatio;
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);
 		recordAction->setEnabled(false);
@@ -172,7 +172,8 @@ void ControlBar::startClickedSlot(bool toggled) {
 			acquisitionSpecs.frameRate = 100;
 		}
 		acquisitionSpecs.recorderType = CudaRecorderType;
-		acquisitionSpecs.streamingSamplingRatio = 2;
+		acquisitionSpecs.streamingSamplingRatio = globalSettings.streamingSubsamplingRatio;
+		std::cout << "acquisitionSpecs" << acquisitionSpecs.streamingSamplingRatio << std::endl;
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);
 		recordAction->setEnabled(false);

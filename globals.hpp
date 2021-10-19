@@ -37,6 +37,16 @@ extern QMap<statusType, QIcon> statusIcons;
 extern QMap<statusType, QString> statusTexts;
 
 //Not have this live in global forever please, thank you <3!
+struct GlobalSettings {
+	QString recorderType = "CudaRecorder";
+	bool recordVideos = true;
+	int jpegQualityFactor = 95;
+	int streamingSubsamplingRatio = 4;
+	bool streamingEnabled = true;
+	int recordingSubsamplingRatio = 2;
+};
+extern GlobalSettings globalSettings;
+
 typedef struct frameSize_t {
 	unsigned int width;
 	unsigned int height;

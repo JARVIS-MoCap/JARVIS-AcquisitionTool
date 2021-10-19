@@ -28,8 +28,8 @@ void ToggleSwitch::paintEvent(QPaintEvent *e) {
 	QPainter p(this);
 	p.setPen(Qt::NoPen);
 	if (isEnabled()) {
-		p.setBrush(m_switch ? brush() : QColor(22, 24, 26));
-		p.setOpacity(m_switch ? 0.5 : 0.38);
+		p.setBrush(m_switch ? brush() : QColor(24,24,24));
+		p.setOpacity(m_switch ? 0.5 : 1.0);
 		p.setRenderHint(QPainter::Antialiasing, true);
 		p.drawRoundedRect(QRect(m_margin, m_margin, width() - 2 * m_margin,
 														height() - 2 * m_margin), 8.0, 8.0);

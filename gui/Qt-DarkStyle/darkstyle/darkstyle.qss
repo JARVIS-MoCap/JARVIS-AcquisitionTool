@@ -1,3 +1,21 @@
+QSpinBox {
+   background-color: rgb(24,24,24);
+}
+
+/*QComboBox {
+   background-color: rgb(24,24,24);
+   border:1px solid palette(base);
+}
+
+QComboBox::hover {
+   background-color: rgb(24,24,24);
+   border:1px solid palette(highlight);
+}*/
+
+QDoubleSpinBox {
+   background-color: rgb(24,24,24);
+}
+
 QChartView {
     background-color:palette(base);
 }

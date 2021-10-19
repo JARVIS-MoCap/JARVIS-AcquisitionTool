@@ -35,6 +35,8 @@ class SettingsWindow : public QWidget {
 
 	private:
 		void loadSettings();
+		void updateSettings();
+
 		QSettings *settings;
 		QPushButton *closeButton;
 
@@ -44,12 +46,19 @@ class SettingsWindow : public QWidget {
 		QSpinBox *jpegQualityEdit;
 
 		//streamingSettings
-		QComboBox *streamingSubsamplingRatio;
+		QComboBox *streamingSubsamplingRatioBox;
 		ToggleSwitch *streamingEnabledSwitch;
-		QComboBox *recordingSubsamplingRatio;
+		QComboBox *recordingSubsamplingRatioBox;
 
 
 	private slots:
+		void recorderTypeChangedSlot(const QString& type);
+		void imageOrVideoSelectorChangedSlot(const QString& type);
+		void jpegQualityChangedSlot(int val);
+		void streamingSubsamplingRatioChangedSlot(const QString &ratio);
+		void streamingEnableToggledSlot(bool toggle);
+		void recordingSubsamplingRatioChangedSlot(const QString &ratio);
+
 
 };
 

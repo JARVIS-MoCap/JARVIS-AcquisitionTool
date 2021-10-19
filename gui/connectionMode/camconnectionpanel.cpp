@@ -30,6 +30,7 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 	addButton->setIcon(QIcon::fromTheme("add"));
 	addButton->setIconSize(QSize(100,100));
 	addButton->setStyleSheet("QPushButton {border-radius: 10px;"
+																				"background-color: palette(window);"
 																				"border: 4px solid rgb(32,100,164);}"
 													 "QPushButton:hover{ background-color: rgb(68,74,89);}");
 
