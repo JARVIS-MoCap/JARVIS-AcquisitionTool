@@ -16,10 +16,6 @@
 #include "Spinnaker.h"
 #include "SpinGenApi/SpinnakerGenApi.h"
 
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/imgcodecs.hpp>
-
 
 class FlirWorker : public AcquisitionWorker {
 	Q_OBJECT

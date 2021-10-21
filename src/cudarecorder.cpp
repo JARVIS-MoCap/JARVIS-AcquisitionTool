@@ -25,9 +25,18 @@ CudaRecorder::CudaRecorder(const QString& cameraName, const AcquisitionSpecs& ac
 		}
 
 	}
-	m_cudaJPEGEncoder = new CudaJPEGEncoder(acquisitionSpecs.frameSize.width,
-		acquisitionSpecs.frameSize.height, outvideoName_str, acquisitionSpecs.frameRate,
-		 m_acquisitionSpecs.record, m_acquisitionSpecs.pixelFormat,acquisitionSpecs.streamingSamplingRatio);
+	CudaJPEGEncoder::CudaJPEGEncoderConfig encoderConfig;
+	encoderConfig.width = m_acquisitionSpecs.frameSize.width;
+	encoderConfig.height = m_acquisitionSpecs.frameSize.height;
+	encoderConfig.frameRate = m_acquisitionSpecs.frameRate;
+	encoderConfig.pixelFormat = m_acquisitionSpecs.pixelFormat;
+	encoderConfig.saveRecording = m_acquisitionSpecs.record;
+	encoderConfig.videoPath = outvideoName_str;
+	encoderConfig.streamingEnabled = !m_acquisitionSpecs.record || globalSettings.streamingEnabled;
+	encoderConfig.streamingSamplingRatio = m_acquisitionSpecs.streamingSamplingRatio;
+	encoderConfig.jpegQualityFactor = globalSettings.jpegQualityFactor;
+
+	m_cudaJPEGEncoder = new CudaJPEGEncoder(encoderConfig);
 }
 
 CudaRecorder::~CudaRecorder() {
@@ -35,14 +44,14 @@ CudaRecorder::~CudaRecorder() {
 }
 
 QImage CudaRecorder::recordFrame(uchar * frame) {
-	std::stringstream fileName;
-	fileName << m_recordingDir.path().toStdString() << "/Frame_" << m_frameCount << ".jpg";
-	std::string outName = fileName.str();
-	uchar * img_data = m_cudaJPEGEncoder->encodeImage(frame, outName);
-	QImage img = QImage(img_data, m_acquisitionSpecs.frameSize.width/m_acquisitionSpecs.streamingSamplingRatio, m_acquisitionSpecs.frameSize.height/m_acquisitionSpecs.streamingSamplingRatio, QImage::Format_RGB888);
-	//QPixmap pix = QPixmap();
-	//pix.convertFromImage(img);
-	//std::cout << m_frameCount << std::endl;
+	// std::stringstream fileName;
+	// fileName << m_recordingDir.path().toStdString() << "/Frame_" << m_frameCount << ".jpg";
+	// std::string outName = fileName.str();
+	uchar * img_data = m_cudaJPEGEncoder->encodeImage(frame);
+	QImage img = QImage(img_data,
+				m_acquisitionSpecs.frameSize.width/m_acquisitionSpecs.streamingSamplingRatio,
+				m_acquisitionSpecs.frameSize.height/m_acquisitionSpecs.streamingSamplingRatio,
+				QImage::Format_RGB888);
 	m_frameCount++;
 	return img;
 }

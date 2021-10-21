@@ -31,6 +31,7 @@ class ToggleSwitch : public QAbstractButton {
 		int offset() const {return m_x;}
 		void setOffset(int o);
     void setToggled(bool toggle);
+    bool isToggled() {return m_switch;};
 
   signals:
     void toggled(bool toggle);

@@ -82,7 +82,7 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 	int idx = 0;
 	for (auto &camPanel : camPanels) {
 		camPanel = new CamConnectionPanel(this);
-		campanellayout->addWidget(camPanel, idx/(NUM_CAMS/3), idx%(NUM_CAMS/3));
+		campanellayout->addWidget(camPanel, idx/(NUM_CAMS/4), idx%(NUM_CAMS/4));
 		idx++;
 		connect(camPanel, &CamConnectionPanel::camListChanged,
 						this, &ConnectionWidget::camListChangedSlot);
@@ -185,7 +185,7 @@ void ConnectionWidget::camLoadPresetSlot(QString preset) {
 	for (auto &camPanel : camPanels) {
 		delete camPanel;
 		camPanel = new CamConnectionPanel(this);
-		campanellayout->addWidget(camPanel, idx/(NUM_CAMS/3), idx%(NUM_CAMS/3));
+		campanellayout->addWidget(camPanel, idx/(NUM_CAMS/4), idx%(NUM_CAMS/4));
 		connect(camPanel, &CamConnectionPanel::camListChanged,
 						this, &ConnectionWidget::camListChangedSlot);
 		connect(camPanel, &CamConnectionPanel::camAdded,

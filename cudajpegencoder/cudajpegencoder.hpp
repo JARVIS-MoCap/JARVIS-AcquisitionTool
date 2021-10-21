@@ -14,24 +14,24 @@
 #include <npp.h>
 #include <nppi.h>
 
-// #include <nppidei.h>
-// #include <nppif.h>
-// #include <nppig.h>
-// #include <nppim.h>
-// #include <nppist.h>
-// #include <nppisu.h>
-// #include <nppitc.h>
-// #include <npps.h>
-
-
-int nvJPEGEncode();
 
 class CudaJPEGEncoder {
   public:
-    explicit CudaJPEGEncoder(int width, int height, const std::string videoPath, int frameRate,
-          bool saveRecording, int format, int streamingSamplingRatio = 1);
+    struct CudaJPEGEncoderConfig {
+      int width;
+    	int height;
+      int frameRate;
+      int pixelFormat;
+      bool saveRecording;
+      std::string videoPath;
+      bool streamingEnabled;
+      int streamingSamplingRatio;
+      int jpegQualityFactor;
+    };
+
+    explicit CudaJPEGEncoder(CudaJPEGEncoderConfig encoderConfig);
     ~CudaJPEGEncoder();
-    unsigned char * encodeImage(unsigned char *frameData, std::string &output_filename);
+    unsigned char *encodeImage(unsigned char *frameData);
 
   private:
     struct encode_params_t {
@@ -44,11 +44,8 @@ class CudaJPEGEncoder {
       int dev;
     };
 
-    int m_frameHeight;
-    int m_frameWidth;
-    bool m_saveRecording;
-    int m_format;
-    int m_streamingSamplingRatio;
+    CudaJPEGEncoderConfig m_encoderConfig;
+    enum PixelFormat {BayerRG8, BayerGB8, BayerGR8, BayerBG8, BGR8, Mono8, YCbCr422};
 
     nvjpegEncoderParams_t encode_params;
     nvjpegHandle_t nvjpeg_handle;

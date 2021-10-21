@@ -47,7 +47,9 @@ void FlirWorker::acquireImages() {
 				auto t1 = std::chrono::high_resolution_clock::now();
 				m_img = m_recordingInterface->recordFrame(static_cast<uchar*>(pResultImage->GetData()));
 				pResultImage->Release();
-				emit streamImage(m_img);
+				if (!m_acquisitionSpecs.record || globalSettings.streamingEnabled) {
+					emit streamImage(m_img);
+				}
 				auto t2 = std::chrono::high_resolution_clock::now();
 				auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
 				duration_sum += duration;
@@ -56,8 +58,6 @@ void FlirWorker::acquireImages() {
 					duration_sum = 0;
 				}
 				frameIndex++;
-				//if (time_buffer < 0) time_buffer = 0;
-				//if (time_buffer > 20000) std::cout << time_buffer << std::endl;
 			}
 		}
 		catch (Spinnaker::Exception& e)

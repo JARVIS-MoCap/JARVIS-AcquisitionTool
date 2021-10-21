@@ -15,7 +15,7 @@
 #include <QAction>
 #include <QDir>
 
-#define NUM_CAMS 12
+#define NUM_CAMS 16
 
 inline void delayl(int ms) {
 	//delay function that doesn't interrupt the QEventLoop
@@ -32,7 +32,7 @@ extern QMap<statusType, QString> statusTexts;
 
 //Not have this live in global forever please, thank you <3!
 struct GlobalSettings {
-	QString recorderType = "CudaRecorder";
+	QString recorderType = "Cuda Recorder";
 	bool recordVideos = true;
 	int jpegQualityFactor = 95;
 	int streamingSubsamplingRatio = 4;

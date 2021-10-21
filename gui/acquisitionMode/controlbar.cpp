@@ -131,14 +131,19 @@ void ControlBar::recordClickedSlot(bool toggled) {
 		AcquisitionSpecs acquisitionSpecs;
 		acquisitionSpecs.record = true;
 		acquisitionSpecs.recordingDir = recordingDir;
-		acquisitionSpecs.recorderType = CudaRecorderType;
+		if (globalSettings.recorderType == "Cuda Recorder") {
+			acquisitionSpecs.recorderType = CudaRecorderType;
+		}
+		else {
+			acquisitionSpecs.recorderType = BaseRecorderType;
+		}
 		if (TriggerInterface::triggerInstance != nullptr) {
 			acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
 		}
 		else {
 			acquisitionSpecs.frameRate = 100;
 		}
-		acquisitionSpecs.streamingSamplingRatio = globalSettings.streamingSubsamplingRatio;
+		acquisitionSpecs.streamingSamplingRatio = globalSettings.recordingSubsamplingRatio;
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);
 		recordAction->setEnabled(false);
@@ -171,8 +176,14 @@ void ControlBar::startClickedSlot(bool toggled) {
 		else {
 			acquisitionSpecs.frameRate = 100;
 		}
-		acquisitionSpecs.recorderType = CudaRecorderType;
+		if (globalSettings.recorderType == "Cuda Recorder") {
+			acquisitionSpecs.recorderType = CudaRecorderType;
+		}
+		else {
+			acquisitionSpecs.recorderType = BaseRecorderType;
+		}
 		acquisitionSpecs.streamingSamplingRatio = globalSettings.streamingSubsamplingRatio;
+		std::cout << globalSettings.streamingSubsamplingRatio << std::endl;
 		std::cout << "acquisitionSpecs" << acquisitionSpecs.streamingSamplingRatio << std::endl;
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);

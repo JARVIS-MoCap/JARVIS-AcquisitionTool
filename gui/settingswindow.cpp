@@ -41,7 +41,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
 
 
 	//recorderSettings
-	LabelWithToolTip *recorderTypeLabel = new LabelWithToolTip("Recorder Type");
+	LabelWithToolTip *recorderTypeLabel = new LabelWithToolTip("Recorder Type", "The Cuda Recorder uses GPU acceleration for compression. The Base Recorder does not require a GPU.");
 	recorderTypeBox = new QComboBox(this);
 	recorderTypeBox->setMaximumSize(150,30);
 #ifdef USE_CUDA
@@ -49,13 +49,13 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
 #endif
 	recorderTypeBox->addItem("Base Recorder");
 	connect(recorderTypeBox, &QComboBox::currentTextChanged, this, &SettingsWindow::recorderTypeChangedSlot);
-	LabelWithToolTip *imageOrVideoLabel = new LabelWithToolTip("Recording Format");
+	LabelWithToolTip *imageOrVideoLabel = new LabelWithToolTip("Recording Format", "Select if you want to save videos or images. Currently only videos are implemented.");
 	imageOrVideoSelectorBox = new QComboBox(this);
 	imageOrVideoSelectorBox->setMaximumSize(150,30);
 	imageOrVideoSelectorBox->addItem("Videos");
-	imageOrVideoSelectorBox->addItem("Images");
+	//imageOrVideoSelectorBox->addItem("Images");
 	connect(imageOrVideoSelectorBox, &QComboBox::currentTextChanged, this, &SettingsWindow::imageOrVideoSelectorChangedSlot);
-	LabelWithToolTip *jpegQualityLabel = new LabelWithToolTip("JPEG Quality Factor");
+	LabelWithToolTip *jpegQualityLabel = new LabelWithToolTip("JPEG Quality Factor", "Quality factor for JPEG compression. Higher numbers give higher quality but slow down compression.");
 	jpegQualityEdit = new QSpinBox();
 	jpegQualityEdit->setRange(0,100);
 	jpegQualityEdit->setValue(95);
@@ -68,7 +68,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
 	recordersettingslayout->addWidget(jpegQualityLabel,2,0);
 	recordersettingslayout->addWidget(jpegQualityEdit,2,1);
 
-	LabelWithToolTip *streamingSubsamplingRatioLabel = new LabelWithToolTip("Streaming Subsampling Ratio");
+	LabelWithToolTip *streamingSubsamplingRatioLabel = new LabelWithToolTip("Streaming Subsampling Ratio", "Displayed camera images get scaled down by the selected factor during streaming.");
 	streamingSubsamplingRatioBox = new QComboBox(this);
 	streamingSubsamplingRatioBox->setMaximumSize(100,30);
 	streamingSubsamplingRatioBox->addItem("1");
@@ -78,12 +78,12 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
 	streamingSubsamplingRatioBox->addItem("16");
 	connect(streamingSubsamplingRatioBox, &QComboBox::currentTextChanged, this, &SettingsWindow::streamingSubsamplingRatioChangedSlot);
 
-	LabelWithToolTip *streamingEnabledLabel = new LabelWithToolTip("Streaming enabled during Recording");
+	LabelWithToolTip *streamingEnabledLabel = new LabelWithToolTip("Streaming enabled during Recording", "If this is unselected no live view of your cameras is available during recording. Recording at slightly higher frame rates are possible.");
 	streamingEnabledSwitch = new ToggleSwitch();
 	streamingEnabledSwitch->setMaximumSize(80,20);
 	streamingEnabledSwitch->setToggled(true);
 	connect(streamingEnabledSwitch, &ToggleSwitch::toggled, this, &SettingsWindow::streamingEnableToggledSlot);
-	LabelWithToolTip *recordingSubsamplingRatioLabel = new LabelWithToolTip("Recording Subsampling Ratio");
+	LabelWithToolTip *recordingSubsamplingRatioLabel = new LabelWithToolTip("Recording Subsampling Ratio", "Displayed camera images get scaled down by the selected factor during recording.");
 	recordingSubsamplingRatioBox = new QComboBox(this);
 	recordingSubsamplingRatioBox->setMaximumSize(100,30);
 	recordingSubsamplingRatioBox->addItem("1");
@@ -105,19 +105,79 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
 
 
 void SettingsWindow::loadSettings() {
-	settings->beginGroup("Settings");
+	settings->beginGroup("GlobalSettings");
 	settings->beginGroup("RecorderSettings");
+	if (settings->contains("RecorderType")) {
+		recorderTypeBox->setCurrentText(settings->value("RecorderType").toString());
+	}
+	else {
+		recorderTypeBox->setCurrentText("Cuda Recorder");
+	}
+	globalSettings.recorderType = recorderTypeBox->currentText();
+	jpegQualityEdit->setEnabled(recorderTypeBox->currentText() == "Cuda Recorder");
+
+	if (settings->contains("ImageOrVideo")) {
+		imageOrVideoSelectorBox->setCurrentText(settings->value("ImageOrVideo").toString());
+	}
+	else {
+		imageOrVideoSelectorBox->setCurrentText("Videos");
+	}
+	globalSettings.recordVideos = settings->value("ImageOrVideo").toString() == "Videos";
+	if (settings->contains("jpegQualityFactor")) {
+		jpegQualityEdit->setValue(settings->value("jpegQualityFactor").toInt());
+	}
+	else {
+		jpegQualityEdit->setValue(95);
+	}
+	globalSettings.jpegQualityFactor = jpegQualityEdit->value();
 	settings->endGroup();
 	settings->beginGroup("StreamingSettings");
+	if (settings->contains("StreamingSubsamplingRatio")) {
+		streamingSubsamplingRatioBox->setCurrentText(settings->value("StreamingSubsamplingRatio").toString());
+	}
+	else {
+		streamingSubsamplingRatioBox->setCurrentText("2");
+	}
+	globalSettings.streamingSubsamplingRatio = streamingSubsamplingRatioBox->currentText().toInt();
+	if (settings->contains("StreamingEnabled")) {
+		std::cout << "Toggled. " << settings->value("StreamingEnabled").toBool() << std::endl;
+		streamingEnabledSwitch->setToggled(settings->value("StreamingEnabled").toBool());
+	}
+	else {
+		streamingEnabledSwitch->setToggled(true);
+	}
+	recordingSubsamplingRatioBox->setEnabled(streamingEnabledSwitch->isToggled());
+	globalSettings.streamingEnabled = streamingEnabledSwitch->isToggled();
+	if (settings->contains("RecordingSubsamplingRatio")) {
+		recordingSubsamplingRatioBox->setCurrentText(settings->value("RecordingSubsamplingRatio").toString());
+	}
+	else {
+		recordingSubsamplingRatioBox->setCurrentText("4");
+	}
+	globalSettings.recordingSubsamplingRatio = recordingSubsamplingRatioBox->currentText().toInt();
+	settings->endGroup();
 	settings->endGroup();
 }
 
+
 void SettingsWindow::updateSettings() {
-	std::cout << "Updated settingd" << std::endl;
+	settings->beginGroup("GlobalSettings");
+	settings->beginGroup("RecorderSettings");
+	settings->setValue("RecorderType", recorderTypeBox->currentText());
+	settings->setValue("ImageOrVideo", imageOrVideoSelectorBox->currentText());
+	settings->setValue("jpegQualityFactor", jpegQualityEdit->value());
+	settings->endGroup();
+	settings->beginGroup("StreamingSettings");
+	settings->setValue("StreamingSubsamplingRatio", streamingSubsamplingRatioBox->currentText());
+	settings->setValue("StreamingEnabled", streamingEnabledSwitch->isToggled());
+	settings->setValue("RecordingSubsamplingRatio", recordingSubsamplingRatioBox->currentText());
+	settings->endGroup();
+	settings->endGroup();
 }
 
 void SettingsWindow::recorderTypeChangedSlot(const QString& type) {
 	globalSettings.recorderType = type;
+	jpegQualityEdit->setEnabled(type == "Cuda Recorder");
 	updateSettings();
 }
 
