@@ -1,16 +1,21 @@
-/*------------------------------------------------------------
- *  imageviewer.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  imageviewer.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef IMAGEVIEWER_H
 #define IMAGEVIEWER_H
 
 #include "globals.hpp"
 
+
 class ImageViewer : public QWidget {
 	Q_OBJECT
+
 	public:
 		void scale(float s);
 		void fitToScreen(int imageWidth = 0);
@@ -18,7 +23,7 @@ class ImageViewer : public QWidget {
 		QSize sizeHint() const override {return m_size;}
 
 	public slots:
-	void setImage(const QImage & img);
+		void setImage(const QImage & img);
 
 	private:
 		QPixmap m_pixmap;

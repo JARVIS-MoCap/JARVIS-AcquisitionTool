@@ -16,7 +16,7 @@
 #include <QGroupBox>
 #include <QScrollArea>
 
-CameraSettingsWindow::CameraSettingsWindow(QWidget *parent, settingsObject *activeSettings) :
+CameraSettingsWindow::CameraSettingsWindow(QWidget *parent, SettingsObject *activeSettings) :
       QDockWidget(parent, Qt::Window), m_activeSettings{activeSettings} {
 	settings = new QSettings();
 	setMinimumSize(335,100);
@@ -215,7 +215,7 @@ CameraSettingsWindow::CameraSettingsWindow(QWidget *parent, settingsObject *acti
 }
 
 
-void CameraSettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
+void CameraSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
   if (m_activeSettings != nullptr) {
     advancedSimpleStackWidget->removeWidget(m_activeSettings->settingsTree());
     settingsLabel->setText("Camera Settings");
@@ -242,7 +242,7 @@ void CameraSettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
 	if (newSettings == nullptr) {
 		savePresetAction->setEnabled(false);
 		loadPresetAction->setEnabled(false);
-		m_activeSettings = new settingsObject();
+		m_activeSettings = new SettingsObject();
 		m_activeSettings->settingsTree()->setAlternatingRowColors(true);
 		m_activeSettings->settingsTree()->setColumnCount(2);
 		QStringList ColumnNames;

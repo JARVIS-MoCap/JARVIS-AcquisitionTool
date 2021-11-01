@@ -63,7 +63,7 @@ class CameraInterface : public QObject {
 		CameraType cameraType() const {return m_cameraType;}
 		void setCameraName(const QString& name) {m_cameraName = name;}
 		QString cameraName() const {return m_cameraName;}
-		settingsObject* cameraSettings() const {return m_cameraSettings;}
+		SettingsObject* cameraSettings() const {return m_cameraSettings;}
 		bool isStreaming() const {return m_isStreaming;}
 		void setCameraStatus(const statusType& status) {m_cameraStatus = status;} //maybe clearCameraStatus() isntead??
 		statusType cameraStatus() const {return m_cameraStatus;}
@@ -92,8 +92,8 @@ class CameraInterface : public QObject {
 		QSettings *settings = new QSettings();
 		const CameraType m_cameraType;
 		QString m_cameraName;
-		rootNode *m_cameraSettingsRootNode; //not sure if needed, might be enough to have settingsObject
-		settingsObject *m_cameraSettings;
+		RootNode *m_cameraSettingsRootNode; //not sure if needed, might be enough to have settingsObject
+		SettingsObject *m_cameraSettings;
 		bool m_isStreaming = false;
 		statusType m_cameraStatus = Connecting;
 		AcquisitionWorker *m_acquisitionWorker;

@@ -24,13 +24,13 @@
 class TriggerSettingsWindow : public QDockWidget {
 	Q_OBJECT
 	public:
-		explicit TriggerSettingsWindow(QWidget *parent = nullptr, settingsObject *activeSettings = nullptr);
+		explicit TriggerSettingsWindow(QWidget *parent = nullptr, SettingsObject *activeSettings = nullptr);
 
 	public slots:
-		void setSettingsObjectSlot(settingsObject*);
+		void setSettingsObjectSlot(SettingsObject*);
 
 	signals:
-		void loadPreset(settingsObject*);
+		void loadPreset(SettingsObject*);
 
 	private:
 		QSettings *settings;
@@ -63,7 +63,7 @@ class TriggerSettingsWindow : public QDockWidget {
 		QStackedWidget *advancedSimpleStackWidget;
 		QSpinBox *frameRateEdit;
 
-		settingsObject *m_activeSettings = nullptr;
+		SettingsObject *m_activeSettings = nullptr;
 
 		void saveSettingsLayer(SettingsNode* node);
 		void loadSettingsLayer(SettingsNode* node);

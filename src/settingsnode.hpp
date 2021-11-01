@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  settingsnode.hpp
- *  Created: 23 June 2020
- *  Author:  Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  settingsnode.hpp
+ * Created: 	  23 June 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef SETTINGSNODE_H
 #define SETTINGSNODE_H
@@ -22,6 +25,7 @@
 
 class SettingsNode: public QObject {
 	Q_OBJECT
+
 	public:
 		enum nodeType {
 			Root,
@@ -34,7 +38,8 @@ class SettingsNode: public QObject {
 			Boolean,
 			Action
 		};
-		explicit SettingsNode(nodeType type, SettingsNode* parent, const QString& name);
+		explicit SettingsNode(nodeType type, SettingsNode* parent,
+					const QString& name);
 
 		nodeType type() const {return m_type;}
 		QString name() const {return m_name;}
@@ -65,46 +70,51 @@ class SettingsNode: public QObject {
 		bool m_locked = false;
 		QList<SettingsNode*> m_children = {};
 
-	private slots:
+	protected slots:
 		void dataChangedSlot(const QString& data) {emit dataChanged(data);};
 		void dataChangedSlot(int data) {emit dataChanged(QString::number(data));};
 		void dataChangedSlot() {emit dataChanged("");};
 };
 
 
-class rootNode : public SettingsNode {
+class RootNode : public SettingsNode {
 	Q_OBJECT
 	public:
-		explicit rootNode(const QString& name = "");
+		explicit RootNode(const QString& name = "");
 };
 
 
-class categoryNode : public SettingsNode {
+class CategoryNode : public SettingsNode {
 	Q_OBJECT
 	public:
-		explicit categoryNode(SettingsNode *parent, const QString& name);
+		explicit CategoryNode(SettingsNode *parent, const QString& name);
 };
 
 
-class stringNode : public SettingsNode {
+class StringNode : public SettingsNode {
 	Q_OBJECT
 	public:
-		explicit stringNode(SettingsNode *parent, const QString& name);
+		explicit StringNode(SettingsNode *parent, const QString& name);
 
 		void setDefaultValue(const QString& val) {m_defaultValue = val;}
 		QString defaultValue() const {return m_defaultValue;}
-		void setValue(const QString& val) {static_cast<QLineEdit*>(m_dataField)->setText(val);}
-		QString value() const {return static_cast<QLineEdit*>(m_dataField)->text();}
+		void setValue(const QString& val) {
+			static_cast<QLineEdit*>(m_dataField)->setText(val);
+		}
+
+		QString value() const {
+			return static_cast<QLineEdit*>(m_dataField)->text();
+		}
 
 	private:
 		QString m_defaultValue = "";
 	};
 
 
-	class intNode : public SettingsNode {
+	class IntNode : public SettingsNode {
 		Q_OBJECT
 	public:
-		explicit intNode(SettingsNode *parent, const QString& name);
+		explicit IntNode(SettingsNode *parent, const QString& name);
 
 		void setDefaultValue(int val) {m_defaultValue = val;}
 		int defaultValue() const {return m_defaultValue;}
@@ -113,7 +123,9 @@ class stringNode : public SettingsNode {
 		void setMaxValue(int val) {m_maxValue = val;}
 		int maxValue() const {return m_maxValue;}
 		void setRange(int min, int max) {m_minValue = min; m_maxValue = max;}
-		void setValue(int val) 	{static_cast<QLineEdit*>(m_dataField)->setText(QString::number(val));}
+		void setValue(int val) {
+			static_cast<QLineEdit*>(m_dataField)->setText(QString::number(val));
+		}
 		int value() {return static_cast<QLineEdit*>(m_dataField)->text().toInt();}
 
 	private:
@@ -123,10 +135,10 @@ class stringNode : public SettingsNode {
 };
 
 
-class floatNode : public SettingsNode {
+class FloatNode : public SettingsNode {
 	Q_OBJECT
 	public:
-		explicit floatNode(SettingsNode *parent, const QString& name);
+		explicit FloatNode(SettingsNode *parent, const QString& name);
 
 		void setDefaultValue(float val) {m_defaultValue = val;};
 		float defaultValue() const {return m_defaultValue;};
@@ -135,8 +147,12 @@ class floatNode : public SettingsNode {
 		void setMaxValue(float val) {m_maxValue = val;};
 		float maxValue() const {return m_maxValue;};
 		void setRange(float min, float max) {m_minValue = min; m_maxValue = max;}
-		void setValue(float val) {static_cast<QLineEdit*>(m_dataField)->setText(QString::number(val));}
-		float value() const {return static_cast<QLineEdit*>(m_dataField)->text().toFloat();}
+		void setValue(float val) {
+			static_cast<QLineEdit*>(m_dataField)->setText(QString::number(val));
+		}
+		float value() const {
+			return static_cast<QLineEdit*>(m_dataField)->text().toFloat();
+		}
 
 	signals:
 		void returnPressed(QString);
@@ -151,50 +167,61 @@ class floatNode : public SettingsNode {
 };
 
 
-class enumItemNode : public SettingsNode {
+class EnumItemNode : public SettingsNode {
 	Q_OBJECT
 	public:
-		explicit enumItemNode(SettingsNode *parent, const QString& name);
+		explicit EnumItemNode(SettingsNode *parent, const QString& name);
 };
 
 
-class enumNode : public SettingsNode {
+class EnumNode : public SettingsNode {
 	Q_OBJECT
 	public:
-		explicit enumNode(SettingsNode *parent, const QString& name);
+		explicit EnumNode(SettingsNode *parent, const QString& name);
 
-		void addItem(enumItemNode* item);
+		void addItem(EnumItemNode* item);
 		void clearItems();
-		enumItemNode *item(int i) const {return m_enumItems[i];}
-		QList<enumItemNode*> items() const {return m_enumItems;}
-		void setCurrentItem(enumItemNode* item) {static_cast<QComboBox*>(m_dataField)->setCurrentText(item->displayName());}
-		enumItemNode* currentItem() const {return m_enumItems[static_cast<QComboBox*>(m_dataField)->currentIndex()];}
-		void setCurrentIndex(int i) {static_cast<QComboBox*>(m_dataField)->setCurrentIndex(i);}
-		int currentIndex() const {return static_cast<QComboBox*>(m_dataField)->currentIndex();}
+		EnumItemNode *item(int i) const {return m_enumItems[i];}
+		QList<EnumItemNode*> items() const {return m_enumItems;}
+		void setCurrentItem(EnumItemNode* item) {
+			static_cast<QComboBox*>(m_dataField)->setCurrentText(item->displayName());
+		}
+		EnumItemNode* currentItem() const {
+			return m_enumItems[static_cast<QComboBox*>(m_dataField)->currentIndex()];
+		}
+		void setCurrentIndex(int i) {
+			static_cast<QComboBox*>(m_dataField)->setCurrentIndex(i);
+		}
+		int currentIndex() const {
+			return static_cast<QComboBox*>(m_dataField)->currentIndex();
+		}
 
 	private:
-		QList<enumItemNode*> m_enumItems = {};
+		QList<EnumItemNode*> m_enumItems = {};
 };
 
 
-class boolNode : public SettingsNode {
+class BoolNode : public SettingsNode {
 	Q_OBJECT
 	public:
-		explicit boolNode(SettingsNode *parent, const QString& name);
+		explicit BoolNode(SettingsNode *parent, const QString& name);
 
 		void setDefaultValue(bool val) {m_defaultValue = val;};
 		bool defaultValue() const {return m_defaultValue;};
 		void setValue(bool val);
-		bool value() const {return static_cast<QCheckBox*>(m_dataField)->checkState();}
+		bool value() const {
+			return static_cast<QCheckBox*>(m_dataField)->checkState();
+		}
 
 	private:
 		bool m_defaultValue = false;
 };
 
-class actionNode : public SettingsNode {
+class ActionNode : public SettingsNode {
 	Q_OBJECT
 	public:
-		explicit actionNode(SettingsNode *parent, const QString& name, const QString& buttonLabel = "Execute");
+		explicit ActionNode(SettingsNode *parent, const QString& name,
+					const QString& buttonLabel = "Execute");
 };
 
 

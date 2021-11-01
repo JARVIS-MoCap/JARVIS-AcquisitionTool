@@ -1,10 +1,11 @@
-/*------------------------------------------------------------
- *  SerialInterface.cpp
- *  Created:  10. July 2018
- *  Author:   Timo Hüser
- *
- *  Implementation of the Serial interface to communicate with the Arduino using the QSerialPort library
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  serialinterface.cpp
+ * Created: 	  23 June 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "serialinterface.hpp"
 
@@ -21,19 +22,19 @@ QList<QString> SerialInterface::getAvailableDevices() {
 SerialInterface::SerialInterface(const QString& deviceName) {
 	QList<QSerialPortInfo> serialPortInfos = QSerialPortInfo::availablePorts();
 	for (int i= 0; i <  serialPortInfos.count(); i++) {
-		if (serialPortInfos[i].description() == deviceName) {	//"0043" is the identifier used by the Arduino, probably different for other Arduinos
+		if (serialPortInfos[i].description() == deviceName) {
 			serialPortName = serialPortInfos[i].portName();
 			std::cout << serialPortName.toStdString() << std::endl;
 			serialPort = new QSerialPort();
 			serialPort->setPortName(serialPortName);
-			if(serialPort->open(QIODevice::ReadWrite)) {	//standard Serial port settings, if coms buggy changing baud rate here and on the arduino might help
+			if(serialPort->open(QIODevice::ReadWrite)) {
 				serial_conn = true;
 				serialPort->setBaudRate(QSerialPort::Baud115200);
 				serialPort->setParity(QSerialPort::NoParity);
 				serialPort->setStopBits(QSerialPort::OneStop);
 				serialPort->setFlowControl(QSerialPort::NoFlowControl);
 				serialPort->setDataBits(QSerialPort::Data8);
-				delayl(1000);	//Important!! Arduino goes into serial programming mode if this delay is removed
+				delayl(1000);
 				return;
 			}
 		}
@@ -56,7 +57,8 @@ int SerialInterface::write(int val) {
 	return 0;
 }
 
-int SerialInterface::send_instruction(int mode, int readwrite, int val1, int val2) {
+int SerialInterface::send_instruction(int mode, int readwrite, int val1,
+			int val2) {
 	QByteArray cmd;
 	cmd[0] = mode;
 	cmd[1] = readwrite;

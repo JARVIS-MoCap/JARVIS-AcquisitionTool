@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  testtrigger.cpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  testtrigger.cpp
+ * Created: 	  05. June 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "testtrigger.hpp"
 
@@ -13,6 +16,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QTimer>
+
 
 TestTrigger::TestTrigger(const QString&, const QString&)
 			: TriggerInterface {testTrigger}{
@@ -34,23 +38,26 @@ TestTrigger::~TestTrigger() {
 }
 
 void TestTrigger::createSettings() {
-	m_triggerSettingsRootNode = new rootNode("Test Trigger");
+	m_triggerSettingsRootNode = new RootNode("Test Trigger");
 
-	categoryNode *analogControlNode = new categoryNode(m_triggerSettingsRootNode, "AnalogControl");
+	CategoryNode *analogControlNode = new CategoryNode(m_triggerSettingsRootNode,
+				"AnalogControl");
 	analogControlNode->setDescription("Analog Control, does something probably");
-	stringNode *gainSelectorNode = new stringNode(analogControlNode, "GainSelector");
+	StringNode *gainSelectorNode = new StringNode(analogControlNode,
+				"GainSelector");
 	gainSelectorNode->setDescription("Select the Gain, as a String of course");
-	intNode *gainNode = new intNode(analogControlNode, "Gain");
+	IntNode *gainNode = new IntNode(analogControlNode, "Gain");
 	gainNode->setDescription("Gain, this acutally has the right type");
-	floatNode *whiteBalanceNode = new floatNode(analogControlNode, "WhiteBalance");
+	FloatNode *whiteBalanceNode = new FloatNode(analogControlNode,
+				"WhiteBalance");
 	whiteBalanceNode->setDescription("Test Text");
 	whiteBalanceNode->setDefaultValue(9.8);
 	whiteBalanceNode->setRange(0,20);
-	enumNode *enumTestNode = new enumNode(analogControlNode, "enumTest");
-	enumItemNode *testItem1Node = new enumItemNode(enumTestNode, "Test 1");
-	enumItemNode *testItem2Node = new enumItemNode(enumTestNode, "Test 2");
-	boolNode *boolTestNode = new boolNode(analogControlNode, "boolTest");
-	actionNode *actionTestNode = new actionNode(analogControlNode, "actionTest");
+	EnumNode *enumTestNode = new EnumNode(analogControlNode, "enumTest");
+	EnumItemNode *testItem1Node = new EnumItemNode(enumTestNode, "Test 1");
+	EnumItemNode *testItem2Node = new EnumItemNode(enumTestNode, "Test 2");
+	BoolNode *boolTestNode = new BoolNode(analogControlNode, "boolTest");
+	ActionNode *actionTestNode = new ActionNode(analogControlNode, "actionTest");
 	enumTestNode->addItem(testItem1Node);
 	enumTestNode->addItem(testItem2Node);
 
@@ -61,11 +68,13 @@ void TestTrigger::createSettings() {
 	analogControlNode->addChild(boolTestNode);
 	analogControlNode->addChild(actionTestNode);
 
-	categoryNode *deviceControlNode = new categoryNode(m_triggerSettingsRootNode, "DeviceControl");
+	CategoryNode *deviceControlNode = new CategoryNode(m_triggerSettingsRootNode,
+				"DeviceControl");
 	m_triggerSettingsRootNode->addChild(analogControlNode);
 	m_triggerSettingsRootNode->addChild(deviceControlNode);
 
-	m_triggerSettings = new settingsObject(this, "Trigger Settings", m_triggerSettingsRootNode);
+	m_triggerSettings = new SettingsObject(this, "Trigger Settings",
+				m_triggerSettingsRootNode);
 }
 
 void TestTrigger::testStatusReadySlot() {

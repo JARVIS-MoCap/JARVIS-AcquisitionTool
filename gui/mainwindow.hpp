@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  mainwindow.hpp
- *  Created: 23. October 2020
- *  Author:  Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  mainwindow.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -14,12 +17,12 @@
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
+
 	public:
 		explicit MainWindow(QMainWindow *parent = nullptr);
 
 	private:
 		void closeEvent(QCloseEvent *event);
-		
 		MainBar *mainBar;
 		QTabWidget *modesWidget;
 		AcquisitionMode *acquisitionMode;

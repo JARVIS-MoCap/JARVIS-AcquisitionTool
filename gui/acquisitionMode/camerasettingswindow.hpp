@@ -27,13 +27,13 @@
 class CameraSettingsWindow : public QDockWidget {
 	Q_OBJECT
 	public:
-		explicit CameraSettingsWindow(QWidget *parent = nullptr, settingsObject *activeSettings = nullptr);
+		explicit CameraSettingsWindow(QWidget *parent = nullptr, SettingsObject *activeSettings = nullptr);
 
 	public slots:
-		void setSettingsObjectSlot(settingsObject*);
+		void setSettingsObjectSlot(SettingsObject*);
 
 	signals:
-		void loadPreset(settingsObject*);
+		void loadPreset(SettingsObject*);
 
 	private:
 		QSettings *settings;
@@ -73,7 +73,7 @@ class CameraSettingsWindow : public QDockWidget {
 		ToggleSwitch *flipVerticalToggle;
 
 
-		settingsObject *m_activeSettings = nullptr;
+		SettingsObject *m_activeSettings = nullptr;
 
 		void saveSettingsLayer(SettingsNode* node);
 		void loadSettingsLayer(SettingsNode* node);

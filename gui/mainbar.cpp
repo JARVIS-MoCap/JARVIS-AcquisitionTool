@@ -1,10 +1,14 @@
-/*------------------------------------------------------------
- *  mainbar.cpp
- *  Created:  27. October 2020
- *  Author:   Timo Hüser
- * *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  mainbar.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "mainbar.hpp"
+
 
 MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
 	this->setFixedHeight(60);
@@ -22,14 +26,16 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
 	nameSpacer->setMinimumSize(5,5);
 	QLabel *nameLabel = new QLabel(this);
 	nameLabel->setFont(QFont("Sans Serif", 20, QFont::Bold));
-	nameLabel->setText("<font color=#2664a3>Camera</font><font color=#64a420>Controller</font>");
+	nameLabel->setText("<font color=#2664a3>Camera</font><font "
+				"color=#64a420>Controller</font>");
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	settingsButton = new QToolButton(this);
 	settingsAction = new QAction(this);
-	createToolBarButton(settingsButton, settingsAction, QIcon::fromTheme("settings"),
-				true, false, QSize(50,50));
-	connect(settingsAction, &QAction::triggered, this, &MainBar::settingsClickedSlot);
+	createToolBarButton(settingsButton, settingsAction,
+				QIcon::fromTheme("settings"), true, false, QSize(50,50));
+	connect(settingsAction, &QAction::triggered,
+					this, &MainBar::settingsClickedSlot);
 	helpButton = new QToolButton(this);
 	helpAction = new QAction(this);
 	createToolBarButton(helpButton, helpAction, QIcon::fromTheme("help"),
@@ -44,10 +50,12 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
 	this->addWidget(helpButton);
 }
 
+
 void MainBar::settingsClickedSlot() {
 	settingsWindow->show();
 	settingsWindow->raise();
 }
+
 
 void MainBar::helpClickedSlot() {
 	helpWindow->show();

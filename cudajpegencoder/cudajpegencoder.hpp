@@ -1,9 +1,11 @@
-/*------------------------------------------------------------
- *  cudajpegencoder.hpp
- *  Created: 20. November 2020
- *  Author:   Timo Hueser
- *  Email:    timo.hueser at gmail.com
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  cudajpegencoder.hpp
+ * Created: 	  20. November 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef NVJPEGENCODER_H
 #define NVJPEGENCODER_H
@@ -45,7 +47,13 @@ class CudaJPEGEncoder {
     };
 
     CudaJPEGEncoderConfig m_encoderConfig;
-    enum PixelFormat {BayerRG8, BayerGB8, BayerGR8, BayerBG8, BGR8, Mono8, YCbCr422};
+    enum PixelFormat {BayerRG8,
+                      BayerGB8,
+                      BayerGR8,
+                      BayerBG8,
+                      BGR8,
+                      Mono8,
+                      YCbCr422};
 
     nvjpegEncoderParams_t encode_params;
     nvjpegHandle_t nvjpeg_handle;

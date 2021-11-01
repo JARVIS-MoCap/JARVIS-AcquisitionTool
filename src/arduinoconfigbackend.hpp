@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  arduinoconfigbackend.hpp
- *  Created: 05. June 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  arduinoconfigbackend.hpp
+ * Created: 	  05. September 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef ARDUINOCONFIGBACKEND_H
 #define ARDUINOCONFIGBACKEND_H
@@ -13,20 +16,17 @@
 
 class ArduinoConfigBackend : public QObject {
 	Q_OBJECT
-	public:
-		static ArduinoConfigBackend* getInstance()
-        {
-            static ArduinoConfigBackend    instance; // Guaranteed to be destroyed.
-                                  // Instantiated on first use.
-            return &instance;
-        }
-		explicit ArduinoConfigBackend(QObject *parent = nullptr);
 
+	public:
+		static ArduinoConfigBackend* getInstance() {
+	    static ArduinoConfigBackend instance;
+	    return &instance;
+    }
+		explicit ArduinoConfigBackend(QObject *parent = nullptr);
 		QList<QString> getAvailableDevices();
 
 	private:
 		QList<QString> availableDevices;
 };
-
 
 #endif

@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  settingsobject.hpp
- *  Created: 23 June 2020
- *  Author:  Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  settingsobject.hpp
+ * Created: 	  23 June 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef SETTINGSOBJECT_H
 #define SETTINGSOBJECT_H
@@ -13,30 +16,33 @@
 #include <QTreeWidget>
 #include <QSettings>
 
-class settingsObject : public QObject {
+
+class SettingsObject : public QObject {
 	Q_OBJECT
+
 	public:
-		explicit settingsObject(QObject *parent = nullptr, const QString& name = "", rootNode *rootNode = nullptr);
+		explicit SettingsObject(QObject *parent = nullptr, const QString& name = "",
+					RootNode *rootNode = nullptr);
 		QObject *parent() const {return m_parent;}
 		void constructTree();
 		void setSettingsName(const QString& val) {m_settingsName = val;}
 		QString settingsName() const {return m_settingsName;}
-		void setRootNode(rootNode* val) {m_rootNode = val;}
-		rootNode *getRootNode() const {return m_rootNode;}
+		void setRootNode(RootNode* val) {m_rootNode = val;}
+		RootNode *getRootNode() const {return m_rootNode;}
 		void setSettingsTree(QTreeWidget *val) {m_settingsTree = val;}
 		QTreeWidget *settingsTree() const {return m_settingsTree;}
 		SettingsNode *findNode(const QString& name, SettingsNode* node = nullptr);
 		QList<SettingsNode*> childNodes;
 
 	signals:
-		//void settingChanged(SettingsNode*, const QString& val);
-		void settingChanged(const QString&, QList<QString>, SettingsNode::nodeType, QString, bool);
+		void settingChanged(const QString&, QList<QString>, SettingsNode::nodeType,
+					QString, bool);
 
 	private:
 		QSettings *settings = new QSettings();
 		QObject *m_parent;
 		QString m_settingsName;
-		rootNode *m_rootNode;
+		RootNode *m_rootNode;
 		QTreeWidget *m_settingsTree;
 		void addAllChildren(SettingsNode *parent, QTreeWidgetItem *parentItem);
 

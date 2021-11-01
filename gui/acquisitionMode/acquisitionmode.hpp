@@ -43,7 +43,7 @@ class AcquisitionMode : public QMainWindow {
 		MonitoringWindow *monitoringWindow;
 
 	private slots:
-		void loadCameraPresetSlot(settingsObject* activeSettings);
+		void loadCameraPresetSlot(SettingsObject* activeSettings);
 };
 
 

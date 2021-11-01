@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  serialinterface.hpp
- *  Created: 23 June 2020
- *  Author:  Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  serialinterface.hpp
+ * Created: 	  23 June 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef SERIALINTERFACE_H
 #define SERIALINTERFACE_H
@@ -12,7 +15,9 @@
 #include <QSerialPortInfo>
 #include <QMessageBox>
 
+
 class SerialInterface {
+
 	public:
 		static QList<QString> getAvailableDevices();
 		SerialInterface(const QString& deviceName);
@@ -22,6 +27,7 @@ class SerialInterface {
 		int get_answer(int answer[]);
 		int get_answer();
 		bool isConnected() {return serial_conn;}
+
 	private:
 		bool serial_conn = false;
 		QString serialPortName;

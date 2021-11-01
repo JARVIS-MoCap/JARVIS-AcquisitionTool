@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  arduinotrigger.hpp
- *  Created: 03. October 2021
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  arduinotrigger.hpp
+ * Created: 	  03. October 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef ARDUINOTRIGGER_H
 #define ARDUINOTRIGGER_H
@@ -11,8 +14,8 @@
 #include "triggerinterface.hpp"
 #include "serialinterface.hpp"
 
-
 #include <QTreeWidget>
+
 
 class ArduinoTrigger : public TriggerInterface {
 	Q_OBJECT

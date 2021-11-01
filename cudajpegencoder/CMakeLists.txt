@@ -6,7 +6,7 @@ add_compile_options("-O3")
 add_compile_options("-m64")
 
 add_library(${PROJECT_NAME}
-  exception.h
+  #exception.h
   helper_cuda.h
   helper_nvJPEG.hpp
   helper_string.h

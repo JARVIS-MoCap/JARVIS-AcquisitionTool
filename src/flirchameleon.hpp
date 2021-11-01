@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  flirchameleon.hpp
- *  Created: 05. June 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  flirchameleon.hpp
+ * Created: 	  05. June 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef FLIRCHAMELEON_H
 #define FLIRCHAMELEON_H
@@ -20,7 +23,8 @@
 class FlirWorker : public AcquisitionWorker {
 	Q_OBJECT
 	public:
-		FlirWorker(Spinnaker::CameraPtr pCam, const QString& cameraName, const AcquisitionSpecs& acquisitionSpecs);
+		FlirWorker(Spinnaker::CameraPtr pCam, const QString& cameraName,
+					const AcquisitionSpecs& acquisitionSpecs);
 		~FlirWorker();
 
 	public slots:
@@ -35,7 +39,8 @@ class FlirWorker : public AcquisitionWorker {
 class FLIRChameleon : public CameraInterface {
 	Q_OBJECT
 	public:
-		explicit FLIRChameleon(const QString& cameraName, const QString& serialNumber);
+		explicit FLIRChameleon(const QString& cameraName,
+					const QString& serialNumber);
 		~FLIRChameleon();
 		QThread workerThread;
 		bool savePreset(const QString& preset);
@@ -51,8 +56,8 @@ class FLIRChameleon : public CameraInterface {
 		int getBufferSize();
 
 	public slots:
-		void settingChangedSlot(const QString& name, QList<QString> subMenus, SettingsNode::nodeType type,
-					const QString& val, bool update);
+		void settingChangedSlot(const QString& name, QList<QString> subMenus,
+					SettingsNode::nodeType type, const QString& val, bool update);
 		void startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs);
 		void stopAcquisitionSlot();
 		void pauseSlot() {}
@@ -68,8 +73,10 @@ class FLIRChameleon : public CameraInterface {
 		const Spinnaker::SystemPtr m_camSystem;
 		Spinnaker::CameraPtr m_pCam;
 
-		int createSettingsTreeFromCam(Spinnaker::GenApi::CNodePtr node, SettingsNode *settingsNode);
-		void updateSettings(Spinnaker::GenApi::INodeMap& nodeMap, SettingsNode *settingsNode);
+		int createSettingsTreeFromCam(Spinnaker::GenApi::CNodePtr node,
+					SettingsNode *settingsNode);
+		void updateSettings(Spinnaker::GenApi::INodeMap& nodeMap,
+					SettingsNode *settingsNode);
 
 		bool openFileToRead();
 		bool openFileToWrite();

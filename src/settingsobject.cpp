@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  settingsobject.cpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  settingsobject.cpp
+ * Created: 	  23 June 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "settingsobject.hpp"
 
@@ -13,13 +16,15 @@
 #include <QComboBox>
 #include <QPushButton>
 
-settingsObject::settingsObject(QObject *parent, const QString& name, rootNode *rootNode)
-			: m_parent{parent}, m_settingsName{name}, m_rootNode{rootNode} {
+
+SettingsObject::SettingsObject(QObject *parent, const QString& name,
+			RootNode *rootNode) : m_parent{parent}, m_settingsName{name},
+			m_rootNode{rootNode} {
 	this->constructTree();
 }
 
 
-void settingsObject::constructTree() {
+void SettingsObject::constructTree() {
 	m_settingsTree = new QTreeWidget();
 	m_settingsTree->setAlternatingRowColors(true);
 	m_settingsTree->setColumnCount(2);
@@ -29,7 +34,8 @@ void settingsObject::constructTree() {
 	if (m_rootNode != nullptr) {
 		for (const auto& child : m_rootNode->children()) {
 				childNodes.append(child);
-				QTreeWidgetItem *topitem = new QTreeWidgetItem(m_settingsTree, QStringList(child->displayName()));
+				QTreeWidgetItem *topitem = new QTreeWidgetItem(m_settingsTree,
+							QStringList(child->displayName()));
 				m_settingsTree->insertTopLevelItem(0,topitem);
 				addAllChildren(child, topitem);
 		}
@@ -37,7 +43,8 @@ void settingsObject::constructTree() {
 }
 
 
-void settingsObject::addAllChildren(SettingsNode *parent, QTreeWidgetItem *parentItem) {
+void SettingsObject::addAllChildren(SettingsNode *parent,
+			QTreeWidgetItem *parentItem) {
 	for (const auto & child : parent->children()) {
 		childNodes.append(child);
 		QTreeWidgetItem *child_item = new QTreeWidgetItem();
@@ -49,13 +56,15 @@ void settingsObject::addAllChildren(SettingsNode *parent, QTreeWidgetItem *paren
 		}
 		else {
 			m_settingsTree->setItemWidget(child_item, 1, child->dataField());
-			connect(child, SIGNAL(dataChanged(QString)), this, SLOT(treeChangedSlot(QString)));
+			connect(child, SIGNAL(dataChanged(QString)),
+							this, SLOT(treeChangedSlot(QString)));
 		}
 	}
 }
 
 
-SettingsNode* settingsObject::findNode(const QString& name, SettingsNode* node) {
+SettingsNode* SettingsObject::findNode(const QString& name,
+			SettingsNode* node) {
 	if (node == nullptr) node = m_rootNode;
 	for (const auto& child : node->children()) {
 		if (child->displayName() == name) {
@@ -67,13 +76,13 @@ SettingsNode* settingsObject::findNode(const QString& name, SettingsNode* node) 
 	return nullptr;
 }
 
-void settingsObject::treeChangedSlot(const QString& val) {
+void SettingsObject::treeChangedSlot(const QString& val) {
 	QList<QString> subMenus;
 	SettingsNode* parentNode = static_cast<SettingsNode*>(sender())->parent();
 	while (parentNode->type() != SettingsNode::Root) {
 		subMenus.append(parentNode->name());
 		parentNode = parentNode->parent();
 	}
-	//emit SettingChanged(static_cast<SettingsNode*>(sender())->parent(), val);
-	emit settingChanged(static_cast<SettingsNode*>(sender())->name(), subMenus, static_cast<SettingsNode*>(sender())->type(),val, true);
+	emit settingChanged(static_cast<SettingsNode*>(sender())->name(), subMenus,
+				static_cast<SettingsNode*>(sender())->type(),val, true);
 }

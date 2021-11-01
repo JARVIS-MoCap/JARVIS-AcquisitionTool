@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  triggerinterface.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  triggerinterface.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef TRIGGERINTERFACE_H
 #define TRIGGERINTERFACE_H
@@ -13,8 +16,10 @@
 
 #include <QTreeWidget>
 
+
 class TriggerInterface : public QObject {
 	Q_OBJECT
+	
 	public:
 		static TriggerInterface *triggerInstance;
 		enum TriggerType {testTrigger, arduinoTrigger};
@@ -22,13 +27,14 @@ class TriggerInterface : public QObject {
 					: m_triggerType{triggerType} { }
 
 		TriggerType triggerType() const {return m_triggerType;}
-		settingsObject *triggerSettings() const {return m_triggerSettings;}
-		void setTriggerStatus(const statusType& status) {m_triggerStatus = status;}  //maybe clearTriggerStatus() isntead??
+		SettingsObject *triggerSettings() const {return m_triggerSettings;}
+		void setTriggerStatus(const statusType& status) {m_triggerStatus = status;}
 		statusType triggerStatus() const {return m_triggerStatus;}
 		int getFrameRate() const {return m_frameRate;}
 		virtual void enable() = 0;
 		virtual void disable() = 0;
-		virtual void changeSimpleSetting(const QString& setting, const QString& value) = 0;
+		virtual void changeSimpleSetting(const QString& setting,
+					const QString& value) = 0;
 
 	signals:
 		void statusUpdated(statusType status, const QString& statusMessage);
@@ -36,8 +42,8 @@ class TriggerInterface : public QObject {
 	protected:
 		QSettings *settings = new QSettings();
 		const TriggerType m_triggerType;
-		rootNode *m_triggerSettingsRootNode;
-		settingsObject *m_triggerSettings;
+		RootNode *m_triggerSettingsRootNode;
+		SettingsObject *m_triggerSettings;
 		statusType m_triggerStatus = Connecting;
 		int m_frameRate = 100;
 

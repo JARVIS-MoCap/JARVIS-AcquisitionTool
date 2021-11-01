@@ -1,11 +1,11 @@
-/*****************************************************************
-	* File:			  helpwindow.cpp
-	* Created: 	  08. August 2021
-	* Author:		  Timo Hueser
-	* Contact: 	  timo.hueser@gmail.com
-	* Copyright:  2021 Timo Hueser
-	* License:    GPL v3.0
-	*****************************************************************/
+/*******************************************************************************
+ * File:			  helpwindow.cpp
+ * Created: 	  08. August 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "helpwindow.hpp"
 
@@ -16,7 +16,6 @@
 #include <QDirIterator>
 #include <QThread>
 #include <QTextStream>
-
 
 
 HelpWindow::HelpWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
@@ -32,23 +31,24 @@ HelpWindow::HelpWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
 	tableOfContents->setColumnCount(1);
 	tableOfContents->setHeaderLabel("Table of Contents");
 	tableOfContents->setMaximumSize(300,100000);
-	connect(tableOfContents, &QTreeWidget::itemClicked, this, &HelpWindow::itemSlectedSlot);
+	connect(tableOfContents, &QTreeWidget::itemClicked,
+					this, &HelpWindow::itemSlectedSlot);
 
 	QTreeWidgetItem *gettingStartedItem = new QTreeWidgetItem(tableOfContents,
-																						QStringList(QString("Getting Started")));
+				QStringList(QString("Getting Started")));
 	QTreeWidgetItem *introductionItem = new QTreeWidgetItem(gettingStartedItem,
-																					QStringList(QString("Introduction")));
+				QStringList(QString("Introduction")));
 	QTreeWidgetItem *setupItem = new QTreeWidgetItem(gettingStartedItem,
-																		 QStringList(QString("Building Your Setup")));
+				QStringList(QString("Building Your Setup")));
 	QTreeWidgetItem *cameraConfigItem = new QTreeWidgetItem(gettingStartedItem,
-																		 QStringList(QString("Configuring Your Cameras")));
+				QStringList(QString("Configuring Your Cameras")));
 	gettingStartedItem->addChild(introductionItem);
 	gettingStartedItem->addChild(setupItem);
 	gettingStartedItem->addChild(cameraConfigItem);
 	QTreeWidgetItem *acquisitionItem = new QTreeWidgetItem(tableOfContents,
-																				 QStringList(QString("Acquisition Mode")));
+				QStringList(QString("Acquisition Mode")));
 	QTreeWidgetItem *connectionItem = new QTreeWidgetItem(tableOfContents,
-																									QStringList(QString("Connection Mode")));
+				QStringList(QString("Connection Mode")));
 
 	gettingStartedItem->setExpanded(true);
 
@@ -68,6 +68,7 @@ HelpWindow::HelpWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
 
 	setDocument(m_contentMap[introductionItem]);
 }
+
 
 void HelpWindow::itemSlectedSlot(QTreeWidgetItem *item, int column) {
 	Q_UNUSED(column);

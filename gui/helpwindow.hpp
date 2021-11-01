@@ -1,11 +1,11 @@
-/*****************************************************************
-	* File:			  helpwindow.hpp
-	* Created: 	  08. August 2021
-	* Author:		  Timo Hueser
-	* Contact: 	  timo.hueser@gmail.com
-	* Copyright:  2021 Timo Hueser
-	* License:    GPL v3.0
-	*****************************************************************/
+/*******************************************************************************
+ * File:			  helpwindow.hpp
+ * Created: 	  08. August 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef HELPWINDOW_H
 #define HELPWINDOW_H
@@ -23,6 +23,7 @@
 
 class HelpWindow : public QWidget {
 	Q_OBJECT
+	
 	public:
 		explicit HelpWindow(QWidget *parent = nullptr);
 

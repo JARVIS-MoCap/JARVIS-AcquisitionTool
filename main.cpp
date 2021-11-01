@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  main.cpp
- *  Created:  23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  main.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "globals.hpp"
 #include "DarkStyle.hpp"
@@ -31,7 +34,9 @@ int main(int argc, char **argv)
 	QApplication app (argc, argv);
 	app.setStyle(new DarkStyle);
 
-	QStringList themeSearchPaths = {"/home/trackingsetup/Documents/AnnotationToolbox/IconThemes", "IconThemes", "../IconThemes"};
+	QStringList themeSearchPaths =
+				{"/home/trackingsetup/Documents/AnnotationToolbox/IconThemes",
+				"IconThemes", "../IconThemes"};
 	QIcon::setThemeSearchPaths(themeSearchPaths);
 	QIcon::setThemeName("DarkIconTheme");
 

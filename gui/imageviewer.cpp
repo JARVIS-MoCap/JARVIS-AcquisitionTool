@@ -1,14 +1,17 @@
-/*------------------------------------------------------------
- *  imageviewer.cpp
- *  Created:  10. July 2018
- *  Author:   Timo Hüser
- *
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  imageviewer.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "imageviewer.hpp"
 
 #include <QPainter>
 #include <QMouseEvent>
+
 
 void ImageViewer::scale(float s) {
 	m_scale *= s;

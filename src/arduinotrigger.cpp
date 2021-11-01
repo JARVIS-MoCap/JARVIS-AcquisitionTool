@@ -1,13 +1,17 @@
-/*------------------------------------------------------------
- *  arduinotrigger.cpp
- *  Created: 03. October 2021
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  arduinotrigger.cpp
+ * Created: 	  03. October 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "arduinotrigger.hpp"
 
 #include <QApplication>
 #include <QTimer>
+
 
 ArduinoTrigger::ArduinoTrigger(const QString& deviceName)
 			: TriggerInterface {arduinoTrigger} {
@@ -19,10 +23,12 @@ ArduinoTrigger::ArduinoTrigger(const QString& deviceName)
 	timer->start(100);
 }
 
+
 ArduinoTrigger::~ArduinoTrigger() {
 	delete serialInterface;
 	delete m_triggerSettings;
 }
+
 
 void ArduinoTrigger::intitialStatusSlot() {
 	if (serialInterface->isConnected()) {
@@ -33,33 +39,38 @@ void ArduinoTrigger::intitialStatusSlot() {
 	}
 }
 
-void ArduinoTrigger::createSettings() {
-	m_triggerSettingsRootNode = new rootNode("");
 
-	categoryNode *arduinoTriggerNode = new categoryNode(m_triggerSettingsRootNode, "ArduinoTrigger");
+void ArduinoTrigger::createSettings() {
+	m_triggerSettingsRootNode = new RootNode("");
+
+	CategoryNode *arduinoTriggerNode = new CategoryNode(m_triggerSettingsRootNode,
+				"ArduinoTrigger");
 	arduinoTriggerNode->setDescription("Arduino Trigger Settings");
 
-	intNode *frameRateNode = new intNode(arduinoTriggerNode, "FrameRate");
+	IntNode *frameRateNode = new IntNode(arduinoTriggerNode, "FrameRate");
 	frameRateNode->setDescription("Recording Frame Rate.");
 	frameRateNode->setValue(100);
 
 	m_triggerSettingsRootNode->addChild(arduinoTriggerNode);
 	arduinoTriggerNode->addChild(frameRateNode);
 
-	m_triggerSettings = new settingsObject(this, "Trigger Settings", m_triggerSettingsRootNode);
+	m_triggerSettings = new SettingsObject(this, "Trigger Settings",
+				m_triggerSettingsRootNode);
 
-	connect(m_triggerSettings, SIGNAL(settingChanged(QString, QList<QString>, SettingsNode::nodeType,
-				QString, bool)), this, SLOT(settingChangedSlot(QString, QList<QString>,
-				SettingsNode::nodeType, QString,bool)));
+	connect(m_triggerSettings, &SettingsObject::settingChanged,
+					this, &ArduinoTrigger::settingChangedSlot);
 }
+
 
 void ArduinoTrigger::enable() {
 	serialInterface->write(m_frameRate);
 }
 
+
 void ArduinoTrigger::disable() {
 	serialInterface->write(0);
 }
+
 
 void ArduinoTrigger::settingChangedSlot(const QString& name, QList<QString> subMenus,
 			SettingsNode::nodeType type, const QString& val, bool update) {
@@ -68,11 +79,12 @@ void ArduinoTrigger::settingChangedSlot(const QString& name, QList<QString> subM
 		}
 }
 
+
 void ArduinoTrigger::changeSimpleSetting(const QString& setting, const QString& value) {
 	std::cout << setting.toStdString() << ", " << value.toStdString() << std::endl;
 	if (setting == "FrameRate") {
 		m_frameRate = value.toInt();
-		static_cast<intNode*>(m_triggerSettings->findNode("FrameRate"))->setValue(m_frameRate);
+		static_cast<IntNode*>(m_triggerSettings->findNode("FrameRate"))->setValue(m_frameRate);
 	}
 
 }

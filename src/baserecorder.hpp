@@ -1,8 +1,12 @@
-/*------------------------------------------------------------
- *  basedrecorder.hpp
- *  Created: 05. June 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  basedrecorder.hpp
+ * Created: 	  05. June 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
+
 
 #ifndef BASERECORDER_H
 #define BASERECORDER_H
@@ -18,8 +22,10 @@
 
 class BaseRecoder : public RecordingInterface {
 	Q_OBJECT
+
 	public:
-		explicit BaseRecoder(const QString& cameraName, const AcquisitionSpecs& acquisitionSpecs);
+		explicit BaseRecoder(const QString& cameraName,
+					const AcquisitionSpecs& acquisitionSpecs);
 		~BaseRecoder();
 		QImage recordFrame(uchar* frame);
 

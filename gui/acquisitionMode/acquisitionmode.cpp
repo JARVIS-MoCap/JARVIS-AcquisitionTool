@@ -65,7 +65,7 @@ void AcquisitionMode::triggerInstanceChangedSlot() {
 	else triggerSettingsWindow->setSettingsObjectSlot(TriggerInterface::triggerInstance->triggerSettings());
 }
 
-void AcquisitionMode::loadCameraPresetSlot(settingsObject* activeSettings) {
+void AcquisitionMode::loadCameraPresetSlot(SettingsObject* activeSettings) {
 	CameraInterface *cam = static_cast<CameraInterface*>(activeSettings->parent());
 	//cam->loadPreset();
 }

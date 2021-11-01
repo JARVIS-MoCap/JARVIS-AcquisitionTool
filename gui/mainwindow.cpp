@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  mainwindow.cpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  mainwindow.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "mainwindow.hpp"
 #include "camerainterface.hpp"
@@ -23,8 +26,8 @@ TriggerInterface *TriggerInterface::triggerInstance;
 QMap<statusType, QIcon> statusIcons;
 QMap<statusType, QString>statusTexts;
 
-void createToolBarButton(QToolButton *button, QAction*action, QIcon icon, bool enabled,
-			bool checkable, QSize minSize) {
+void createToolBarButton(QToolButton *button, QAction*action, QIcon icon,
+			bool enabled, bool checkable, QSize minSize) {
 	button->setMinimumSize(minSize);
 	button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	action->setCheckable(checkable);
@@ -70,7 +73,7 @@ MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
 
 	modesWidget->addTab(connectionMode, QIcon::fromTheme("network"),"");
 	modesWidget->setTabToolTip(1, "Connection Mode");
-	modesWidget->insertTab(0,acquisitionMode,QIcon::fromTheme("camera"), ""); //added last because resize update issues
+	modesWidget->insertTab(0,acquisitionMode,QIcon::fromTheme("camera"), "");
 	modesWidget->setTabToolTip(0, "Acquisition Mode");
 	modesWidget->setCurrentIndex(0);
 
@@ -80,10 +83,14 @@ MainWindow::MainWindow(QMainWindow *parent) : QMainWindow(parent) {
 	//<- Outgoing Signals
 
 	//<-> Relayed Signals
-	connect(connectionMode, &ConnectionMode::triggerInstanceChanged, acquisitionMode, &AcquisitionMode::triggerInstanceChangedSlot);
-	connect(connectionMode, &ConnectionMode::camAdded, acquisitionMode, &AcquisitionMode::camAdded);
-	connect(connectionMode, &ConnectionMode::camListChanged, acquisitionMode, &AcquisitionMode::camListChanged);
-	connect(connectionMode, &ConnectionMode::statusUpdated, acquisitionMode, &AcquisitionMode::statusUpdated);
+	connect(connectionMode, &ConnectionMode::triggerInstanceChanged,
+					acquisitionMode, &AcquisitionMode::triggerInstanceChangedSlot);
+	connect(connectionMode, &ConnectionMode::camAdded,
+					acquisitionMode, &AcquisitionMode::camAdded);
+	connect(connectionMode, &ConnectionMode::camListChanged,
+					acquisitionMode, &AcquisitionMode::camListChanged);
+	connect(connectionMode, &ConnectionMode::statusUpdated,
+					acquisitionMode, &AcquisitionMode::statusUpdated);
 }
 
 
@@ -102,7 +109,8 @@ void MainWindow::closeEvent (QCloseEvent *event) {
 		if (activeCamsList.size() == 1) msgStream << " Camera is still streaming!";
 		else msgStream <<  " Cameras are still streaming!";
 		msgBox.setText(msg);
-		msgBox.setInformativeText("If you exit now the Recording might not get saved correctly.\nClose anyways?");
+		msgBox.setInformativeText("If you exit now the Recording might not "
+					"get saved correctly.\nClose anyways?");
 		msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Close);
 		msgBox.setDefaultButton(QMessageBox::Cancel);
 		int ret = msgBox.exec();

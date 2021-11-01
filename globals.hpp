@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  acquisitionmode.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  globals.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef GLOBALS_H
 #define GLOBALS_H
@@ -15,18 +18,26 @@
 #include <QAction>
 #include <QDir>
 
+
 #define NUM_CAMS 16
 
 inline void delayl(int ms) {
 	//delay function that doesn't interrupt the QEventLoop
 	QTime dieTime = QTime::currentTime().addMSecs(ms);
-	while (QTime::currentTime() < dieTime) QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+	while (QTime::currentTime() < dieTime)
+				QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 
 //----- Structs Definitions ----//
 enum statusType {Connecting, Ready, Streaming, Warning, Error};
 enum RecorderType {RawRecorderType, BaseRecorderType, CudaRecorderType};
-enum PixelFormat {BayerRG8, BayerGB8, BayerGR8, BayerBG8, BGR8, Mono8, YCbCr422};
+enum PixelFormat {BayerRG8,
+									BayerGB8,
+									BayerGR8,
+									BayerBG8,
+									BGR8,
+									Mono8,
+									YCbCr422};
 extern QMap<statusType, QIcon> statusIcons;
 extern QMap<statusType, QString> statusTexts;
 
@@ -67,6 +78,7 @@ typedef struct statusLog {
 
 
 void createToolBarButton(QToolButton * button, QAction* action, QIcon icon,
-			bool enabled = true, bool checkable = false, QSize minSize = QSize(20,20));
+			bool enabled = true, bool checkable = false,
+			QSize minSize = QSize(20,20));
 
 #endif

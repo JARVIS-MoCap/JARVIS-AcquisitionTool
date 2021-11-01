@@ -18,7 +18,7 @@
 #include <QGroupBox>
 
 
-TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, settingsObject *activeSettings) :
+TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, SettingsObject *activeSettings) :
       QDockWidget(parent, Qt::Window), m_activeSettings(activeSettings) {
 	settings = new QSettings();
 	setMinimumSize(325,300);
@@ -120,7 +120,7 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, settingsObject *ac
 }
 
 
-void TriggerSettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
+void TriggerSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
   if (m_activeSettings != nullptr) {
     advancedSimpleStackWidget->removeWidget(m_activeSettings->settingsTree());
   }
@@ -128,7 +128,7 @@ void TriggerSettingsWindow::setSettingsObjectSlot(settingsObject *newSettings) {
 	if (newSettings == nullptr) {
 		savePresetAction->setEnabled(false);
 		loadPresetAction->setEnabled(false);
-		m_activeSettings = new settingsObject();
+		m_activeSettings = new SettingsObject();
 		m_activeSettings->settingsTree()->setAlternatingRowColors(true);
 		m_activeSettings->settingsTree()->setColumnCount(2);
 		QStringList ColumnNames;
