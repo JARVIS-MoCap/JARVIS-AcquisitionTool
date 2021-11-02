@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  presetswindow.hpp
  * Created: 	  23. October 2020
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright:  2021 Timo Hueser
- * License:    GPL v3.0
- *****************************************************************/
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef PRESETSWINDOW_H
 #define PRESETSWINDOW_H
@@ -26,8 +26,9 @@ class PresetsWindow : public QDialog {
 	Q_OBJECT
 
 	public:
-		explicit PresetsWindow(QList<QString> *presets, const QString& type = "load",
-					const QString& name = "default", QWidget *parent = nullptr);
+		explicit PresetsWindow(QList<QString> *presets,
+					const QString& type = "load", const QString& name = "default",
+					QWidget *parent = nullptr);
 
 	signals:
 		void savePreset(const QString& name);
@@ -66,7 +67,7 @@ class PresetsWindow : public QDialog {
 		void presetClickedSlot(QListWidgetItem *item);
 		void presetNameEditedSlot(const QString& name);
 		void currentItemChangedSlot(QListWidgetItem *current,
-																QListWidgetItem *previous);
+					QListWidgetItem *previous);
 };
 
 #endif

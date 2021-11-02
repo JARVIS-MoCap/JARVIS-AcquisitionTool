@@ -40,12 +40,13 @@ class TestCamera : public CameraInterface {
 					const QString& example2 = "");
 		~TestCamera();
 		QThread workerThread;
-		bool savePreset(const QString&) {}
-		bool loadPreset(const QString&) {};
+		bool savePreset(const QString&) {return true;}
+		bool loadPreset(const QString&) {return true;}
 		void getSimpleSettingsValues() {}
 		void changeSimpleSetting(const QString& setting, const QString& val) {}
 		int getBufferUsage() {return 10;}
 		int getBufferSize() {return 100;}
+		bool setupCameraForExternalTrigger() {return true;}
 
 	public slots:
 		void settingChangedSlot(const QString& name, QList<QString> subMenus,

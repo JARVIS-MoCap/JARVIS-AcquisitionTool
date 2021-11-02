@@ -52,6 +52,7 @@ class CudaJPEGEncoder {
                       BayerGR8,
                       BayerBG8,
                       BGR8,
+                      RGB8,
                       Mono8,
                       YCbCr422};
 

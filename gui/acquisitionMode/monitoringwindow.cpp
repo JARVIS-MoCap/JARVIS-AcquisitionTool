@@ -1,14 +1,18 @@
-/*------------------------------------------------------------
- *  monitoringwindow.cpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  monitoringwindow.cpp
+ * Created: 	  17. October 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "monitoringwindow.hpp"
 
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QFrame>
+
 
 MonitoringWindow::MonitoringWindow(QWidget *parent) :
       QDockWidget(parent, Qt::Window){
@@ -20,7 +24,6 @@ MonitoringWindow::MonitoringWindow(QWidget *parent) :
   QGridLayout *layout = new QGridLayout(mainWidget);
   setWidget(mainWidget);
 
-
 	toolBar = new QToolBar(this);
 	toolBar->setFixedHeight(40);
   toolBar->setIconSize(QSize(25,25));
@@ -31,24 +34,28 @@ MonitoringWindow::MonitoringWindow(QWidget *parent) :
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   showGraphsButton = new QToolButton(this);
   showGraphsAction = new QAction(this);
-  createToolBarButton(showGraphsButton, showGraphsAction, QIcon::fromTheme("show"), true,
-        true, QSize(35,35));
-  connect(showGraphsAction, &QAction::toggled, this, &MonitoringWindow::showGraphsSlot);
+  createToolBarButton(showGraphsButton, showGraphsAction,
+        QIcon::fromTheme("show"), true, true, QSize(35,35));
+  connect(showGraphsAction, &QAction::toggled,
+          this, &MonitoringWindow::showGraphsSlot);
 	toolBar->addWidget(settingsLabel);
 	toolBar->addWidget(spacer);
   toolBar->addWidget(showGraphsButton);
 	setTitleBarWidget(toolBar);
 
   QGroupBox *mainBox = new QGroupBox(mainWidget);
-  mainBox->setStyleSheet("QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
+  mainBox->setStyleSheet(
+        "QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
   QScrollArea *mainScrollArea = new QScrollArea(mainBox);
   mainScrollArea->setObjectName("mainScrollArea");
   mainScrollArea->setFrameShape(QFrame::NoFrame);
   mainScrollArea->setWidgetResizable(true);
   QWidget *mainInnerWidget = new QWidget(mainScrollArea);
   mainInnerWidget->setObjectName("mainInnerWidget");
-  mainInnerWidget->setStyleSheet("QWidget#mainInnerWidget{background-color: rgba(0,0,0,0)}");
-  mainScrollArea->setStyleSheet("QScrollArea#mainScrollArea{background-color: rgba(0,0,0,0)}");
+  mainInnerWidget->setStyleSheet(
+        "QWidget#mainInnerWidget{background-color: rgba(0,0,0,0)}");
+  mainScrollArea->setStyleSheet(
+        "QScrollArea#mainScrollArea{background-color: rgba(0,0,0,0)}");
 
   mainlayout = new QGridLayout(mainInnerWidget);
   QGridLayout *mainouterlayout = new QGridLayout(mainBox);
@@ -57,6 +64,7 @@ MonitoringWindow::MonitoringWindow(QWidget *parent) :
   mainScrollArea->setWidget(mainInnerWidget);
 	layout->addWidget(mainBox,0,0);
 }
+
 
 void MonitoringWindow::updateListSlot() {
 	for (const auto & monitor : cameraMonitorMap) {
@@ -69,16 +77,19 @@ void MonitoringWindow::updateListSlot() {
 
     cameraMonitorMap[cam] = newMonitor;
     mainlayout->addWidget(newMonitor,idx++,0);
-    connect(cam, &CameraInterface::latencyAndFrameNumberUpdate, newMonitor, &CameraMonitor::latencyAndFrameNumberUpdateSlot);
+    connect(cam, &CameraInterface::latencyAndFrameNumberUpdate,
+            newMonitor, &CameraMonitor::latencyAndFrameNumberUpdateSlot);
   }
   updateBufferStates();
 }
+
 
 void MonitoringWindow::updateBufferStates() {
   for (const auto & cam : CameraInterface::cameraList) {
     cameraMonitorMap[cam]->updateBufferState();
   }
 }
+
 
 void MonitoringWindow::showGraphsSlot(bool toggle) {
   	for (const auto & monitor : cameraMonitorMap) {
@@ -87,7 +98,8 @@ void MonitoringWindow::showGraphsSlot(bool toggle) {
 }
 
 
-CameraMonitor::CameraMonitor(CameraInterface * cam, QWidget *parent) : QGroupBox(parent), m_cam(cam) {
+CameraMonitor::CameraMonitor(CameraInterface * cam, QWidget *parent) :
+      QGroupBox(parent), m_cam(cam) {
   setStyleSheet("QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
   //setMinimumSize(150,240);
   QGridLayout *layout = new QGridLayout(this);
@@ -111,7 +123,9 @@ CameraMonitor::CameraMonitor(CameraInterface * cam, QWidget *parent) : QGroupBox
   layout->addWidget(bottomSpacer,4,0,1,2);
 }
 
-void CameraMonitor::latencyAndFrameNumberUpdateSlot(int latency, unsigned long frameNumber) {
+
+void CameraMonitor::latencyAndFrameNumberUpdateSlot(int latency,
+      unsigned long frameNumber) {
   m_frameNumber = frameNumber;
   if (latencyChartView->isVisible()) {
     latencyChartView->update(latency);
@@ -123,19 +137,26 @@ void CameraMonitor::latencyAndFrameNumberUpdateSlot(int latency, unsigned long f
   m_bufferUpdateCounter = (m_bufferUpdateCounter+1)%20;
 }
 
+
 void CameraMonitor::updateBufferState() {
   int bufferUsage = m_cam->getBufferUsage();
   int bufferSize = m_cam->getBufferSize();
   bufferStatusBar->setMaximum(bufferSize);
   bufferStatusBar->setValue(bufferUsage+1);
   if (bufferUsage*100/bufferSize < 50) {
-    bufferStatusBar->setStyleSheet("QProgressBar {border-radius: 6px; background-color: rgb(24,24,24);} QProgressBar::chunk {border-radius: 6px; background-color: rgb(100,164,32);}");
+    bufferStatusBar->setStyleSheet("QProgressBar {border-radius: 6px; "
+          "background-color: rgb(24,24,24);} QProgressBar::chunk "
+          "{border-radius: 6px; background-color: rgb(100,164,32);}");
   }
   else if (bufferUsage*100/bufferSize < 85) {
-    bufferStatusBar->setStyleSheet("QProgressBar {border-radius: 6px; background-color: rgb(24,24,24);} QProgressBar::chunk {border-radius: 6px; background-color: rgb(187,109,39);}");
+    bufferStatusBar->setStyleSheet("QProgressBar {border-radius: 6px; "
+    "background-color: rgb(24,24,24);} QProgressBar::chunk "
+    "{border-radius: 6px; background-color: rgb(187,109,39);}");
   }
   else {
-    bufferStatusBar->setStyleSheet("QProgressBar {border-radius: 6px; background-color: rgb(24,24,24);} QProgressBar::chunk {border-radius: 6px; background-color: rgb(164,34,32);}");
+    bufferStatusBar->setStyleSheet("QProgressBar {border-radius: 6px; "
+    "background-color: rgb(24,24,24);} QProgressBar::chunk "
+    "{border-radius: 6px; background-color: rgb(164,34,32);}");
   }
 }
 

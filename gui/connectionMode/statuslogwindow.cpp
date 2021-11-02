@@ -1,18 +1,18 @@
-/*****************************************************************
- * File:			  statuslogwinwow.cpp
+/*******************************************************************************
+ * File:			  cudajpegencoder.cpp
  * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
- * License:     GPL v3.0
- *****************************************************************/
-
+ * License:     LGPL v3.0
+ ******************************************************************************/
 #include "statuslogwindow.hpp"
 
 #include <QHeaderView>
 
 
-StatusLogWindow::StatusLogWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
+StatusLogWindow::StatusLogWindow(QWidget *parent) :
+			QWidget(parent, Qt::Window) {
 	resize(600,400);
 	setMinimumSize(600,200);
 	setWindowTitle("Status Logs");

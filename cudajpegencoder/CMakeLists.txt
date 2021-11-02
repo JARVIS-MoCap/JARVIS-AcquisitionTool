@@ -1,12 +1,10 @@
-project (cudajpegencoder LANGUAGES CXX CUDA)
 find_package(CUDA REQUIRED)
-
 
 add_compile_options("-O3")
 add_compile_options("-m64")
 
-add_library(${PROJECT_NAME}
-  #exception.h
+add_library(cudajpegencoder
+  exception.h
   helper_cuda.h
   helper_nvJPEG.hpp
   helper_string.h
@@ -15,18 +13,17 @@ add_library(${PROJECT_NAME}
   cudajpegencoder.cu
 )
 
-target_include_directories(${PROJECT_NAME}
+
+target_include_directories(cudajpegencoder
     PUBLIC
     ${PROJECT_SOURCE_DIR}
-    ${OpenCV_INCLUDE_DIRS}
     ${CUDA_INCLUDE_DIRS}
-    ../
+    .
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(cudajpegencoder
   ${CUDNN_LIBRARY}
   ${CULIBOS_LIBRARY}
-  ${OpenCV_LIBS}
   ${CUDA_LIBRARIES}
   -lnvjpeg
   -lnppc

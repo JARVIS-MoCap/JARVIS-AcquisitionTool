@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  streamingpanel.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  streamingpanel.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef STREAMINGPANEL_H
 #define STREAMINGPANEL_H
@@ -22,8 +25,10 @@
 
 class StreamingPanel : public QWidget {
 	Q_OBJECT
+	
 	public:
-		explicit StreamingPanel(CameraInterface * camera = nullptr, QWidget *parent = nullptr);
+		explicit StreamingPanel(CameraInterface * camera = nullptr,
+					QWidget *parent = nullptr);
 		QLabel *camNameLabel;
 		ImageViewer *imgViewer;
 		QToolBar *toolBar;

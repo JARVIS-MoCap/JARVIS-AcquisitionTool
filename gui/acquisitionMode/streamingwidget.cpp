@@ -1,9 +1,11 @@
-/*------------------------------------------------------------
- *  StreamingWidget.cpp
- *  Created:  10. July 2018
- *  Author:   Timo Hüser
- *
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  streamingwidget.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "streamingwidget.hpp"
 #include "camselectorwindow.hpp"
@@ -41,7 +43,8 @@ void StreamingWidget::updateStreamingPanelsSlot(layoutType panelLayout) {
 	for (const auto& cam : CameraInterface::cameraList) {
 		if(CamSelectorWindow::camVisibilityMap[cam]) {
 			StreamingPanel *newPanel = new StreamingPanel(cam);
-			connect(newPanel, &StreamingPanel::closeClicked, this, &StreamingWidget::closePanelSlot);
+			connect(newPanel, &StreamingPanel::closeClicked,
+							this, &StreamingWidget::closePanelSlot);
 			newPanel->camNameLabel->setText(cam->cameraName());
 			streamingPanels.append(newPanel);
 		}
@@ -54,7 +57,6 @@ void StreamingWidget::setPanels(bool onlySizes) {
 	int margin = layout->margin();
 	int totalWidth = this->size().width()-2*margin;
 	int totalHeight = this->size().height()-2*margin;
-	//std::cout << "Sizes: " << totalWidth+2*margin << ", " << totalHeight+2*margin << std::endl;
 	int minWidths[] = {200,200,200,200,200,250,300,350,400,450,500,500};
 	float oneBigRatios[] = {0,0,0.6,0.6,0.6,0.6,0.6,0.5,0.5,0.5,0.4,0.4};
 	float twoBigRatios[] = {0,0,0,0,0.7,0.7,0.7,0.7,0.6,0.6,0.7,0.5,0.5};
@@ -64,27 +66,33 @@ void StreamingWidget::setPanels(bool onlySizes) {
 		configurePanels(numPanels,0,0,minWidths[numPanels-1], onlySizes);
 	}
 	else if (m_panelLayout == OneBig) {
-		configurePanels(numPanels, 1,oneBigRatios[numPanels-1],minWidths[numPanels-1],onlySizes);
+		configurePanels(numPanels, 1,oneBigRatios[numPanels-1],
+					minWidths[numPanels-1],onlySizes);
 	}
 	else if (m_panelLayout == TwoBig) {
-		configurePanels(numPanels, 2,twoBigRatios[numPanels-1],minWidths[numPanels-1],onlySizes);
+		configurePanels(numPanels, 2,twoBigRatios[numPanels-1],
+					minWidths[numPanels-1],onlySizes);
 	}
 	else if (m_panelLayout == FourBig) {
-		configurePanels(numPanels, 4,twoBigRatios[numPanels-1],minWidths[numPanels-1],onlySizes);
+		configurePanels(numPanels, 4,twoBigRatios[numPanels-1],
+					minWidths[numPanels-1],onlySizes);
 	}
 }
 
 
-void StreamingWidget::setSinglePanel(StreamingPanel *panel, int row, int col, int r_span,
-                                     int c_span,int width, int height, int minWidth,
-                                     bool onlySizes, bool big) {
+void StreamingWidget::setSinglePanel(StreamingPanel *panel, int row, int col,
+			int r_span, int c_span,int width, int height, int minWidth,
+			bool onlySizes, bool big) {
 	if (!onlySizes) {
-		if (big) biglayout->addWidget(panel,row,col,r_span, c_span, Qt::AlignCenter);
+		if (big) biglayout->addWidget(panel,row,col,r_span, c_span,
+					Qt::AlignCenter);
 		else layout->addWidget(panel,row,col,r_span, c_span, Qt::AlignCenter);
 	}
 	else {
-		if (big) panel = qobject_cast<StreamingPanel*>(biglayout->itemAtPosition(row,col)->widget());
-		else panel = qobject_cast<StreamingPanel*>(layout->itemAtPosition(row,col)->widget());
+		if (big) panel = qobject_cast<StreamingPanel*>(
+					biglayout->itemAtPosition(row,col)->widget());
+		else panel = qobject_cast<StreamingPanel*>(
+					layout->itemAtPosition(row,col)->widget());
 	}
 	panel->setMaximumSize(width, height);
 	panel->setSize(width,height);
@@ -96,8 +104,8 @@ void StreamingWidget::setSinglePanel(StreamingPanel *panel, int row, int col, in
 }
 
 
-void StreamingWidget::configurePanels(int numPanels, int numBigPanels, float ratio,
-	                                    int minWidth, bool onlySizes) {
+void StreamingWidget::configurePanels(int numPanels, int numBigPanels,
+			float ratio, int minWidth, bool onlySizes) {
 	int totalWidth = this->size().width()-2*layout->margin();
 	int totalHeight = this->size().height()-2*layout->margin();
 	int spacing = layout->spacing();
@@ -105,8 +113,8 @@ void StreamingWidget::configurePanels(int numPanels, int numBigPanels, float rat
 	int maxBigWidth = totalWidth*ratio;
 	int maxBigHeight = totalHeight;
 	int bestConfig = 0, singleBigWidth, singleBigHeight;
-	calculateEqualPanelSizes(numBigPanels, maxBigWidth, maxBigHeight, singleBigWidth,
-				singleBigHeight, bestConfig);
+	calculateEqualPanelSizes(numBigPanels, maxBigWidth, maxBigHeight,
+				singleBigWidth, singleBigHeight, bestConfig);
 	bigWidth = singleBigWidth*bestConfig;
 	bigHeight = singleBigHeight*ceil(static_cast<float>(numBigPanels)/bestConfig);
 	int rightPanelWidth = totalWidth-spacing-bigWidth;
@@ -120,11 +128,12 @@ void StreamingWidget::configurePanels(int numPanels, int numBigPanels, float rat
 		else bottomPanelWidth = totalWidth-spacing-rightPanelWidth;
 		int numPanelsRight = i;
 		int numPanelsBottom = numPanels-numBigPanels-i;
-		int rightWidth, rightHeight, bottomWidth, bottomHeight, configRight, configBottom ;
+		int rightWidth, rightHeight, bottomWidth, bottomHeight, configRight,
+					configBottom;
 		calculateEqualPanelSizes(numPanelsRight, rightPanelWidth, rightPanelHeight,
 					rightWidth, rightHeight, configRight);
-		calculateEqualPanelSizes(numPanelsBottom, bottomPanelWidth, bottomPanelHeight,
-					bottomWidth, bottomHeight, configBottom);
+		calculateEqualPanelSizes(numPanelsBottom, bottomPanelWidth,
+					bottomPanelHeight, bottomWidth, bottomHeight, configBottom);
 		if (std::min(rightWidth, bottomWidth) > smallWidth+20) {
 			bestNumPanelsRight = numPanelsRight;
 			bestNumPanelsBottom = numPanelsBottom;
@@ -134,12 +143,14 @@ void StreamingWidget::configurePanels(int numPanels, int numBigPanels, float rat
 			smallHeight = std::min(rightHeight, bottomHeight);
 			}
 	}
-	int spanHeightBig = std::max(static_cast<int>(ceil(static_cast<float>(bestNumPanelsRight)/bestConfigRight)-
+	int spanHeightBig = std::max(static_cast<int>(ceil(static_cast<float>(
+				bestNumPanelsRight)/bestConfigRight)-
 				ceil(static_cast<float>(bestNumPanelsBottom)/bestConfigBottom)),1);
 
 	for (int i = 0; i < bestNumPanelsRight; i++) {
 		setSinglePanel(streamingPanels[i+numBigPanels],i/bestConfigRight,
-					i%bestConfigRight+bestConfigBottom,1,1,smallWidth,smallHeight,150, onlySizes);
+					i%bestConfigRight+bestConfigBottom,1,1,smallWidth,smallHeight,150,
+					onlySizes);
 	}
 	for (int i = 0; i < bestNumPanelsBottom; i++) {
 		int colBottom = i/bestConfigBottom+spanHeightBig;
@@ -147,18 +158,20 @@ void StreamingWidget::configurePanels(int numPanels, int numBigPanels, float rat
 					i%bestConfigBottom,1,1,smallWidth,smallHeight,150, onlySizes);
 	}
 	if (numBigPanels != 0) {
-		layout->addWidget(bigWidget, 0,0, spanHeightBig, bestConfigBottom ,Qt::AlignCenter);
+		layout->addWidget(bigWidget, 0,0, spanHeightBig, bestConfigBottom,
+					Qt::AlignCenter);
 		bigWidget->setMaximumSize(bigWidth, bigHeight);
 	}
 	for (int i = 0; i < numBigPanels; i++) {
-		setSinglePanel(streamingPanels[i],i/bestConfig,i%bestConfig,1,1,singleBigWidth,
-					singleBigHeight,150, onlySizes,true);
+		setSinglePanel(streamingPanels[i],i/bestConfig,i%bestConfig,1,1,
+					singleBigWidth, singleBigHeight,150, onlySizes,true);
 	}
 	setMinimumSize(minWidth,0);
 }
 
 
-void StreamingWidget::calculateHeightWidth(int maxWidth, int maxHeight, int &width, int &height) {
+void StreamingWidget::calculateHeightWidth(int maxWidth, int maxHeight,
+			int &width, int &height) {
 	if ((maxHeight-m_toolBarHeight)*m_aspectRatio > maxWidth) {
 		width = maxWidth;
 		height = width/m_aspectRatio+m_toolBarHeight;
@@ -169,8 +182,8 @@ void StreamingWidget::calculateHeightWidth(int maxWidth, int maxHeight, int &wid
 	}
 }
 
-void StreamingWidget::calculateEqualPanelSizes(int numPanels,int totalWidth, int totalHeight,
-	                                             int& width, int& height, int &bestConfig) {
+void StreamingWidget::calculateEqualPanelSizes(int numPanels,int totalWidth,
+			int totalHeight, int& width, int& height, int &bestConfig) {
 	if (numPanels == 0) {
 		width = 20000;	//random big number
 		height = 20000;
@@ -181,9 +194,13 @@ void StreamingWidget::calculateEqualPanelSizes(int numPanels,int totalWidth, int
 		int maxHeight =0, maxWidth = 0;
 		for (int i = 0; i < numPanels; i++) {
 			int newMaxWidth = (totalWidth-i*spacing)/(i+1);
-			int newMaxHeight = (totalHeight-(ceil(static_cast<float>(numPanels)/(i+1))-1)*spacing)/ceil(static_cast<float>(numPanels)/(i+1));
-			if (std::min(newMaxWidth, static_cast<int>((newMaxHeight-m_toolBarHeight)*m_aspectRatio)) >
-						std::min(maxWidth, static_cast<int>((maxHeight-m_toolBarHeight)*m_aspectRatio))) {
+			int newMaxHeight = (totalHeight - (ceil(static_cast<float>(numPanels) /
+						(i + 1) ) - 1) * spacing) / ceil(static_cast<float>(numPanels) /
+						(i + 1));
+			if (std::min(newMaxWidth, static_cast<int>(
+						(newMaxHeight - m_toolBarHeight) * m_aspectRatio)) >
+						std::min(maxWidth, static_cast<int>((maxHeight -
+						m_toolBarHeight) * m_aspectRatio))) {
 				maxWidth = newMaxWidth;
 				maxHeight = newMaxHeight;
 				bestConfig = i+1;
@@ -213,7 +230,8 @@ void StreamingWidget::mouseMoveEvent(QMouseEvent *event) {
 	QWidget *parent = nullptr;
 	if (qobject_cast<QToolBar *>(child)) parent = child->parentWidget();
 	else if (qobject_cast<QLabel *>(child) || (qobject_cast<QWidget *>(child) &&
-				qobject_cast<QToolBar *>(child->parentWidget()))) parent = child->parentWidget()->parentWidget();
+				qobject_cast<QToolBar *>(child->parentWidget()))) parent =
+				child->parentWidget()->parentWidget();
 	if(qobject_cast<StreamingPanel *>(parent)) {
 		createDrag(event->pos(), parent);
 	}
@@ -248,10 +266,13 @@ void StreamingWidget::dropEvent(QDropEvent *event){
 	QWidget * widget = *reinterpret_cast<QWidget**>(byteArray.data());
 	QWidget *current_child = childAt(event->pos());
 	QWidget *parent = nullptr;
-	if (qobject_cast<QToolBar *>(current_child) || qobject_cast<ImageViewer *>(current_child))
-		parent = current_child->parentWidget();
-	else if (qobject_cast<QLabel *>(current_child) || (qobject_cast<QWidget *>(current_child) &&
-				qobject_cast<QToolBar *>(current_child->parentWidget()))) parent = current_child->parentWidget()->parentWidget();
+	if (qobject_cast<QToolBar *>(current_child) ||
+				qobject_cast<ImageViewer *>(current_child))
+				parent = current_child->parentWidget();
+	else if (qobject_cast<QLabel *>(current_child) ||
+				(qobject_cast<QWidget *>(current_child) &&
+				qobject_cast<QToolBar *>(current_child->parentWidget()))) parent =
+				current_child->parentWidget()->parentWidget();
 	if(qobject_cast<StreamingPanel *>(parent)) {
 		StreamingPanel *swap_widget;
 		swap_widget = qobject_cast<StreamingPanel *>(parent);
@@ -263,13 +284,17 @@ void StreamingWidget::dropEvent(QDropEvent *event){
 			int index_old = oldlayout->indexOf(widget);
 			int row_old, column_old, row_span_old, column_span_old;
 			int row_new, column_new, row_span_new, column_span_new;
-			oldlayout->getItemPosition(index_old, &row_old, &column_old, &row_span_old, &column_span_old);
+			oldlayout->getItemPosition(index_old, &row_old, &column_old,
+						&row_span_old, &column_span_old);
 			QWidget * item_old = (oldlayout->takeAt(index_old)->widget());
 			int index_new = newlayout->indexOf(swap_widget);
-			newlayout->getItemPosition(index_new, &row_new, &column_new, &row_span_new, &column_span_new);
+			newlayout->getItemPosition(index_new, &row_new, &column_new,
+						&row_span_new, &column_span_new);
 			QWidget * item_new = newlayout->takeAt(index_new)->widget();
-			newlayout->addWidget(item_old, row_new, column_new, row_span_new, column_span_new, Qt::AlignCenter);
-			oldlayout->addWidget(item_new, row_old, column_old, row_span_old, column_span_old, Qt::AlignCenter);
+			newlayout->addWidget(item_old, row_new, column_new, row_span_new,
+							column_span_new, Qt::AlignCenter);
+			oldlayout->addWidget(item_new, row_old, column_old, row_span_old,
+							column_span_old, Qt::AlignCenter);
 		}
 		event->acceptProposedAction();
 	}

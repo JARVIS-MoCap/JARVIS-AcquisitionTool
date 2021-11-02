@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  flirchameleonconfig.hpp
  * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
- * License:     GPL v3.0
- *****************************************************************/
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef FLIRCHAMELEONCONFIG_H
 #define FLIRCHAMELEONCONFIG_H
@@ -20,6 +20,7 @@
 
 class FlirChameleonConfig : public CamConfigInterface {
 	Q_OBJECT
+	
 	public:
 		explicit FlirChameleonConfig(QWidget *parent = 0);
 

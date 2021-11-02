@@ -1,7 +1,4 @@
-project (acquisitionMode)
-
-
-add_library(${PROJECT_NAME}
+add_library(acquisitionMode
     acquisitionmode.hpp
     acquisitionmode.cpp
     camselectorwindow.hpp
@@ -26,18 +23,16 @@ add_library(${PROJECT_NAME}
     latencychartview.cpp
 )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(acquisitionMode
     PUBLIC
     ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/src
     ../
-    ../../
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(acquisitionMode
   Qt5::Widgets
   Qt5::Charts
   src
   gui
 )
-
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wunused)

@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  triggersettingswinow.cpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  triggersettingswinow.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "triggersettingswindow.hpp"
 #include "saveflirpresetswindow.hpp"
@@ -18,15 +21,18 @@
 #include <QGroupBox>
 
 
-TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, SettingsObject *activeSettings) :
+TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent,
+      SettingsObject *activeSettings) :
       QDockWidget(parent, Qt::Window), m_activeSettings(activeSettings) {
 	settings = new QSettings();
 	setMinimumSize(325,300);
 	setWindowTitle("Trigger Settings");
   loadPresetsWindow = new PresetsWindow(&presets, "load", "Trigger Settings/");
 	savePresetsWindow = new PresetsWindow(&presets, "save", "Trigger Settings/");
-	connect(loadPresetsWindow, SIGNAL(loadPreset(QString)), this, SLOT(loadPresetSlot(QString)));
-	connect(savePresetsWindow, SIGNAL(savePreset(QString)), this, SLOT(savePresetSlot(QString)));
+	connect(loadPresetsWindow, &PresetsWindow::loadPreset,
+          this, &TriggerSettingsWindow::loadPresetSlot);
+	connect(savePresetsWindow, &PresetsWindow::savePreset,
+          this, &TriggerSettingsWindow::savePresetSlot);
 	settingsName = "Trigger Settings";
 	mainSplitter = new QSplitter(Qt::Vertical, this);
 	mainWidget = new QWidget (mainSplitter);
@@ -43,24 +49,28 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, SettingsObject *ac
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   advancedSimpleButton = new QToolButton(this);
   advancedSimpleAction = new QAction(this);
-  createToolBarButton(advancedSimpleButton, advancedSimpleAction, QIcon::fromTheme("show"), true,
-        true, QSize(35,35));
-  connect(advancedSimpleAction, &QAction::toggled, this, &TriggerSettingsWindow::advancedSimpleToggledSlot);
+  createToolBarButton(advancedSimpleButton, advancedSimpleAction,
+        QIcon::fromTheme("show"), true, true, QSize(35,35));
+  connect(advancedSimpleAction, &QAction::toggled,
+        this, &TriggerSettingsWindow::advancedSimpleToggledSlot);
 	expandButton = new QToolButton(this);
 	expandAction = new QAction(this);
-	createToolBarButton(expandButton, expandAction, QIcon::fromTheme("plusminus"), true,
-				false, QSize(35,35));
-	connect(expandAction, &QAction::triggered, this, &TriggerSettingsWindow::expandClickedSlot);
+	createToolBarButton(expandButton, expandAction, QIcon::fromTheme("plusminus"),
+        true, false, QSize(35,35));
+	connect(expandAction, &QAction::triggered,
+        this, &TriggerSettingsWindow::expandClickedSlot);
 	savePresetButton = new QToolButton(this);
 	savePresetAction = new QAction(this);
-	createToolBarButton(savePresetButton, savePresetAction, QIcon::fromTheme("upload"), true,
-				false, QSize(35,35));
-	connect(savePresetAction, &QAction::triggered, this, &TriggerSettingsWindow::savePresetsClickedSlot);
+	createToolBarButton(savePresetButton, savePresetAction,
+        QIcon::fromTheme("upload"), true, false, QSize(35,35));
+	connect(savePresetAction, &QAction::triggered,
+        this, &TriggerSettingsWindow::savePresetsClickedSlot);
 	loadPresetButton = new QToolButton(this);
 	loadPresetAction = new QAction(this);
-	createToolBarButton(loadPresetButton, loadPresetAction, QIcon::fromTheme("download"), true,
-				false, QSize(35,35));
-	connect(loadPresetAction, &QAction::triggered, this, &TriggerSettingsWindow::loadPresetsClickedSlot);
+	createToolBarButton(loadPresetButton, loadPresetAction,
+        QIcon::fromTheme("download"), true, false, QSize(35,35));
+	connect(loadPresetAction, &QAction::triggered,
+          this, &TriggerSettingsWindow::loadPresetsClickedSlot);
 	toolBar->addWidget(settingsLabel);
 	toolBar->addWidget(spacer);
   toolBar->addWidget(advancedSimpleButton);
@@ -79,18 +89,21 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent, SettingsObject *ac
 	searchLabel->setPixmap(pixmap);
 	searchEdit = new QLineEdit(this);
 	searchEdit->setPlaceholderText("Search...");
-	connect(searchEdit ,SIGNAL(textEdited(QString)), this, SLOT(searchEditedSlot(QString)));
+	connect(searchEdit , &QLineEdit::textEdited,
+          this, &TriggerSettingsWindow::searchEditedSlot);
 	searchBar->addWidget(searchLabel);
 	searchBar->addWidget(searchEdit);
 
   QGroupBox *simpleBox = new QGroupBox();
-  simpleBox->setStyleSheet("QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
+  simpleBox->setStyleSheet(
+        "QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
   QGridLayout *simplelayout = new QGridLayout(simpleBox);
   LabelWithToolTip *frameRateLabel = new LabelWithToolTip("FrameRate");
   frameRateEdit = new QSpinBox(this);
   frameRateEdit->setRange(0,170);
   frameRateEdit->setEnabled(false);
-  connect(frameRateEdit, QOverload<int>::of(&QSpinBox::valueChanged), this, &TriggerSettingsWindow::frameRateEditChangedSlot);
+  connect(frameRateEdit, QOverload<int>::of(&QSpinBox::valueChanged),
+        this, &TriggerSettingsWindow::frameRateEditChangedSlot);
 
 
   QWidget *bottomSpacer = new QWidget(simpleBox);
@@ -141,7 +154,8 @@ void TriggerSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
 		m_activeSettings->setSettingsTree(newSettings->settingsTree());
 		savePresetAction->setEnabled(true);
 		loadPresetAction->setEnabled(true);
-		connect(m_activeSettings->settingsTree(), SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(treeItemActivatedSlot(QTreeWidgetItem*, int)));
+		connect(m_activeSettings->settingsTree(), &QTreeWidget::itemClicked,
+          this, &TriggerSettingsWindow::treeItemActivatedSlot);
     frameRateEdit->setEnabled(true);
     frameRateEdit->setValue(TriggerInterface::triggerInstance->getFrameRate());
 	}
@@ -165,14 +179,18 @@ void TriggerSettingsWindow::advancedSimpleToggledSlot(bool toggle) {
 void TriggerSettingsWindow::saveSettingsLayer(SettingsNode* node) {
 	for (const auto& child : node->children()) {
 			SettingsNode::nodeType type = child->type();
-			if (type == SettingsNode::String || type == SettingsNode::Integer || type == SettingsNode::Float) {
-				settings->setValue(child->name(), static_cast<QLineEdit*>(child->dataField())->text());
+			if (type == SettingsNode::String || type == SettingsNode::Integer ||
+            type == SettingsNode::Float) {
+				settings->setValue(child->name(),
+              static_cast<QLineEdit*>(child->dataField())->text());
 			}
 			else if (type == SettingsNode::Enumeration) {
-				settings->setValue(child->name(), static_cast<QComboBox*>(child->dataField())->currentText());
+				settings->setValue(child->name(),
+              static_cast<QComboBox*>(child->dataField())->currentText());
 			}
 			else if (type == SettingsNode::Boolean) {
-				settings->setValue(child->name(), static_cast<QCheckBox*>(child->dataField())->checkState());
+				settings->setValue(child->name(),
+              static_cast<QCheckBox*>(child->dataField())->checkState());
 			}
 			saveSettingsLayer(child);
 	}
@@ -182,7 +200,8 @@ void TriggerSettingsWindow::saveSettingsLayer(SettingsNode* node) {
 void TriggerSettingsWindow::loadSettingsLayer(SettingsNode* node) {
 	for (const auto& child : node->children()) {
 		SettingsNode::nodeType type = child->type();
-		if (type == SettingsNode::String || type == SettingsNode::Integer || type == SettingsNode::Float) {
+		if (type == SettingsNode::String || type == SettingsNode::Integer ||
+          type == SettingsNode::Float) {
 			QString newText = settings->value(child->name()).toString();
 			static_cast<QLineEdit*>(child->dataField())->setText(newText);
 		}
@@ -194,14 +213,16 @@ void TriggerSettingsWindow::loadSettingsLayer(SettingsNode* node) {
 		}
 		else if (type == SettingsNode::Boolean) {
 			int newState = settings->value(child->name()).toInt();
-			static_cast<QCheckBox*>(child->dataField())->setCheckState(static_cast<Qt::CheckState>(newState));
+			static_cast<QCheckBox*>(child->dataField())->setCheckState(
+            static_cast<Qt::CheckState>(newState));
 		}
 		loadSettingsLayer(child);
 	}
 }
 
 
-int TriggerSettingsWindow::searchRecursive(QTreeWidgetItem *parent, QList<QTreeWidgetItem *> results) {
+int TriggerSettingsWindow::searchRecursive(QTreeWidgetItem *parent,
+      QList<QTreeWidgetItem *> results) {
 	int count = 0;
 	for  (int j = 0; j < parent->childCount(); j++) {
 		QTreeWidgetItem *child = parent->child(j);
@@ -216,8 +237,11 @@ int TriggerSettingsWindow::searchRecursive(QTreeWidgetItem *parent, QList<QTreeW
 
 
 void TriggerSettingsWindow::searchEditedSlot(const QString& text) {
-	QList<QTreeWidgetItem *>  results = m_activeSettings->settingsTree()->findItems(text, Qt::MatchContains | Qt::MatchRecursive);
-	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount(); i++ ) {
+	QList<QTreeWidgetItem *>  results =
+        m_activeSettings->settingsTree()->findItems(text,
+        Qt::MatchContains | Qt::MatchRecursive);
+	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount();
+        i++) {
 		QTreeWidgetItem *item = m_activeSettings->settingsTree()->topLevelItem(i);
 		searchRecursive(item, results);
 	}
@@ -226,11 +250,13 @@ void TriggerSettingsWindow::searchEditedSlot(const QString& text) {
 
 void TriggerSettingsWindow::expandClickedSlot() {
 	int expandedCount = 0;
-	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount(); i++ ) {
+	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount();
+        i++) {
 		QTreeWidgetItem *item = m_activeSettings->settingsTree()->topLevelItem(i);
 		if (item->isExpanded()) expandedCount++;
 	}
-	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount(); i++ ) {
+	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount();
+        i++) {
 		QTreeWidgetItem *item = m_activeSettings->settingsTree()->topLevelItem(i);
 		item->setExpanded(expandedCount == 0);
 	}
@@ -265,7 +291,8 @@ void TriggerSettingsWindow::savePresetSlot(const QString& preset) {
 
 void TriggerSettingsWindow::loadPresetSlot(const QString& preset) {
 	settings->beginGroup(preset);
-	if (settings->value("triggerType") != m_activeSettings->getRootNode()->name()) {
+	if (settings->value("triggerType") !=
+        m_activeSettings->getRootNode()->name()) {
 		QMessageBox *wrongCamMsg = new QMessageBox();
 		wrongCamMsg->setText("Preset for wrong trigger type!");
 		wrongCamMsg->show();
@@ -280,5 +307,6 @@ void TriggerSettingsWindow::loadPresetSlot(const QString& preset) {
 
 void TriggerSettingsWindow::frameRateEditChangedSlot(int val) {
   std::cout << "FrameRate Edit: " << val << std::endl;
-  TriggerInterface::triggerInstance->changeSimpleSetting("FrameRate", QString::number(val));
+  TriggerInterface::triggerInstance->changeSimpleSetting("FrameRate",
+        QString::number(val));
 }

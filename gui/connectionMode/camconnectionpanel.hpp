@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  camconnectionpanelwidget.hpp
- * Created: 	  23. October 2020
+ * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright:  	2021 Timo Hueser
- * License:   	 GPL v3.0
- *****************************************************************/
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef CAMCONNECTIONPANEL_H
 #define CAMCONNECTIONPANEL_H
@@ -24,6 +24,7 @@
 
 class CamConnectionPanel : public QFrame {
 	Q_OBJECT
+
 	public:
 		explicit CamConnectionPanel(QWidget *parent = 0);
 		~CamConnectionPanel();
@@ -31,15 +32,19 @@ class CamConnectionPanel : public QFrame {
 		StatusLogWindow *statusLogWindow;
 		QStackedWidget *stackWidget;
 		CamConfigInterface *camConfigInterface;
-		//ConfigureMode
 		QComboBox *camTypeCombo;
-		//InfoMode
 		QLineEdit *infoToolBarLabel;
 
 	public slots:
 		void statusUpdatedSlot(statusType, QString);
+
+	signals:
+		void camListChanged();
+		void otherCamListChanged();
+		void camAdded(CameraInterface *);
+		void statusUpdated(CameraInterface*, statusType, QString);
+
 	private:
-		//AddMode
 		QPushButton *addButton;
 		//ConfigureMode
 		QWidget *camConfigureContainer;
@@ -61,12 +66,6 @@ class CamConnectionPanel : public QFrame {
 		QLabel *camStatusInfoIcon;
 		QLabel *camStatusInfo;
 		QPushButton *camStatusButton;
-
-	signals:
-		void camListChanged();
-		void otherCamListChanged();
-		void camAdded(CameraInterface *);
-		void statusUpdated(CameraInterface*, statusType, QString);
 
 	private slots:
 		void addClickedSlot();

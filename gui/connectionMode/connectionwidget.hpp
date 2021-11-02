@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  connectinwidget.hpp
  * Created: 	  23. October 2020
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
- * License:     GPL v3.0
- *****************************************************************/
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef CONNECTIONWIDGET_H
 #define CONNECTIONWIDGET_H

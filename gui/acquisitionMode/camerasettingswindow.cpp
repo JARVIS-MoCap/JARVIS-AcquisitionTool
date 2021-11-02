@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  camerasettingswindow.cpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  camerasettingswindow.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "camerasettingswindow.hpp"
 #include "saveflirpresetswindow.hpp"
@@ -16,7 +19,9 @@
 #include <QGroupBox>
 #include <QScrollArea>
 
-CameraSettingsWindow::CameraSettingsWindow(QWidget *parent, SettingsObject *activeSettings) :
+
+CameraSettingsWindow::CameraSettingsWindow(QWidget *parent,
+      SettingsObject *activeSettings) :
       QDockWidget(parent, Qt::Window), m_activeSettings{activeSettings} {
 	settings = new QSettings();
 	setMinimumSize(335,100);
@@ -36,26 +41,30 @@ CameraSettingsWindow::CameraSettingsWindow(QWidget *parent, SettingsObject *acti
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   advancedSimpleButton = new QToolButton(this);
   advancedSimpleAction = new QAction(this);
-  createToolBarButton(advancedSimpleButton, advancedSimpleAction, QIcon::fromTheme("show"), true,
-        true, QSize(35,35));
+  createToolBarButton(advancedSimpleButton, advancedSimpleAction,
+        QIcon::fromTheme("show"), true, true, QSize(35,35));
   advancedSimpleAction->setEnabled(false);
-  connect(advancedSimpleAction, &QAction::toggled, this, &CameraSettingsWindow::advancedSimpleToggledSlot);
+  connect(advancedSimpleAction, &QAction::toggled,
+          this, &CameraSettingsWindow::advancedSimpleToggledSlot);
 	expandButton = new QToolButton(this);
 	expandAction = new QAction(this);
-	createToolBarButton(expandButton, expandAction, QIcon::fromTheme("plusminus"), true,
-				false, QSize(35,35));
+	createToolBarButton(expandButton, expandAction,
+        QIcon::fromTheme("plusminus"), true, false, QSize(35,35));
   expandAction->setEnabled(false);
-	connect(expandAction, &QAction::triggered, this, &CameraSettingsWindow::expandClickedSlot);
+	connect(expandAction, &QAction::triggered,
+          this, &CameraSettingsWindow::expandClickedSlot);
 	savePresetButton = new QToolButton(this);
 	savePresetAction = new QAction(this);
-	createToolBarButton(savePresetButton, savePresetAction, QIcon::fromTheme("upload"), true,
-				false, QSize(35,35));
-	connect(savePresetAction, &QAction::triggered, this, &CameraSettingsWindow::savePresetsClickedSlot);
+	createToolBarButton(savePresetButton, savePresetAction,
+        QIcon::fromTheme("upload"), true, false, QSize(35,35));
+	connect(savePresetAction, &QAction::triggered,
+          this, &CameraSettingsWindow::savePresetsClickedSlot);
 	loadPresetButton = new QToolButton(this);
 	loadPresetAction = new QAction(this);
-	createToolBarButton(loadPresetButton, loadPresetAction, QIcon::fromTheme("download"), true,
-				false, QSize(35,35));
-	connect(loadPresetAction, &QAction::triggered, this, &CameraSettingsWindow::loadPresetsClickedSlot);
+	createToolBarButton(loadPresetButton, loadPresetAction,
+        QIcon::fromTheme("download"), true, false, QSize(35,35));
+	connect(loadPresetAction, &QAction::triggered,
+          this, &CameraSettingsWindow::loadPresetsClickedSlot);
 	toolBar->addWidget(settingsLabel);
 	toolBar->addWidget(spacer);
   toolBar->addWidget(advancedSimpleButton);
@@ -74,21 +83,26 @@ CameraSettingsWindow::CameraSettingsWindow(QWidget *parent, SettingsObject *acti
 	searchLabel->setPixmap(pixmap);
 	searchEdit = new QLineEdit(this);
 	searchEdit->setPlaceholderText("Search...");
-	connect(searchEdit , &QLineEdit::textEdited, this, &CameraSettingsWindow::searchEditedSlot);
-  connect(searchEdit , &QLineEdit::returnPressed, this, &CameraSettingsWindow::searchReturnPressedSlot);
+	connect(searchEdit , &QLineEdit::textEdited,
+          this, &CameraSettingsWindow::searchEditedSlot);
+  connect(searchEdit , &QLineEdit::returnPressed,
+          this, &CameraSettingsWindow::searchReturnPressedSlot);
 	searchBar->addWidget(searchLabel);
 	searchBar->addWidget(searchEdit);
 
   QGroupBox *simpleBox = new QGroupBox();
-  simpleBox->setStyleSheet("QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
+  simpleBox->setStyleSheet(
+        "QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
   QScrollArea *simpleScrollArea = new QScrollArea(simpleBox);
   simpleScrollArea->setObjectName("simpleScrollArea");
   simpleScrollArea->setFrameShape(QFrame::NoFrame);
   simpleScrollArea->setWidgetResizable(true);
   QWidget *simpleInnerWidget = new QWidget(simpleScrollArea);
   simpleInnerWidget->setObjectName("simpleInnerWidget");
-  simpleInnerWidget->setStyleSheet("QWidget#simpleInnerWidget{background-color: rgba(0,0,0,0)}");
-  simpleScrollArea->setStyleSheet("QScrollArea#simpleScrollArea{background-color: rgba(0,0,0,0)}");
+  simpleInnerWidget->setStyleSheet(
+        "QWidget#simpleInnerWidget{background-color: rgba(0,0,0,0)}");
+  simpleScrollArea->setStyleSheet(
+        "QScrollArea#simpleScrollArea{background-color: rgba(0,0,0,0)}");
 
   QGridLayout *simplelayout = new QGridLayout(simpleInnerWidget);
   QGridLayout *simpleouterlayout = new QGridLayout(simpleBox);
@@ -97,74 +111,112 @@ CameraSettingsWindow::CameraSettingsWindow(QWidget *parent, SettingsObject *acti
   simpleScrollArea->setWidget(simpleInnerWidget);
   QLabel *exposureLabel = new QLabel("Exposure Control");
   exposureLabel->setFont(QFont("Sans Serif", 12, QFont::Bold));
-  LabelWithToolTip *exposureAutoLabel = new LabelWithToolTip("  Exposure Auto", "If selected Exposure time will be automatically adjusted by the Camera. This is NOT recommended, long expousre times can lead to undesired blurring during motion.");
+  LabelWithToolTip *exposureAutoLabel = new LabelWithToolTip("  Exposure Auto",
+        "If selected Exposure time will be automatically adjusted by the "
+        "Camera. This is NOT recommended, long expousre times can lead to "
+        "undesired blurring during motion.");
   exposureToggle = new ToggleSwitch(simpleScrollArea);
   exposureToggle->setMaximumSize(70,25);
   exposureToggle->setEnabled(false);
-  connect(exposureToggle, &ToggleSwitch::toggled, this, &CameraSettingsWindow::exposureAutoToggledSlot);
-  LabelWithToolTip *exposureTimeLabel = new LabelWithToolTip("  Exposure Time [ms]", "Exposure Time in Milliseconds, keep as low as possible to avoid motion blur (Below 5 ms is recommended for fast moving subjects).");
+  connect(exposureToggle, &ToggleSwitch::toggled,
+          this, &CameraSettingsWindow::exposureAutoToggledSlot);
+  LabelWithToolTip *exposureTimeLabel = new LabelWithToolTip(
+        "  Exposure Time [ms]", "Exposure Time in Milliseconds, keep as low as "
+        "possible to avoid motion blur (Below 5 ms is recommended for fast "
+        "moving subjects).");
   exposureEdit = new QDoubleSpinBox(this);
   exposureEdit->setRange(0,100);
   exposureEdit->setMaximumSize(70,25);
   exposureEdit->setEnabled(false);
-  connect(exposureEdit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CameraSettingsWindow::exposureEditChangedSlot);
+  connect(exposureEdit, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &CameraSettingsWindow::exposureEditChangedSlot);
   QWidget *exposureSpacer = new QWidget(simpleScrollArea);
   exposureSpacer->setMinimumSize(0,10);
   exposureSpacer->setMaximumSize(9999,10);
 
   QLabel *gainLabel = new QLabel("Gain Control");
   gainLabel->setFont(QFont("Sans Serif", 12, QFont::Bold));
-  LabelWithToolTip *gainAutoLabel = new LabelWithToolTip("  Gain Auto", "If selected the gain will be automatically adjusted by the camera. Be carefull when using this, high gain can lead to high noise in darker regions of the image.");
+  LabelWithToolTip *gainAutoLabel = new LabelWithToolTip("  Gain Auto",
+        "If selected the gain will be automatically adjusted by the camera. "
+        "Be carefull when using this, high gain can lead to high noise in "
+        "darker regions of the image.");
   gainToggle = new ToggleSwitch(simpleScrollArea);
   gainToggle->setMaximumSize(70,25);
   gainToggle->setEnabled(false);
-  connect(gainToggle, &ToggleSwitch::toggled, this, &CameraSettingsWindow::gainAutoToggledSlot);
-  LabelWithToolTip *gainValueLabel = new LabelWithToolTip("  Gain [dB]", "Gain of the sensor in dB, keep as low as possible to avoid high noise in darker regions of the image.");
+  connect(gainToggle, &ToggleSwitch::toggled,
+          this, &CameraSettingsWindow::gainAutoToggledSlot);
+  LabelWithToolTip *gainValueLabel = new LabelWithToolTip("  Gain [dB]",
+        "Gain of the sensor in dB, keep as low as possible to avoid high "
+        "noise in darker regions of the image.");
   gainEdit = new QDoubleSpinBox(simpleScrollArea);
   gainEdit->setRange(0.0,10.0);
   gainEdit->setMaximumSize(70,25);
   gainEdit->setEnabled(false);
-  connect(gainEdit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &CameraSettingsWindow::gainEditChangedSlot);
+  connect(gainEdit, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+          this, &CameraSettingsWindow::gainEditChangedSlot);
   QWidget *gainSpacer = new QWidget(simpleScrollArea);
   gainSpacer->setMinimumSize(0,10);
   gainSpacer->setMaximumSize(9999,10);
 
   QLabel *imageFormatControlLabel = new QLabel("Frame Format Control");
   imageFormatControlLabel->setFont(QFont("Sans Serif", 12, QFont::Bold));
-  LabelWithToolTip *widthLabel = new LabelWithToolTip("  Image Width", "Width of the image in pixels. If lower then sensor resolution this will NOT downsample the image, but only read out aa region specified by the horizontal and vertical offsets.");
+  LabelWithToolTip *widthLabel = new LabelWithToolTip("  Image Width",
+        "Width of the image in pixels. If lower then sensor resolution this "
+        "will NOT downsample the image, but only read out aa region specified "
+        "by the horizontal and vertical offsets.");
   widthEdit = new QSpinBox(simpleScrollArea);
   widthEdit->setRange(0,1280);
   widthEdit->setMaximumSize(70,25);
   widthEdit->setEnabled(false);
-  connect(widthEdit, QOverload<int>::of(&QSpinBox::valueChanged), this, &CameraSettingsWindow::widthEditChangedSlot);
-  LabelWithToolTip *heightLabel = new LabelWithToolTip("  Image Height", "Height of the image in pixels. If lower then sensor resolution this will NOT downsample the image, but only read out aa region specified by the horizontal and vertical offsets.");
+  connect(widthEdit, QOverload<int>::of(&QSpinBox::valueChanged),
+          this, &CameraSettingsWindow::widthEditChangedSlot);
+  LabelWithToolTip *heightLabel = new LabelWithToolTip("  Image Height",
+        "Height of the image in pixels. If lower then sensor resolution this "
+        "will NOT downsample the image, but only read out aa region specified "
+        "by the horizontal and vertical offsets.");
   heightEdit = new QSpinBox(simpleScrollArea);
   heightEdit->setRange(0,1024);
   heightEdit->setMaximumSize(70,25);
   heightEdit->setEnabled(false);
-  connect(heightEdit, QOverload<int>::of(&QSpinBox::valueChanged), this, &CameraSettingsWindow::heightEditChangedSlot);
-  LabelWithToolTip *horizontalOffsetLabel = new LabelWithToolTip("  Horizontal Offset", "This value controls the horizontal position of your read out region.");
+  connect(heightEdit, QOverload<int>::of(&QSpinBox::valueChanged),
+        this, &CameraSettingsWindow::heightEditChangedSlot);
+  LabelWithToolTip *horizontalOffsetLabel = new LabelWithToolTip(
+        "  Horizontal Offset", "This value controls the horizontal position of "
+        "your read out region.");
   horizontalOffsetEdit = new QSpinBox(simpleScrollArea);
   horizontalOffsetEdit->setRange(0,1280);
   horizontalOffsetEdit->setMaximumSize(70,25);
   horizontalOffsetEdit->setEnabled(false);
-  connect(horizontalOffsetEdit, QOverload<int>::of(&QSpinBox::valueChanged), this, &CameraSettingsWindow::horizontalOffsetEditChangedSlot);
-  LabelWithToolTip *verticalOffsetLabel = new LabelWithToolTip("  Vertical Offset", "This value controls the vertical position of your read out region.");
+  connect(horizontalOffsetEdit, QOverload<int>::of(&QSpinBox::valueChanged),
+          this, &CameraSettingsWindow::horizontalOffsetEditChangedSlot);
+  LabelWithToolTip *verticalOffsetLabel = new LabelWithToolTip(
+        "  Vertical Offset", "This value controls the vertical position of "
+        "your read out region.");
   verticalOffsetEdit = new QSpinBox(simpleScrollArea);
   verticalOffsetEdit->setRange(0,1280);
   verticalOffsetEdit->setMaximumSize(70,25);
   verticalOffsetEdit->setEnabled(false);
-  connect(verticalOffsetEdit, QOverload<int>::of(&QSpinBox::valueChanged), this, &CameraSettingsWindow::verticalOffsetEditChangedSlot);
-  LabelWithToolTip *flipHorizontalLabel = new LabelWithToolTip("  Horizontal Flip", "Flips the image along its horizontal axis if enabled");
+  connect(verticalOffsetEdit, QOverload<int>::of(&QSpinBox::valueChanged),
+          this, &CameraSettingsWindow::verticalOffsetEditChangedSlot);
+  LabelWithToolTip *flipHorizontalLabel = new LabelWithToolTip(
+        "  Horizontal Flip", "Flips the image along its horizontal axis if "
+        "enabled");
   flipHorizontalToggle = new ToggleSwitch(simpleScrollArea);
   flipHorizontalToggle->setMaximumSize(70,25);
   flipHorizontalToggle->setEnabled(false);
-  connect(flipHorizontalToggle, &ToggleSwitch::toggled, this, &CameraSettingsWindow::flipHorizontalToggledSlot);
-  LabelWithToolTip *flipVerticalLabel = new LabelWithToolTip("  Vertical Flip", "Flips the image along its vertical axis if enabled");
+  connect(flipHorizontalToggle, &ToggleSwitch::toggled,
+          this, &CameraSettingsWindow::flipHorizontalToggledSlot);
+  LabelWithToolTip *flipVerticalLabel = new LabelWithToolTip("  Vertical Flip",
+        "Flips the image along its vertical axis if enabled");
   flipVerticalToggle = new ToggleSwitch(simpleScrollArea);
   flipVerticalToggle->setMaximumSize(70,25);
   flipVerticalToggle->setEnabled(false);
-  connect(flipVerticalToggle, &ToggleSwitch::toggled, this, &CameraSettingsWindow::flipVerticalToggledSlot);
+  connect(flipVerticalToggle, &ToggleSwitch::toggled,
+          this, &CameraSettingsWindow::flipVerticalToggledSlot);
+
+  setupAllCamerasButton = new QPushButton("Setup all Cameras");
+  connect(setupAllCamerasButton, &QPushButton::clicked,
+          this, &CameraSettingsWindow::setupAllCamerasButtonClicked);
   QWidget *bottomSpacer = new QWidget(simpleBox);
   bottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   int i = 0;
@@ -193,6 +245,7 @@ CameraSettingsWindow::CameraSettingsWindow(QWidget *parent, SettingsObject *acti
   simplelayout->addWidget(flipVerticalToggle, i++,1);
   simplelayout->addWidget(flipHorizontalLabel, i,0);
   simplelayout->addWidget(flipHorizontalToggle, i++,1);
+  simplelayout->addWidget(setupAllCamerasButton,i++,0,1,2);
   simplelayout->addWidget(bottomSpacer,i,0,1,2);
 
   advancedSimpleStackWidget = new QStackedWidget(this);
@@ -234,7 +287,8 @@ void CameraSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
     if (m_activeSettings->parent() != nullptr) {
       m_cam = static_cast<CameraInterface*>(m_activeSettings->parent());
       if (m_cam != nullptr) {
-        disconnect(m_cam, &CameraInterface::simpleSettingChanged, this, &CameraSettingsWindow::simpleSettingChangedSlot);
+        disconnect(m_cam, &CameraInterface::simpleSettingChanged,
+                   this, &CameraSettingsWindow::simpleSettingChangedSlot);
       }
     }
   }
@@ -254,12 +308,12 @@ void CameraSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
 		m_activeSettings->setSettingsTree(newSettings->settingsTree());
 		savePresetAction->setEnabled(true);
 		loadPresetAction->setEnabled(true);
-		connect(m_activeSettings->settingsTree(), SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(treeItemActivatedSlot(QTreeWidgetItem*, int)));
+		connect(m_activeSettings->settingsTree(), &QTreeWidget::itemClicked,
+            this, &CameraSettingsWindow::treeItemActivatedSlot);
     m_cam = static_cast<CameraInterface*>(m_activeSettings->parent());
-    connect(m_cam, &CameraInterface::simpleSettingChanged, this, &CameraSettingsWindow::simpleSettingChangedSlot);
-    //if (!m_cam->isStreaming()) {
+    connect(m_cam, &CameraInterface::simpleSettingChanged,
+            this, &CameraSettingsWindow::simpleSettingChangedSlot);
     m_cam->getSimpleSettingsValues();
-    //}
     settingsLabel->setText(m_cam->cameraName() + " Settings");
     advancedSimpleAction->setEnabled(true);
 	}
@@ -272,7 +326,8 @@ void CameraSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
 }
 
 
-void CameraSettingsWindow::simpleSettingChangedSlot(const QString& settingName, const QString& value, bool enabled, double min, double max) {
+void CameraSettingsWindow::simpleSettingChangedSlot(const QString& settingName,
+      const QString& value, bool enabled, double min, double max) {
   if (settingName == "ExposureAuto") {
     exposureToggle->blockSignals(true);
     exposureToggle->setToggled(value == "Continuous");
@@ -340,8 +395,8 @@ void CameraSettingsWindow::simpleSettingChangedSlot(const QString& settingName, 
     horizontalOffsetEdit->setEnabled(enabled);
     horizontalOffsetEdit->blockSignals(false);
   }
-  //std::cout << settingName.toStdString() << value.toStdString() << std::endl;
 }
+
 
 void CameraSettingsWindow::advancedSimpleToggledSlot(bool toggle) {
   if (toggle) {
@@ -360,17 +415,22 @@ void CameraSettingsWindow::advancedSimpleToggledSlot(bool toggle) {
   }
 }
 
+
 void CameraSettingsWindow::saveSettingsLayer(SettingsNode* node) {
 	for (const auto& child : node->children()) {
 			SettingsNode::nodeType type = child->type();
-			if (type == SettingsNode::String || type == SettingsNode::Integer || type == SettingsNode::Float) {
-				settings->setValue(child->name(), static_cast<QLineEdit*>(child->dataField())->text());
+			if (type == SettingsNode::String || type == SettingsNode::Integer ||
+            type == SettingsNode::Float) {
+				settings->setValue(child->name(), static_cast<QLineEdit*>(
+              child->dataField())->text());
 			}
 			else if (type == SettingsNode::Enumeration) {
-				settings->setValue(child->name(), static_cast<QComboBox*>(child->dataField())->currentText());
+				settings->setValue(child->name(), static_cast<QComboBox*>(
+              child->dataField())->currentText());
 			}
 			else if (type == SettingsNode::Boolean) {
-				settings->setValue(child->name(), static_cast<QCheckBox*>(child->dataField())->checkState());
+				settings->setValue(child->name(), static_cast<QCheckBox*>(
+              child->dataField())->checkState());
 			}
 			saveSettingsLayer(child);
 	}
@@ -380,7 +440,8 @@ void CameraSettingsWindow::saveSettingsLayer(SettingsNode* node) {
 void CameraSettingsWindow::loadSettingsLayer(SettingsNode* node) {
 	for (const auto& child : node->children()) {
 		SettingsNode::nodeType type = child->type();
-		if (type == SettingsNode::String || type == SettingsNode::Integer || type == SettingsNode::Float) {
+		if (type == SettingsNode::String || type == SettingsNode::Integer ||
+          type == SettingsNode::Float) {
 			QString newText = settings->value(child->name()).toString();
 			static_cast<QLineEdit*>(child->dataField())->setText(newText);
 		}
@@ -392,14 +453,16 @@ void CameraSettingsWindow::loadSettingsLayer(SettingsNode* node) {
 		}
 		else if (type == SettingsNode::Boolean) {
 			int newState = settings->value(child->name()).toInt();
-			static_cast<QCheckBox*>(child->dataField())->setCheckState(static_cast<Qt::CheckState>(newState));
+			static_cast<QCheckBox*>(child->dataField())->setCheckState(
+            static_cast<Qt::CheckState>(newState));
 		}
 		loadSettingsLayer(child);
 	}
 }
 
 
-int CameraSettingsWindow::searchRecursive(QTreeWidgetItem *parent, QList<QTreeWidgetItem *> results) {
+int CameraSettingsWindow::searchRecursive(QTreeWidgetItem *parent,
+      QList<QTreeWidgetItem *> results) {
 	int count = 0;
 	for  (int j = 0; j < parent->childCount(); j++) {
 		QTreeWidgetItem *child = parent->child(j);
@@ -414,17 +477,22 @@ int CameraSettingsWindow::searchRecursive(QTreeWidgetItem *parent, QList<QTreeWi
 
 
 void CameraSettingsWindow::searchEditedSlot(const QString& text) {
-	QList<QTreeWidgetItem *>  results = m_activeSettings->settingsTree()->findItems(text, Qt::MatchContains | Qt::MatchRecursive);
-	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount(); i++ ) {
+	QList<QTreeWidgetItem *>  results = m_activeSettings->
+        settingsTree()->findItems(text, Qt::MatchContains | Qt::MatchRecursive);
+	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount();
+        i++) {
 		QTreeWidgetItem *item = m_activeSettings->settingsTree()->topLevelItem(i);
 		searchRecursive(item, results);
 	}
 }
 
+
 void CameraSettingsWindow::searchReturnPressedSlot() {
   const QString text = searchEdit->text();
-  QList<QTreeWidgetItem *>  results = m_activeSettings->settingsTree()->findItems(text, Qt::MatchContains | Qt::MatchRecursive);
-  for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount(); i++ ) {
+  QList<QTreeWidgetItem *>  results = m_activeSettings->
+        settingsTree()->findItems(text, Qt::MatchContains | Qt::MatchRecursive);
+  for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount();
+        i++) {
     QTreeWidgetItem *item = m_activeSettings->settingsTree()->topLevelItem(i);
     searchRecursive(item, results);
   }
@@ -433,11 +501,13 @@ void CameraSettingsWindow::searchReturnPressedSlot() {
 
 void CameraSettingsWindow::expandClickedSlot() {
 	int expandedCount = 0;
-	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount(); i++ ) {
+	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount();
+        i++) {
 		QTreeWidgetItem *item = m_activeSettings->settingsTree()->topLevelItem(i);
 		if (item->isExpanded()) expandedCount++;
 	}
-	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount(); i++ ) {
+	for( int i = 0; i < m_activeSettings->settingsTree()->topLevelItemCount();
+        i++) {
 		QTreeWidgetItem *item = m_activeSettings->settingsTree()->topLevelItem(i);
 		item->setExpanded(expandedCount == 0);
 	}
@@ -453,7 +523,8 @@ void CameraSettingsWindow::treeItemActivatedSlot(QTreeWidgetItem* item, int) {
 void CameraSettingsWindow::savePresetsClickedSlot() {
   if (m_activeSettings != nullptr) {
     if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
-      FLIRChameleon *cam = static_cast<FLIRChameleon*>(m_activeSettings->parent());
+      FLIRChameleon *cam = static_cast<FLIRChameleon*>(
+            m_activeSettings->parent());
       saveCameraPresetsWindow = new SaveFlirPresetsWindow(cam);
     }
     saveCameraPresetsWindow->show();
@@ -464,7 +535,8 @@ void CameraSettingsWindow::savePresetsClickedSlot() {
 void CameraSettingsWindow::loadPresetsClickedSlot() {
   if (m_activeSettings != nullptr) {
     if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
-      FLIRChameleon *cam = static_cast<FLIRChameleon*>(m_activeSettings->parent());
+      FLIRChameleon *cam = static_cast<FLIRChameleon*>(
+            m_activeSettings->parent());
       loadCameraPresetsWindow = new LoadFlirPresetsWindow(cam);
     }
     loadCameraPresetsWindow->exec();

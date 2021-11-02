@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  controlbar.cpp
- *  Created:  27. October 2020
- *  Author:   Timo Hüser
- * *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  controlbar.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "controlbar.hpp"
 #include "camselectorwindow.hpp"
@@ -26,37 +29,44 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
 	recordAction = new QAction(this);
 	createToolBarButton(recordButton, recordAction, QIcon::fromTheme("record"),
 											true, true, QSize(50,50));
-	connect(recordAction, &QAction::toggled, this, &ControlBar::recordClickedSlot);
+	connect(recordAction, &QAction::toggled,
+					this, &ControlBar::recordClickedSlot);
 	startButton = new QToolButton(this);
 	startAction = new QAction(this);
-	createToolBarButton(startButton, startAction, QIcon::fromTheme("start"), true,
-											true, QSize(50,50));
-	connect(startAction, &QAction::toggled, this, &ControlBar::startClickedSlot);
+	createToolBarButton(startButton, startAction, QIcon::fromTheme("start"),
+				true, true, QSize(50,50));
+	connect(startAction, &QAction::toggled,
+				this, &ControlBar::startClickedSlot);
 	pauseButton = new QToolButton(this);
 	pauseAction = new QAction(this);
-	createToolBarButton(pauseButton, pauseAction, QIcon::fromTheme("pause"), false,
-											true, QSize(50,50));
-	connect(pauseAction, &QAction::toggled, this, &ControlBar::pauseClickedSlot);
+	createToolBarButton(pauseButton, pauseAction, QIcon::fromTheme("pause"),
+				false, true, QSize(50,50));
+	connect(pauseAction, &QAction::toggled,
+				this, &ControlBar::pauseClickedSlot);
 	stopButton = new QToolButton(this);
 	stopAction = new QAction(this);
 	createToolBarButton(stopButton, stopAction, QIcon::fromTheme("stop"), false,
 											false, QSize(50,50));
-	connect(stopAction, &QAction::triggered, this, &ControlBar::stopClickedSlot);
+	connect(stopAction, &QAction::triggered,
+					this, &ControlBar::stopClickedSlot);
 	recordingTimeLabel = new QLabel(this);
 	recordingTimer = new QTimer(this);
 	recordingTime = new QTime(0,0);
 	startTime = new QTime(0,0);
 	recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
-	connect(recordingTimer,&QTimer::timeout, this, &ControlBar::recordingTimerSlot);
+	connect(recordingTimer,&QTimer::timeout,
+					this, &ControlBar::recordingTimerSlot);
 	recordingNameEdit = new QLineEdit(this);
-	recordingNameEdit->setStyleSheet("QLineEdit{background-color: palette(window);}");
+	recordingNameEdit->setStyleSheet(
+				"QLineEdit{background-color: palette(window);}");
 	recordingNameEdit->setPlaceholderText("Recording Name");
 	recordingNameEdit->setMaximumSize(300,30);
 	saveFolderButton = new QToolButton(this);
 	saveFolderAction = new QAction(this);
-	createToolBarButton(saveFolderButton, saveFolderAction, QIcon::fromTheme("folder"), true,
-											false, QSize(50,50));
-	connect(saveFolderAction, &QAction::triggered, this, &ControlBar::saveFolderClickedSlot);
+	createToolBarButton(saveFolderButton, saveFolderAction,
+				QIcon::fromTheme("folder"), true, false, QSize(50,50));
+	connect(saveFolderAction, &QAction::triggered,
+					this, &ControlBar::saveFolderClickedSlot);
 
 	QWidget *spacer = new QWidget();
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -75,22 +85,26 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
 	defaultAction = new QAction(this);
 	createToolBarButton(defaultButton, defaultAction, iconList["DefaultActive"],
 											true, false, QSize(50,50));
-	connect(defaultAction, &QAction::triggered, this, &ControlBar::defaultLayoutSlot);
+	connect(defaultAction, &QAction::triggered,
+					this, &ControlBar::defaultLayoutSlot);
 	oneBigButton = new QToolButton(this);
 	oneBigAction = new QAction(this);
 	createToolBarButton(oneBigButton, oneBigAction, iconList["OneBig"],
 											true, false, QSize(50,50));
-	connect(oneBigAction, &QAction::triggered, this, &ControlBar::oneBigLayoutSlot);
+	connect(oneBigAction, &QAction::triggered,
+					this, &ControlBar::oneBigLayoutSlot);
 	twoBigButton = new QToolButton(this);
 	twoBigAction = new QAction(this);
 	createToolBarButton(twoBigButton, twoBigAction, iconList["TwoBig"],
 											true, false, QSize(50,50));
-	connect(twoBigAction, &QAction::triggered, this, &ControlBar::twoBigLayoutSlot);
+	connect(twoBigAction, &QAction::triggered,
+					this, &ControlBar::twoBigLayoutSlot);
 	fourBigButton = new QToolButton(this);
 	fourBigAction = new QAction(this);
 	createToolBarButton(fourBigButton, fourBigAction, iconList["FourBig"],
 											true, false, QSize(50,50));
-	connect(fourBigAction, &QAction::triggered, this, &ControlBar::fourBigLayoutSlot);
+	connect(fourBigAction, &QAction::triggered,
+					this, &ControlBar::fourBigLayoutSlot);
 
 	this->addWidget(recordButton);
 	this->addSeparator();
@@ -117,12 +131,15 @@ void ControlBar::recordClickedSlot(bool toggled) {
 	if (toggled) {
 		QString recordingName = recordingNameEdit->text();
 		if (recordingNameEdit->text() == "") {
-			recordingName = "Recording_" + QDateTime::currentDateTime().toString("yyyy-MM-ddThhmmss");
+			recordingName = "Recording_" +
+						QDateTime::currentDateTime().toString("yyyy-MM-ddThhmmss");
 		}
-		if (saveFileDir.exists(recordingName) || !saveFileDir.mkpath(recordingName)) {
+		if (saveFileDir.exists(recordingName) ||
+					!saveFileDir.mkpath(recordingName)) {
 			recordAction->setChecked(false);
 			QMessageBox msgBox;
-			msgBox.setText("Recording name already taken.\n Tipp: Leave blank for default timestamped name.");
+			msgBox.setText("Recording name already taken.\n "
+						"Tipp: Leave blank for default timestamped name.");
 			msgBox.exec();
 			return;
 		}
@@ -138,12 +155,14 @@ void ControlBar::recordClickedSlot(bool toggled) {
 			acquisitionSpecs.recorderType = BaseRecorderType;
 		}
 		if (TriggerInterface::triggerInstance != nullptr) {
-			acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
+			acquisitionSpecs.frameRate =
+						TriggerInterface::triggerInstance->getFrameRate();
 		}
 		else {
 			acquisitionSpecs.frameRate = 100;
 		}
-		acquisitionSpecs.streamingSamplingRatio = globalSettings.recordingSubsamplingRatio;
+		acquisitionSpecs.streamingSamplingRatio =
+					globalSettings.recordingSubsamplingRatio;
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);
 		recordAction->setEnabled(false);
@@ -171,7 +190,8 @@ void ControlBar::startClickedSlot(bool toggled) {
 	if (toggled) {
 		AcquisitionSpecs acquisitionSpecs;
 		if (TriggerInterface::triggerInstance != nullptr) {
-			acquisitionSpecs.frameRate = TriggerInterface::triggerInstance->getFrameRate();
+			acquisitionSpecs.frameRate =
+						TriggerInterface::triggerInstance->getFrameRate();
 		}
 		else {
 			acquisitionSpecs.frameRate = 100;
@@ -182,9 +202,11 @@ void ControlBar::startClickedSlot(bool toggled) {
 		else {
 			acquisitionSpecs.recorderType = BaseRecorderType;
 		}
-		acquisitionSpecs.streamingSamplingRatio = globalSettings.streamingSubsamplingRatio;
+		acquisitionSpecs.streamingSamplingRatio =
+					globalSettings.streamingSubsamplingRatio;
 		std::cout << globalSettings.streamingSubsamplingRatio << std::endl;
-		std::cout << "acquisitionSpecs" << acquisitionSpecs.streamingSamplingRatio << std::endl;
+		std::cout << "acquisitionSpecs" << acquisitionSpecs.streamingSamplingRatio
+					<< std::endl;
 		emit startAcquisition(acquisitionSpecs);
 		startAction->setEnabled(false);
 		recordAction->setEnabled(false);
@@ -238,13 +260,15 @@ void ControlBar::recordingTimerSlot() {
 	recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
 }
 
+
 void ControlBar::saveFolderClickedSlot() {
-	QString dir = QFileDialog::getExistingDirectory(this,"Recording Folder", saveFileDir.path(),
+	QString dir = QFileDialog::getExistingDirectory(this,"Recording Folder",
+				saveFileDir.path(),
 				QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-	std::cout << dir.toStdString() << std::endl;
 	if (dir != "") saveFileDir.setPath(dir);
 	settings->setValue("recordingSaveFolder", dir);
 }
+
 
 void ControlBar::updateListSlot() {
 	CamSelectorWindow::camVisibilityMap.clear();
@@ -263,10 +287,14 @@ void ControlBar::updateListSlot() {
 	emit updateStreamingPanels(m_activeLayout);
 }
 
+
 void ControlBar::camAddedSlot(CameraInterface *cam) {
-	connect(this, &ControlBar::startAcquisition, cam, &CameraInterface::startAcquisitionSlot);
-	connect(this, &ControlBar::stopAcquisition, cam, &CameraInterface::stopAcquisitionSlot);
+	connect(this, &ControlBar::startAcquisition,
+					cam, &CameraInterface::startAcquisitionSlot);
+	connect(this, &ControlBar::stopAcquisition,
+					cam, &CameraInterface::stopAcquisitionSlot);
 }
+
 
 void ControlBar::camVisibilityToggledSlot(CameraInterface * cam, bool toggled) {
 	m_activeLayout = StreamingWidget::Default;
@@ -288,6 +316,7 @@ void ControlBar::camVisibilityToggledSlot(CameraInterface * cam, bool toggled) {
 	emit updateStreamingPanels(m_activeLayout);
 }
 
+
 void ControlBar::defaultLayoutSlot() {
 	if (m_activeLayout == StreamingWidget::Default) return;
 	m_activeLayout = StreamingWidget::Default;
@@ -297,6 +326,7 @@ void ControlBar::defaultLayoutSlot() {
 	fourBigAction->setIcon(iconList["FourBig"]);
 	emit updateStreamingPanels(m_activeLayout);
 }
+
 
 void ControlBar::oneBigLayoutSlot() {
 	if (m_activeLayout == StreamingWidget::OneBig) return;
@@ -308,6 +338,7 @@ void ControlBar::oneBigLayoutSlot() {
 	emit updateStreamingPanels(m_activeLayout);
 }
 
+
 void ControlBar::twoBigLayoutSlot() {
 	if (m_activeLayout == StreamingWidget::TwoBig) return;
 	m_activeLayout = StreamingWidget::TwoBig;
@@ -317,6 +348,7 @@ void ControlBar::twoBigLayoutSlot() {
 	fourBigAction->setIcon(iconList["FourBig"]);
 	emit updateStreamingPanels(m_activeLayout);
 }
+
 
 void ControlBar::fourBigLayoutSlot() {
 	if (m_activeLayout == StreamingWidget::FourBig) return;

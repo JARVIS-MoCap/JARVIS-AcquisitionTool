@@ -1,11 +1,11 @@
-/*****************************************************************
-	* File:			  settingswindow.hpp
-	* Created: 	  23. October 2020
-	* Author:		  Timo Hueser
-	* Contact: 	  timo.hueser@gmail.com
-	* Copyright:  2021 Timo Hueser
-	* License:    GPL v3.0
-	*****************************************************************/
+/*******************************************************************************
+ * File:			  settingswindow.hpp
+ * Created: 		23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef SETTINGSWINDOW_H
 #define SETTINGSWINDOW_H
@@ -58,8 +58,6 @@ class SettingsWindow : public QWidget {
 		void streamingSubsamplingRatioChangedSlot(const QString &ratio);
 		void streamingEnableToggledSlot(bool toggle);
 		void recordingSubsamplingRatioChangedSlot(const QString &ratio);
-
-
 };
 
 #endif

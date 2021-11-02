@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  streamingwidget.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  streamingwidget.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef STREAMINGWIDGET_H
 #define STREAMINGWIDGET_H
@@ -27,7 +30,7 @@ class StreamingWidget : public QWidget {
 
 	public slots:
 	 void updateStreamingPanelsSlot(StreamingWidget::layoutType layout);
-	 void acquisitionStartedSlot(); 
+	 void acquisitionStartedSlot();
 
 	signals:
 		void togglePanel(CameraInterface* cam, bool toggle);
@@ -43,12 +46,15 @@ class StreamingWidget : public QWidget {
 		const int m_toolBarHeight = 25;
 		float m_aspectRatio = 1280.0/1024.0;
 		void setPanels(bool onlySizes = false);
-		void setSinglePanel(StreamingPanel *panel, int row, int col, int r_span, int c_span,
-			int width, int height, int minWidth, bool onlySizes, bool big = false);
-		void configurePanels(int numPanels, int numBigPanels, float ratio,int minWidth, bool onlySizes);
-		void calculateHeightWidth(int maxWidth, int maxHeight, int &width, int &height);
-		void calculateEqualPanelSizes(int numPanels,int totalWidth, int totalHeight, int& width,
-		                              int& height, int& bestConfig);
+		void setSinglePanel(StreamingPanel *panel, int row, int col, int r_span,
+			int c_span, int width, int height, int minWidth, bool onlySizes,
+			bool big = false);
+		void configurePanels(int numPanels, int numBigPanels, float ratio,
+					int minWidth, bool onlySizes);
+		void calculateHeightWidth(int maxWidth, int maxHeight,
+					int &width, int &height);
+		void calculateEqualPanelSizes(int numPanels,int totalWidth,
+					int totalHeight, int& width, int& height, int& bestConfig);
 		void resizeEvent(QResizeEvent *) override {setPanels();}
 		void mousePressEvent(QMouseEvent *event);
 		void mouseMoveEvent(QMouseEvent *event);

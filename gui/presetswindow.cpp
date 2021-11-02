@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  presetswindow.cpp
  * Created: 	  23. October 2020
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright:  2021 Timo Hueser
- * License:    GPL v3.0
- *****************************************************************/
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "presetswindow.hpp"
 
@@ -17,6 +17,7 @@
 #include <QToolButton>
 #include <QMessageBox>
 #include <QGroupBox>
+
 
 PresetsWindow::PresetsWindow(QList<QString> *presets, const QString& type,
 			const QString& name, QWidget *parent) :  QDialog(parent),
@@ -47,7 +48,7 @@ PresetsWindow::PresetsWindow(QList<QString> *presets, const QString& type,
 	createToolBarButton(discardButton, discardAction, QIcon::fromTheme("discard"),
 				false, false, QSize(40,40));
 	connect(discardAction, &QAction::triggered,
-				this, &PresetsWindow::discardClickedSlot);
+					this, &PresetsWindow::discardClickedSlot);
 	loadToolBar->addWidget(selectedPresetLabel);
 	loadToolBar->addWidget(selectedPresetEdit);
 	loadToolBar->addWidget(discardButton);

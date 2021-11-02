@@ -54,6 +54,7 @@ class FLIRChameleon : public CameraInterface {
 		const QString& getDeviceID() {return m_serialNumber;}
 		int getBufferUsage();
 		int getBufferSize();
+		bool setupCameraForExternalTrigger();
 
 	public slots:
 		void settingChangedSlot(const QString& name, QList<QString> subMenus,

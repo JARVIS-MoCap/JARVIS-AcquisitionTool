@@ -64,7 +64,7 @@ if(USE_CUDA)
 	add_subdirectory(cudajpegencoder)
 endif()
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wunused)
+target_compile_options(${PROJECT_NAME} PRIVATE -O3)
 
 target_include_directories( ${PROJECT_NAME}
     PUBLIC

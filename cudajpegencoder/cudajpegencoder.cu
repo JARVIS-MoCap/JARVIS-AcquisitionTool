@@ -57,7 +57,7 @@ CudaJPEGEncoder::CudaJPEGEncoder(CudaJPEGEncoderConfig encoderConfig) :
           m_encoderConfig.width * m_encoderConfig.height));
   }
 
-  else if (m_encoderConfig.pixelFormat == BGR8){
+  else if (m_encoderConfig.pixelFormat == BGR8 || m_encoderConfig.pixelFormat == RGB8){
     checkCudaErrors(cudaMallocHost((void**)&data_pinned,
           m_encoderConfig.width * m_encoderConfig.height * 3));
     checkCudaErrors(cudaMalloc(&pBuffer,
@@ -135,7 +135,7 @@ unsigned char * CudaJPEGEncoder::encodeImage(unsigned char * frameData) {
           cudaMemcpyHostToDevice);
   }
 
-  else if (m_encoderConfig.pixelFormat == BGR8) {
+  else if (m_encoderConfig.pixelFormat == BGR8 || m_encoderConfig.pixelFormat == RGB8) {
     memcpy(data_pinned, frameData,
           m_encoderConfig.width * m_encoderConfig.height * 3);
     cudaMemcpy(pBuffer, data_pinned,
@@ -182,6 +182,11 @@ unsigned char * CudaJPEGEncoder::encodeImage(unsigned char * frameData) {
 
     else if (m_encoderConfig.pixelFormat == BGR8) {
       Npp32f aTwist[3][4] = {{0,0,1,0},{0,1,0,0},{1,0,0,0}};
+      nppiColorTwist32f_8u_C3R_Ctx(pBuffer, m_encoderConfig.width*3,
+            pBuffer2, m_encoderConfig.width*3, fullSize, aTwist, stream);
+    }
+    else if (m_encoderConfig.pixelFormat == RGB8) {
+      Npp32f aTwist[3][4] = {{1,0,0,0},{0,1,0,0},{0,0,1,0}};
       nppiColorTwist32f_8u_C3R_Ctx(pBuffer, m_encoderConfig.width*3,
             pBuffer2, m_encoderConfig.width*3, fullSize, aTwist, stream);
     }

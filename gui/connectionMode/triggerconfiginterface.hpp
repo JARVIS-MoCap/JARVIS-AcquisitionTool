@@ -1,12 +1,11 @@
-/*****************************************************************
- * File:			  triggerconfiginterface.cpp
+/*******************************************************************************
+ * File:			  triggerconfiginterface.hpp
  * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright:  2021 Timo Hueser
- * License:    GPL v3.0
- *****************************************************************/
-
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef TRIGGERCONFIGINTERFACE_H
 #define TRIGGERCONFIGINTERFACE_H
@@ -20,6 +19,7 @@
 
 class TriggerConfigInterface : public QWidget {
 	Q_OBJECT
+
 	public:
 		explicit TriggerConfigInterface(QWidget *parent = 0) {}
 
@@ -30,12 +30,6 @@ class TriggerConfigInterface : public QWidget {
 		virtual void loadPreset(QSettings *settings) = 0;
 		virtual void savePreset(QSettings *settings) = 0;
 		virtual TriggerInterface* getTrigger() = 0;
-
-	private:
-
-	signals:
-
-	private slots:
 };
 
 #endif

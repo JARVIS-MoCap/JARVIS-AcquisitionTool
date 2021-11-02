@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  acquisitionmode.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  acquisitionmode.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef ACQUISITIONMODE_H
 #define ACQUISITIONMODE_H
@@ -19,8 +22,10 @@
 
 #include <QMainWindow>
 
+
 class AcquisitionMode : public QMainWindow {
 	Q_OBJECT
+
 	public:
 		explicit AcquisitionMode(QMainWindow *parent = nullptr);
 
@@ -32,7 +37,8 @@ class AcquisitionMode : public QMainWindow {
 	signals:
 		void camListChanged();
 		void camAdded(CameraInterface * cam);
-		void statusUpdated(CameraInterface * cam, statusType status, const QString& message);
+		void statusUpdated(CameraInterface * cam, statusType status,
+					const QString& message);
 
 	private:
 		CamSelectorWindow *camSelector;
@@ -44,6 +50,7 @@ class AcquisitionMode : public QMainWindow {
 
 	private slots:
 		void loadCameraPresetSlot(SettingsObject* activeSettings);
+		void setupAllCamerasClickedSlot();
 };
 
 

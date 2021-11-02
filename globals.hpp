@@ -36,6 +36,7 @@ enum PixelFormat {BayerRG8,
 									BayerGR8,
 									BayerBG8,
 									BGR8,
+									RGB8,
 									Mono8,
 									YCbCr422};
 extern QMap<statusType, QIcon> statusIcons;

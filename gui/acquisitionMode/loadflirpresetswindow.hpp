@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  loadflirpresetswindow.hpp
  * Created: 	  23. October 2020
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright:  2021 Timo Hueser
- * License:    GPL v3.0
- *****************************************************************/
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef LOADFLIRPRESETSWINDOW_H
 #define LOADFLIRPRESETSWINDOW_H
@@ -31,7 +31,8 @@ class LoadFlirPresetsWindow : public LoadCameraPresetsInterface {
 	Q_OBJECT
 
 	public:
-		explicit LoadFlirPresetsWindow(FLIRChameleon *cam, QWidget *parent = nullptr);
+		explicit LoadFlirPresetsWindow(FLIRChameleon *cam,
+					QWidget *parent = nullptr);
 
 	private:
 		FLIRChameleon *m_cam;

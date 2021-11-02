@@ -698,6 +698,9 @@ else {
 					else if (camPixelFormat == "BGR8") {
 						m_pixelFormat = PixelFormat::BGR8;
 					}
+					else if (camPixelFormat == "RGB8") {
+						m_pixelFormat = PixelFormat::RGB8;
+					}
 					else if (camPixelFormat == "Mono8") {
 						m_pixelFormat = PixelFormat::Mono8;
 					}
@@ -757,6 +760,23 @@ void FLIRChameleon::changeSimpleSetting(const QString& setting,
 		settingChangedSlot(setting, {"FLIR Chameleon"}, SettingsNode::Boolean, val,
 					true);
 	}
+}
+
+bool FLIRChameleon::setupCameraForExternalTrigger() {
+	m_pCam->Init();
+	settingChangedSlot("TriggerMode", {"FLIR Chameleon"},
+				SettingsNode::Enumeration, "On", false);
+	settingChangedSlot("TriggerSelector", {"FLIR Chameleon"},
+				SettingsNode::Enumeration, "FrameStart", false);
+	settingChangedSlot("TriggerSource", {"FLIR Chameleon"},
+				SettingsNode::Enumeration, "Line3", false);
+	settingChangedSlot("TriggerOverlap", {"FLIR Chameleon"},
+				SettingsNode::Enumeration, "Off", false);
+	settingChangedSlot("PixelFormat", {"FLIR Chameleon"},
+				SettingsNode::Enumeration, "BayerRG8", true);
+	//settingChangedSlot("ExposureAuto", {"FLIR Chameleon"},
+	//			SettingsNode::Enumeration, "Off", true);
+	return true;
 }
 
 //TODO:: probably delete since now done by signal relay
@@ -870,7 +890,7 @@ bool FLIRChameleon::saveUserSetToFile(const QString& userSet,
 				const QString& path) {
 	GenApi::INodeMap& nodeMapTLDevice = m_pCam->GetTLDeviceNodeMap();
 	m_pCam->Init();
-	if (m_pCam->FileSelector == NULL) {
+	if (&m_pCam->FileSelector == NULL) {
 			std::cout << "File selector not supported on device!";
 			return false;
 	}
@@ -955,7 +975,7 @@ bool FLIRChameleon::loadUserSetFromFile(const QString& userSet,
 	m_pCam->Init();
 	GenApi::INodeMap& nodeMap = m_pCam->GetNodeMap();
 
-	if (m_pCam->FileSelector == NULL) {
+	if (&m_pCam->FileSelector == NULL) {
 			std::cout << "File selector not supported on device!" << std::endl;
 			return false;
 	}
@@ -1099,6 +1119,7 @@ bool FLIRChameleon::loadUserSetFromFile(const QString& userSet,
 			}
 	}
 	m_pCam->DeInit();
+	return true;
 }
 
 
@@ -1164,6 +1185,7 @@ bool FLIRChameleon::closeFile() {
 			emit statusUpdated(statusType::Warning, e.what());
       result = false;
   }
+	return result;
 }
 
 bool FLIRChameleon::executeReadCommand() {

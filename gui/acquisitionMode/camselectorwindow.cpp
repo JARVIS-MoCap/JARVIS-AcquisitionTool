@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  camselectorwindow.cpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  camselectorwindow.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "camselectorwindow.hpp"
 
@@ -12,7 +15,8 @@
 QMap<CameraInterface*, bool> CamSelectorWindow::camVisibilityMap;
 
 
-CamSelectorWindow::CamSelectorWindow(QWidget *parent) : QDockWidget(parent, Qt::Window) {
+CamSelectorWindow::CamSelectorWindow(QWidget *parent) :
+			QDockWidget(parent, Qt::Window) {
 	this->setMinimumSize(300,100);
 	this->setWindowTitle("Cameras");
 	mainWidget = new QWidget();
@@ -41,9 +45,12 @@ CamSelectorWindow::CamSelectorWindow(QWidget *parent) : QDockWidget(parent, Qt::
 	camsTable->setShowGrid(false);
 	camsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-	connect(camsTable, &QTableWidget::cellDoubleClicked, this, &CamSelectorWindow::selectionChangedSlot);
-	connect(camsTable, &QTableWidget::itemPressed, this, &CamSelectorWindow::tableItemPressed);
-	connect(camsTable, &QTableWidget::itemClicked, this, &CamSelectorWindow::tableItemClicked);
+	connect(camsTable, &QTableWidget::cellDoubleClicked,
+					this, &CamSelectorWindow::selectionChangedSlot);
+	connect(camsTable, &QTableWidget::itemPressed,
+					this, &CamSelectorWindow::tableItemPressed);
+	connect(camsTable, &QTableWidget::itemClicked,
+					this, &CamSelectorWindow::tableItemClicked);
 
 	layout->addWidget(camsTable,0,0);
 }
@@ -69,7 +76,8 @@ void CamSelectorWindow::updateListSlot() {
 }
 
 
-void CamSelectorWindow::camVisibilityToggledSlot(CameraInterface* cam, bool toggle) {
+void CamSelectorWindow::camVisibilityToggledSlot(CameraInterface* cam,
+			bool toggle) {
 	QTableWidgetItem *item = m_camMap.key(cam);
 	if (toggle) {
 		item->setCheckState(Qt::Checked);
@@ -84,14 +92,17 @@ void CamSelectorWindow::camVisibilityToggledSlot(CameraInterface* cam, bool togg
 
 void CamSelectorWindow::selectionChangedSlot(int row,int) {
 	for (int i = 0; i < camsTable->rowCount(); i++) {
-		if (i == row) camsTable->item(i,0)->setFont(QFont("Sans Serif", 11, QFont::Bold));
+		if (i == row) camsTable->item(i,0)->setFont(
+					QFont("Sans Serif", 11, QFont::Bold));
 		else camsTable->item(i,0)->setFont(QFont("Sans Serif", 11));
 	}
 	emit cameraSelected(CameraInterface::cameraList[row]);
 }
 
-void CamSelectorWindow::statusUpdatedSlot(CameraInterface *cam, statusType status, const QString&) {
-	camsTable->item(CameraInterface::cameraList.indexOf(cam),0)->setIcon(statusIcons[status]);
+void CamSelectorWindow::statusUpdatedSlot(CameraInterface *cam,
+			statusType status, const QString&) {
+	camsTable->item(CameraInterface::cameraList.indexOf(cam),0)->setIcon(
+				statusIcons[status]);
 }
 
 
@@ -102,7 +113,8 @@ void CamSelectorWindow::tableItemPressed(QTableWidgetItem * item) {
 
 void CamSelectorWindow::tableItemClicked(QTableWidgetItem * item) {
 	if (m_checkStateMap[item] != item->checkState()) {
-		emit camVisibilityToggled(m_camMap[item], item->checkState() == Qt::Checked);
+		emit camVisibilityToggled(m_camMap[item],
+					item->checkState() == Qt::Checked);
     }
 	m_checkStateMap[item] = item->checkState();
 }

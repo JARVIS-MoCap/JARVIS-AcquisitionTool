@@ -65,7 +65,7 @@ class CameraInterface : public QObject {
 		QString cameraName() const {return m_cameraName;}
 		SettingsObject* cameraSettings() const {return m_cameraSettings;}
 		bool isStreaming() const {return m_isStreaming;}
-		void setCameraStatus(const statusType& status) {m_cameraStatus = status;} //maybe clearCameraStatus() isntead??
+		void setCameraStatus(const statusType& status) {m_cameraStatus = status;}
 		statusType cameraStatus() const {return m_cameraStatus;}
 		virtual bool savePreset(const QString& preset) = 0;
 		virtual bool loadPreset(const QString& preset) = 0;
@@ -73,6 +73,7 @@ class CameraInterface : public QObject {
 		virtual void changeSimpleSetting(const QString& setting, const QString& val) = 0;
 		virtual int getBufferUsage() = 0;
 		virtual int getBufferSize() = 0;
+		virtual bool setupCameraForExternalTrigger() = 0;
 
 	public slots:
 		virtual void settingChangedSlot(const QString& name, QList<QString> subMenus,

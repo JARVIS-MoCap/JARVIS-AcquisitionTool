@@ -1,11 +1,11 @@
-/*****************************************************************
- * File:			  saveflirpresetswindow.cpp
+/*******************************************************************************
+ * File:			  savecamerapresetsinterface.cpp
  * Created: 	  23. October 2020
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright:  2021 Timo Hueser
- * License:    GPL v3.0
- *****************************************************************/
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "saveflirpresetswindow.hpp"
 
@@ -19,7 +19,9 @@
 #include <QGroupBox>
 #include <QFileDialog>
 
-SaveFlirPresetsWindow::SaveFlirPresetsWindow(FLIRChameleon *cam, QWidget *parent) :  SaveCameraPresetsInterface(parent), m_cam(cam) {
+
+SaveFlirPresetsWindow::SaveFlirPresetsWindow(FLIRChameleon *cam,
+				QWidget *parent) :  SaveCameraPresetsInterface(parent), m_cam(cam) {
 	setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 	setWindowTitle("Save Camera Settings as UserSets");
 	this->resize(600,400);
@@ -31,11 +33,13 @@ SaveFlirPresetsWindow::SaveFlirPresetsWindow(FLIRChameleon *cam, QWidget *parent
 	saveButton = new QPushButton("Save");
 	saveButton->setIcon(QIcon::fromTheme("save"));
 	saveButton->setMinimumSize(30,30);
-	connect (saveButton, &QPushButton::clicked, this, &SaveFlirPresetsWindow::saveSetClickedSlot);
+	connect (saveButton, &QPushButton::clicked,
+					 this, &SaveFlirPresetsWindow::saveSetClickedSlot);
 	closeButton = new QPushButton("Close");
 	closeButton->setIcon(QIcon::fromTheme("discard"));
 	closeButton->setMinimumSize(30,30);
-	connect(closeButton, &QPushButton::clicked, this, &SaveFlirPresetsWindow::accept);
+	connect(closeButton, &QPushButton::clicked,
+					this, &SaveFlirPresetsWindow::accept);
 
 	QGroupBox *userSetGroup = new QGroupBox("User Sets");
 	QGridLayout *usersetgrouplayout = new QGridLayout(userSetGroup);
@@ -62,9 +66,12 @@ SaveFlirPresetsWindow::SaveFlirPresetsWindow(FLIRChameleon *cam, QWidget *parent
 	seperatorItem1->setFlags(Qt::NoItemFlags);
 	seperatorItem1->setBackground(QColor(46, 50, 60));
 	userSetList->addItem(seperatorItem1);
-	connect(userSetList, &UserSetListWidget::currentItemChanged, this, &SaveFlirPresetsWindow::currentItemChangedSlot);
-	connect(userSetList, &UserSetListWidget::saveUserSetToFile, this, &SaveFlirPresetsWindow::saveUserSetToFileSlot);
-	connect(userSetList, &UserSetListWidget::loadUserSetFromFile, this, &SaveFlirPresetsWindow::loadUserSetFromFileSlot);
+	connect(userSetList, &UserSetListWidget::currentItemChanged,
+					this, &SaveFlirPresetsWindow::currentItemChangedSlot);
+	connect(userSetList, &UserSetListWidget::saveUserSetToFile,
+					this, &SaveFlirPresetsWindow::saveUserSetToFileSlot);
+	connect(userSetList, &UserSetListWidget::loadUserSetFromFile,
+					this, &SaveFlirPresetsWindow::loadUserSetFromFileSlot);
 
 
 	usersetgrouplayout->addWidget(userSetList,0,0);
@@ -95,8 +102,8 @@ void SaveFlirPresetsWindow::saveSetClickedSlot() {
 void SaveFlirPresetsWindow::saveUserSetToFileSlot(const QString& userSet) {
 	QFileDialog fd(this);
 	QString cameraName = m_cam->cameraName();
-	QString fileName = fd.getSaveFileName(this, "Save" + userSet, cameraName + "_" + userSet + ".bin",
-													tr("BIN Files (*.bin)"));
+	QString fileName = fd.getSaveFileName(this, "Save" + userSet,
+	 			cameraName + "_" + userSet + ".bin", tr("BIN Files (*.bin)"));
 	fd.setAcceptMode(QFileDialog::AcceptSave);
 	std::cout << fileName.toStdString() << std::endl;
 	if (fileName != "") {

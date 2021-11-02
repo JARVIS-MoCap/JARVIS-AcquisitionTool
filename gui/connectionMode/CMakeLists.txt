@@ -1,6 +1,6 @@
-project (connectionMode)
+add_compile_options("-O3")
 
-add_library(${PROJECT_NAME}
+add_library(connectionMode
     connectionmode.hpp
     connectionmode.cpp
     connectionwidget.hpp
@@ -23,14 +23,15 @@ add_library(${PROJECT_NAME}
     arduinotriggerconfig.cpp
 )
 
-target_include_directories(${PROJECT_NAME}
+
+target_include_directories(connectionMode
     PUBLIC
     ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/src
     ../
-    ../../
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(connectionMode
   Qt5::Widgets
-  src 
+  src
 )

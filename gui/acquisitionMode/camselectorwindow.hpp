@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  camselectorwindow.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  camselectorwindow.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef CAMSELECTORWINDOW_H
 #define CAMSELECTORWINDOW_H
@@ -24,7 +27,8 @@ class CamSelectorWindow : public QDockWidget {
 
 	public slots:
 		void updateListSlot();
-		void statusUpdatedSlot(CameraInterface *cam, statusType status, const QString&);
+		void statusUpdatedSlot(CameraInterface *cam, statusType status,
+					const QString&);
 		void camVisibilityToggledSlot(CameraInterface* cam, bool toggle);
 
 	signals:

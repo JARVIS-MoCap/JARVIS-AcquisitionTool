@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  connectionmode.hpp
  * Created: 	  23. October 2020
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright: 	2021 Timo Hueser
- * License:   	GPL v3.0
- *****************************************************************/
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef CONNECTIONMODE_H
 #define CONNECTIONMODE_H
@@ -17,6 +17,7 @@
 
 class ConnectionMode : public QMainWindow {
 	Q_OBJECT
+
 	public:
 		explicit ConnectionMode(QMainWindow *parent = 0);
 
@@ -25,8 +26,7 @@ class ConnectionMode : public QMainWindow {
 		void camAdded(CameraInterface*);
 		void triggerInstanceChanged();
 		void statusUpdated(CameraInterface* cam,
-											 statusType status,
-											 QString message);
+					statusType status, QString message);
 
 	private:
 		ConnectionWidget *connectionWidget;

@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  triggertestconfig.cpp
  * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
- * License:     GPL v3.0
- *****************************************************************/
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "globals.hpp"
 #include "triggertestconfig.hpp"
@@ -15,7 +15,8 @@
 #include <QLabel>
 
 
-TriggerTestConfig::TriggerTestConfig(QWidget *parent) : TriggerConfigInterface(parent) {
+TriggerTestConfig::TriggerTestConfig(QWidget *parent) :
+      TriggerConfigInterface(parent) {
   configEditBox = new QGroupBox(this);
   QGridLayout *configeditlayout = new QGridLayout(configEditBox);
   QLabel *example1Label = new QLabel("Example 1", configEditBox);

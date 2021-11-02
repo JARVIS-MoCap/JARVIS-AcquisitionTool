@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  arduinotriggerconfig.cpp
  * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
- * License:     GPL v3.0
- *****************************************************************/
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "globals.hpp"
 #include "arduinotriggerconfig.hpp"
@@ -15,7 +15,8 @@
 #include <QLabel>
 
 
-ArduinoTriggerConfig::ArduinoTriggerConfig(QWidget *parent) : TriggerConfigInterface(parent) {
+ArduinoTriggerConfig::ArduinoTriggerConfig(QWidget *parent) :
+      TriggerConfigInterface(parent) {
   configBackend = ArduinoConfigBackend::getInstance();
   availableDevices = configBackend->getAvailableDevices();
 
@@ -70,6 +71,7 @@ void ArduinoTriggerConfig::savePreset(QSettings *settings) {
 TriggerInterface* ArduinoTriggerConfig::getTrigger() {
   return new ArduinoTrigger(deviceNameInfo->text());
 }
+
 
 void ArduinoTriggerConfig::updateDeviceNamesSlot() {
   availableDevices = configBackend->getAvailableDevices();

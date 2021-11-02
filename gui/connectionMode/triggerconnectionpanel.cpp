@@ -1,11 +1,11 @@
-/*****************************************************************
- * File:			  triggerconnectionpanel.cpp
+/*******************************************************************************
+ * File:			  triggerconfiginterface.cpp
  * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
- * License:     GPL v3.0
- *****************************************************************/
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "globals.hpp"
 #include "triggerconnectionpanel.hpp"
@@ -31,8 +31,8 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) :
 	addButton->setIcon(QIcon::fromTheme("add_green"));
 	addButton->setIconSize(QSize(100,100));
 	addButton->setStyleSheet("QPushButton{border-radius: 10px;"
-													 "border: 4px solid rgb(100,164,32);}"
-													 "QPushButton:hover{background-color:rgb(68,74,89);}");
+		"border: 4px solid rgb(100,164,32);}"
+		"QPushButton:hover{background-color:rgb(68,74,89);}");
 
 	triggerConfigureContainer = new QWidget(stackWidget);
 	QGridLayout *triggerconfigurecontainerlayout =
@@ -118,7 +118,8 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) :
 	QWidget *triggerStatusSpacer = new QWidget(triggerInfoWidget);
 	triggerStatusSpacer->setSizePolicy(QSizePolicy::Expanding,
 																		 QSizePolicy::Preferred);
-	triggerStatusInfoIcon->setPixmap(statusIcons[Connecting].pixmap(QSize(20,20)));
+	triggerStatusInfoIcon->setPixmap(statusIcons[Connecting].pixmap(
+				QSize(20,20)));
 	triggerStatusInfo->setText(statusTexts[Connecting]);
 
 	//createTestBoxes();
@@ -126,13 +127,15 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent) :
 	int i = 0;
 	triggerconfigurelayout->addWidget(triggerTypeLabel,i,0);
 	triggerconfigurelayout->addWidget(triggerTypeCombo,i++,1);
-	triggerconfigurelayout->addWidget(triggerConfigInterface->configEditBox, i++, 0,1,2);
+	triggerconfigurelayout->addWidget(triggerConfigInterface->configEditBox,
+				i++, 0,1,2);
 	triggerconfigurelayout->addWidget(configureBottomSpacer,i,0,1,2);
 	triggerconfigurecontainerlayout->addWidget(configToolBar,0,0);
 	triggerconfigurecontainerlayout->addWidget(triggerConfigureWidget,1,0);
 	triggerconfigurecontainerlayout->setSpacing(0);
 	i = 0;
-	triggerinfolayout->addWidget(triggerConfigInterface->configInfoBox, i++,0,1,5);
+	triggerinfolayout->addWidget(triggerConfigInterface->configInfoBox,
+				i++,0,1,5);
 	triggerinfolayout->addWidget(triggerStatusInfoLabel,i,0);
 	triggerinfolayout->addWidget(triggerStatusInfoIcon,i,1);
 	triggerinfolayout->addWidget(triggerStatusInfo,i,2);
@@ -169,12 +172,14 @@ void TriggerConnectionPanel::exitConfigClickedSlot() {
 void TriggerConnectionPanel::confirmConfigClickedSlot() {
 	if (triggerConfigInterface->confirmConfigClicked()) {
 		TriggerInterface::triggerInstance = triggerConfigInterface->getTrigger();
-		connect(TriggerInterface::triggerInstance, SIGNAL(statusUpdated(statusType, QString)), this, SLOT(statusUpdatedSlot(statusType, QString)));
+		connect(TriggerInterface::triggerInstance, &TriggerInterface::statusUpdated,
+						this, &TriggerConnectionPanel::statusUpdatedSlot);
 	}
 	else {
 		QErrorMessage errorMessage;
     errorMessage.showMessage(
-	  "No trigger device selected! Make sure your device is plugged in and configured correctly!");
+	  			"No trigger device selected! Make sure your device is plugged in and "
+					"configured correctly!");
     errorMessage.exec();
 		return;
 	}
@@ -193,7 +198,8 @@ void TriggerConnectionPanel::deleteTriggerClickedSlot() {
 	delete TriggerInterface::triggerInstance;
 	TriggerInterface::triggerInstance = nullptr;
 	stackWidget->setCurrentIndex(0);
-	triggerStatusInfoIcon->setPixmap(statusIcons[Connecting].pixmap(QSize(20, 20)));
+	triggerStatusInfoIcon->setPixmap(statusIcons[Connecting].pixmap(
+				QSize(20, 20)));
 	triggerStatusInfo->setText(statusTexts[Connecting]);
 	emit triggerInstanceChanged();
 }
@@ -201,8 +207,8 @@ void TriggerConnectionPanel::deleteTriggerClickedSlot() {
 void TriggerConnectionPanel::typeComboChangedSlot(QString type) {
 	QLayoutItem *item = triggerconfigurelayout->takeAt(triggerconfigurelayout->
 				indexOf(triggerConfigInterface->configEditBox));
-	QLayoutItem *spacerItem = triggerconfigurelayout->takeAt(triggerconfigurelayout->
-				indexOf(configureBottomSpacer));
+	QLayoutItem *spacerItem = triggerconfigurelayout->takeAt(
+				triggerconfigurelayout->indexOf(configureBottomSpacer));
   delete item->widget();
   delete item;
   QLayoutItem *infoItem = triggerinfolayout->takeAt(triggerinfolayout->
@@ -216,7 +222,8 @@ void TriggerConnectionPanel::typeComboChangedSlot(QString type) {
 	else if (type == "Test Trigger") {
 		 triggerConfigInterface = new TriggerTestConfig(this);
 	}
-  triggerconfigurelayout->addWidget(triggerConfigInterface->configEditBox, 2, 0,1,2);
+  triggerconfigurelayout->addWidget(triggerConfigInterface->configEditBox,
+				2,0,1,2);
 	triggerconfigurelayout->addItem(spacerItem, 3, 0,1,2);
   triggerinfolayout->addWidget(triggerConfigInterface->configInfoBox,0,0,1,5);
 }

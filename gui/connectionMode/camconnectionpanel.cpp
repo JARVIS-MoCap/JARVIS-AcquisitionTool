@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  camconnectionpanelwidget.cpp
- * Created: 	  23. October 2020
+ * Created: 	  03. October 2021
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright:  	2021 Timo Hueser
- * License:    	GPL v3.0
- *****************************************************************/
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "camconnectionpanel.hpp"
 #include "globals.hpp"
@@ -15,10 +15,11 @@
 #include <QErrorMessage>
 
 
-
-CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Window) {
+CamConnectionPanel::CamConnectionPanel(QWidget *parent) :
+			QFrame(parent, Qt::Window) {
 	statusLogWindow = new StatusLogWindow(this);
-	connect(statusLogWindow, SIGNAL(logsCleared()), this, SLOT(logsClearedSlot()));
+	connect(statusLogWindow, &StatusLogWindow::logsCleared,
+					this, &CamConnectionPanel::logsClearedSlot);
 
 	QGridLayout *panellayout = new QGridLayout(this);
 	stackWidget = new QStackedWidget(this);
@@ -30,12 +31,13 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent) : QFrame(parent, Qt::Win
 	addButton->setIcon(QIcon::fromTheme("add"));
 	addButton->setIconSize(QSize(100,100));
 	addButton->setStyleSheet("QPushButton {border-radius: 10px;"
-																				"background-color: palette(window);"
-																				"border: 4px solid rgb(32,100,164);}"
-													 "QPushButton:hover{ background-color: rgb(68,74,89);}");
+				"background-color: palette(window);"
+				"border: 4px solid rgb(32,100,164);}"
+				"QPushButton:hover{ background-color: rgb(68,74,89);}");
 
 	camConfigureContainer = new QWidget(stackWidget);
-	QGridLayout *camconfigurecontainerlayout = new QGridLayout(camConfigureContainer);
+	QGridLayout *camconfigurecontainerlayout = new QGridLayout(
+				camConfigureContainer);
 	configToolBar = new QToolBar(this);
 	configToolBar->setFixedHeight(40);
 	configToolBar->setIconSize(QSize(25,25));
@@ -200,7 +202,8 @@ void CamConnectionPanel::confirmConfigClickedSlot() {
 		else {
 			QErrorMessage errorMessage;
 			errorMessage.showMessage(
-			"No camera selected! Make sure there is a camera plugged in and you're usb permissions are set correctly!");
+						"No camera selected! Make sure there is a camera plugged in and "
+						"your usb permissions are set correctly!");
 			errorMessage.exec();
 			return;
 		}
@@ -236,7 +239,9 @@ void CamConnectionPanel::typeComboChangedSlot(QString type) {
   }
   else if (type == "FLIR Chameleon") {
     camConfigInterface = new FlirChameleonConfig(this);
-		connect(this, &CamConnectionPanel::otherCamListChanged, static_cast<FlirChameleonConfig*>(camConfigInterface), &FlirChameleonConfig::updateDeviceIDs);
+		connect(this, &CamConnectionPanel::otherCamListChanged,
+						static_cast<FlirChameleonConfig*>(camConfigInterface),
+						&FlirChameleonConfig::updateDeviceIDs);
   }
   camconfigurelayout->addWidget(camConfigInterface->configEditBox, 2, 0,1,2);
   caminfolayout->addWidget(camConfigInterface->configInfoBox,0,0,1,5);
@@ -280,7 +285,8 @@ void CamConnectionPanel::logsClearedSlot() {
 
 
 bool CamConnectionPanel::eventFilter(QObject* object, QEvent* event) {
-    if(object == infoToolBarLabel && event->type() == QEvent::MouseButtonDblClick) {
+    if(object == infoToolBarLabel && event->type() ==
+					QEvent::MouseButtonDblClick) {
 			infoToolBarLabel->setReadOnly(false);
         return false;
     }

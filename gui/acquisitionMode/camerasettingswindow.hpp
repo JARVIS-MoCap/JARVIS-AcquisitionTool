@@ -1,8 +1,11 @@
-/*------------------------------------------------------------
- *  camerasettingswindow.hpp
- *  Created: 23. October 2020
- *  Author:   Timo Hüser
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  camerasettingswindow.hpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #ifndef CAMERASETTINGSWINDOW_H
 #define CAMERASETTINGSWINDOW_H
@@ -24,16 +27,20 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 
+
 class CameraSettingsWindow : public QDockWidget {
 	Q_OBJECT
+
 	public:
-		explicit CameraSettingsWindow(QWidget *parent = nullptr, SettingsObject *activeSettings = nullptr);
+		explicit CameraSettingsWindow(QWidget *parent = nullptr,
+					SettingsObject *activeSettings = nullptr);
 
 	public slots:
 		void setSettingsObjectSlot(SettingsObject*);
 
 	signals:
 		void loadPreset(SettingsObject*);
+		void setupAllCamerasButtonClicked();
 
 	private:
 		QSettings *settings;
@@ -72,13 +79,16 @@ class CameraSettingsWindow : public QDockWidget {
 		ToggleSwitch *flipHorizontalToggle;
 		ToggleSwitch *flipVerticalToggle;
 
+		QPushButton *setupAllCamerasButton;
+
 
 		SettingsObject *m_activeSettings = nullptr;
 
 		void saveSettingsLayer(SettingsNode* node);
 		void loadSettingsLayer(SettingsNode* node);
 
-		int searchRecursive(QTreeWidgetItem * parent, QList<QTreeWidgetItem *> results);
+		int searchRecursive(QTreeWidgetItem * parent,
+					QList<QTreeWidgetItem *> results);
 
 	private slots:
 		void searchEditedSlot(const QString& text);
@@ -88,7 +98,8 @@ class CameraSettingsWindow : public QDockWidget {
 		void treeItemActivatedSlot(QTreeWidgetItem* item, int column);
 		void savePresetsClickedSlot();
 		void loadPresetsClickedSlot();
-		void simpleSettingChangedSlot(const QString& settingName, const QString& value, bool enabled, double min, double max);
+		void simpleSettingChangedSlot(const QString& settingName,
+					const QString& value, bool enabled, double min, double max);
 
 		void exposureAutoToggledSlot(bool toggle);
 		void exposureEditChangedSlot(double val);
@@ -100,6 +111,7 @@ class CameraSettingsWindow : public QDockWidget {
 		void verticalOffsetEditChangedSlot(int val);
 		void flipHorizontalToggledSlot(bool toggle);
 		void flipVerticalToggledSlot(bool toggle);
+
 };
 
 #endif

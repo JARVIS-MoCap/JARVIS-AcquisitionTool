@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  loadflirpresetswindow.cpp
  * Created: 	  23. October 2020
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
- * Copyright:  2021 Timo Hueser
- * License:    GPL v3.0
- *****************************************************************/
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "loadflirpresetswindow.hpp"
 
@@ -18,7 +18,9 @@
 #include <QMessageBox>
 #include <QGroupBox>
 
-LoadFlirPresetsWindow::LoadFlirPresetsWindow(FLIRChameleon *cam, QWidget *parent) :  LoadCameraPresetsInterface(parent), m_cam(cam) {
+
+LoadFlirPresetsWindow::LoadFlirPresetsWindow(FLIRChameleon *cam,
+			QWidget *parent) :  LoadCameraPresetsInterface(parent), m_cam(cam) {
 	setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 	this->resize(600,400);
 	this->setMinimumSize(600,200);
@@ -31,11 +33,13 @@ LoadFlirPresetsWindow::LoadFlirPresetsWindow(FLIRChameleon *cam, QWidget *parent
 	loadButton = new QPushButton("Load");
 	loadButton->setIcon(QIcon::fromTheme("download"));
 	loadButton->setMinimumSize(30,30);
-	connect (loadButton, &QPushButton::clicked, this, &LoadFlirPresetsWindow::loadClickedSlot);
+	connect (loadButton, &QPushButton::clicked,
+					 this, &LoadFlirPresetsWindow::loadClickedSlot);
 	closeButton = new QPushButton("Close");
 	closeButton->setIcon(QIcon::fromTheme("discard"));
 	closeButton->setMinimumSize(30,30);
-	connect(closeButton, &QPushButton::clicked, this, &LoadFlirPresetsWindow::accept);
+	connect(closeButton, &QPushButton::clicked,
+					this, &LoadFlirPresetsWindow::accept);
 	buttonlayout->addWidget(buttonSpacer,0,0);
 	buttonlayout->addWidget(loadButton,0,1);
 	buttonlayout->addWidget(closeButton,0,2);
@@ -76,15 +80,18 @@ LoadFlirPresetsWindow::LoadFlirPresetsWindow(FLIRChameleon *cam, QWidget *parent
 	seperatorItem1->setFlags(Qt::NoItemFlags);
 	seperatorItem1->setBackground(QColor(46, 50, 60));
 	userSetList->addItem(seperatorItem1);
-	connect(userSetList, &QListWidget::currentItemChanged, this, &LoadFlirPresetsWindow::currentItemChangedSlot);
+	connect(userSetList, &QListWidget::currentItemChanged,
+					this, &LoadFlirPresetsWindow::currentItemChangedSlot);
 	usersetgrouplayout->addWidget(userSetList,0,0);
 
-	QLabel *defaultUserSetLabel = new QLabel("Default User Set (loaded on powerup):  ");
+	QLabel *defaultUserSetLabel = new QLabel(
+				"Default User Set (loaded on powerup):  ");
 	defaultUserSetCombo = new QComboBox(this);
 	defaultUserSetCombo->addItem("Default");
 	defaultUserSetCombo->addItem("UserSet0");
 	defaultUserSetCombo->addItem("UserSet1");
-	connect(defaultUserSetCombo, &QComboBox::currentTextChanged, this, &LoadFlirPresetsWindow::defaultUserSetChangedSlot);
+	connect(defaultUserSetCombo, &QComboBox::currentTextChanged,
+					this, &LoadFlirPresetsWindow::defaultUserSetChangedSlot);
 
 	layout->addWidget(userSetGroup,0,0,1,2);
 	layout->addWidget(defaultUserSetLabel,1,0);
@@ -115,6 +122,6 @@ void LoadFlirPresetsWindow::getDefaultUserSet() {
 	defaultUserSetCombo->setCurrentText(m_cam->getDefaultUserSet());
 }
 
-void LoadFlirPresetsWindow::defaultUserSetChangedSlot(const QString & userSet) {
+void LoadFlirPresetsWindow::defaultUserSetChangedSlot(const QString& userSet) {
 	m_cam->setDefaultUserSet(userSet);
 }

@@ -1,8 +1,5 @@
-project (src)
-
-
 if(USE_CUDA)
-  add_library(${PROJECT_NAME}
+  add_library(src
     camerainterface.hpp
   	recordinginterface.hpp
     baserecorder.cpp
@@ -28,7 +25,7 @@ if(USE_CUDA)
     arduinoconfigbackend.cpp
   )
 else()
-  add_library(${PROJECT_NAME}
+  add_library(src
     camerainterface.hpp
     recordinginterface.hpp
     baserecorder.cpp
@@ -53,11 +50,10 @@ else()
   )
 endif()
 
-target_include_directories( ${PROJECT_NAME}
+target_include_directories(src
     PUBLIC
     ${PROJECT_SOURCE_DIR}
     ${OpenCV_INCLUDE_DIRS}
-    ../
 )
 
 add_library(Flir_Spinnaker SHARED IMPORTED)
@@ -67,9 +63,9 @@ set_target_properties(Flir_Spinnaker PROPERTIES
 )
 
 if(USE_CUDA)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC USE_CUDA=1)
+  target_compile_definitions(src PUBLIC USE_CUDA=1)
   message(STATUS "USING CUDA")
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(src
   Qt5::Widgets
   Qt5::Core
   Qt5::SerialPort
@@ -78,7 +74,7 @@ target_link_libraries(${PROJECT_NAME}
   cudajpegencoder
 )
 else()
-  target_link_libraries(${PROJECT_NAME}
+  target_link_libraries(src
     Qt5::Widgets
     Qt5::Core
     Qt5::SerialPort
@@ -86,5 +82,3 @@ else()
     ${OpenCV_LIBS}
   )
 endif()
-
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wunused)

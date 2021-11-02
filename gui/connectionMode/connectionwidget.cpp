@@ -1,11 +1,11 @@
-/*****************************************************************
+/*******************************************************************************
  * File:			  connectinwidget.cpp
  * Created: 	  23. October 2020
  * Author:		  Timo Hueser
  * Contact: 	  timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
- * License:     GPL v3.0
- *****************************************************************/
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "connectionwidget.hpp"
 #include "camerainterface.hpp"
@@ -19,7 +19,8 @@
 #include <QMessageBox>
 
 
-ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window) {
+ConnectionWidget::ConnectionWidget(QWidget *parent) :
+			QWidget(parent, Qt::Window) {
 	settings = new QSettings();
 	this->setFocusPolicy(Qt::StrongFocus);
 	camLoadPresetsWindow = new PresetsWindow(&camPresets, "load",
@@ -61,7 +62,8 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) : QWidget(parent, Qt::Window
 					QIcon::fromTheme("detect_cameras"), true, false, QSize(40,40));
 	autoDetectCamerasButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	autoDetectCamerasAction->setIconText("Auto Detect Cameras");
-	connect(autoDetectCamerasAction, &QAction::triggered, this, &ConnectionWidget::autoDetectCamerasClicked);
+	connect(autoDetectCamerasAction, &QAction::triggered,
+					this, &ConnectionWidget::autoDetectCamerasClicked);
 	camSavePresetButton = new QToolButton(camToolBar);
 	camSavePresetAction = new QAction(camToolBar);
 	createToolBarButton(camSavePresetButton, camSavePresetAction,
@@ -226,7 +228,8 @@ void ConnectionWidget::camSavePresetSlot(QString preset) {
 	int idx = 0;
 	for (const auto &camPanel : camPanels) {
 		settings->beginGroup("Panel_" + QString::number(idx++));
-		settings->setValue("isConfigured", camPanel->stackWidget->currentIndex() != 0);
+		settings->setValue("isConfigured",
+					camPanel->stackWidget->currentIndex() != 0);
 		settings->setValue("cameraName", camPanel->infoToolBarLabel->text());
 		settings->setValue("cameraType", camPanel->camTypeCombo->currentText());
 		camPanel->camConfigInterface->savePreset(settings);
@@ -278,10 +281,12 @@ void ConnectionWidget::triggerLoadPresetSlot(QString preset) {
 
 void ConnectionWidget::triggerSavePresetSlot(QString preset) {
 	settings->beginGroup(preset);
-	settings->setValue("isConfigured", triggerPanel->stackWidget->currentIndex() != 0);
+	settings->setValue("isConfigured",
+				triggerPanel->stackWidget->currentIndex() != 0);
 	/*settings->setValue("example1Info", triggerPanel->example1Info->text());
 	settings->setValue("example2Info", triggerPanel->example2Info->text());*/
-	settings->setValue("triggerType", triggerPanel->triggerTypeCombo->currentText());
+	settings->setValue("triggerType",
+				triggerPanel->triggerTypeCombo->currentText());
 	settings->endGroup();
 }
 
@@ -289,8 +294,9 @@ void ConnectionWidget::triggerSavePresetSlot(QString preset) {
 void ConnectionWidget::autoDetectCamerasClicked() {
 	if (CameraInterface::cameraList.size() != 0) {
 		QMessageBox::StandardButton reply;
-		reply = QMessageBox::question(this, "", "Auto detect Cameras? All currently connected Cameras will be removed!\n",
-																	QMessageBox::Yes|QMessageBox::No);
+		reply = QMessageBox::question(this, "",
+					"Auto detect Cameras? All currently connected Cameras will "
+					"be removed!\n", QMessageBox::Yes|QMessageBox::No);
 
 		if (reply == QMessageBox::No) {
 			return;
@@ -315,7 +321,8 @@ void ConnectionWidget::autoDetectCamerasClicked() {
 		if(idx < flirCameraList.size()) {
 			camPanel->camTypeCombo->setCurrentText("FLIR Chameleon");
 			QString cameraName = "Camera_" + QString::number(idx);
-			static_cast<FlirChameleonConfig*>(camPanel->camConfigInterface)->camIDInfo->setText(flirCameraList[idx]);
+			static_cast<FlirChameleonConfig*>(camPanel->camConfigInterface)->
+						camIDInfo->setText(flirCameraList[idx]);
 			camPanel->camera = camPanel->camConfigInterface->getCamera(cameraName);
 			connect(camPanel->camera, &CameraInterface::statusUpdated,
 							camPanel, &CamConnectionPanel::statusUpdatedSlot);

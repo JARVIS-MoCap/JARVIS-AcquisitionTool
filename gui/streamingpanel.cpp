@@ -1,9 +1,11 @@
-/*------------------------------------------------------------
- *  streamingpanel.cpp
- *  Created:  10. July 2018
- *  Author:   Timo Hüser
- *
- *------------------------------------------------------------*/
+/*******************************************************************************
+ * File:			  streamingpanel.cpp
+ * Created: 	  23. October 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "streamingpanel.hpp"
 
@@ -25,9 +27,10 @@ StreamingPanel::StreamingPanel(CameraInterface * camera, QWidget *parent)
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	closeButton = new QToolButton(this);
 	closeAction = new QAction(this);
-	createToolBarButton(closeButton, closeAction, QIcon::fromTheme("discard"), true,
-				false, QSize(22,22));
-	connect(closeAction, &QAction::triggered, this, &StreamingPanel::closeClickedSlot);
+	createToolBarButton(closeButton, closeAction, QIcon::fromTheme("discard"),
+				true, false, QSize(22,22));
+	connect(closeAction, &QAction::triggered,
+					this, &StreamingPanel::closeClickedSlot);
 	toolBar->addWidget(camNameLabel);
 	toolBar->addWidget(spacer);
 	toolBar->addWidget(closeButton);
@@ -39,15 +42,9 @@ StreamingPanel::StreamingPanel(CameraInterface * camera, QWidget *parent)
 	layout->setSpacing(0);
 	layout->setMargin(0);
 
-
-	//--- SIGNAL-SLOT Connections ---//
-	//-> Incoming Signals
-
-	//<- Outgoing Signals
-
-	//<-> Relayed Signals
 	if (m_camera != nullptr) {
-		connect(m_camera, &CameraInterface::streamImage, imgViewer, &ImageViewer::setImage);
+		connect(m_camera, &CameraInterface::streamImage,
+						imgViewer, &ImageViewer::setImage);
 	}
 }
 
@@ -57,6 +54,7 @@ void StreamingPanel::setCamera(CameraInterface * cam) {
 		camNameLabel->setText(cam->cameraName());
 	}
 }
+
 
 void StreamingPanel::closeClickedSlot() {
 	emit closeClicked(m_camera);

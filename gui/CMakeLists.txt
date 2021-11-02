@@ -1,10 +1,8 @@
-project (gui)
-
 add_subdirectory(Qt-DarkStyle)
 add_subdirectory(acquisitionMode)
 add_subdirectory(connectionMode)
 
-add_library(${PROJECT_NAME}
+add_library(gui
     mainwindow.hpp
     mainwindow.cpp
     mainbar.cpp
@@ -25,16 +23,15 @@ add_library(${PROJECT_NAME}
     helpwindow.cpp
 )
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(gui
     PUBLIC
     ${PROJECT_SOURCE_DIR}
-    ../
+    acquisitionMode
+    connectionMode
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(gui
   Qt5::Widgets
   acquisitionMode
   connectionMode
 )
-
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Wunused)

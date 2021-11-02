@@ -1,11 +1,11 @@
-/*****************************************************************
-	* File:			  latencychartview.cpp
-	* Created: 	  03. December 2021
-	* Author:		  Timo Hueser
-	* Contact: 	  timo.hueser@gmail.com
-	* Copyright:  2021 Timo Hueser
-	* License:    GPL v3.0
-	*****************************************************************/
+/*******************************************************************************
+ * File:			  latencychartview.cpp
+ * Created: 	  03. December 2021
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
+ * Copyright:   2021 Timo Hueser
+ * License:     LGPL v3.0
+ ******************************************************************************/
 
 #include "latencychartview.hpp"
 
@@ -22,7 +22,7 @@ LatencyChartView::LatencyChartView() : QChartView() {
 	lineSeries = new QSplineSeries();
 	QPen pen = lineSeries->pen();
 	pen.setWidth(2);
-	pen.setColor(QColor(100,164,32)); // or just pen.setColor("red");
+	pen.setColor(QColor(100,164,32));
 	lineSeries->setPen(pen);
 	chart->addSeries(lineSeries);
 	axisX = new QValueAxis;
