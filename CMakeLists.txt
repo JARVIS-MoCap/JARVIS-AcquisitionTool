@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 
-project(CameraController VERSION 0.3.0  LANGUAGES CXX CUDA)
+project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
 
 if(APPLE)
   set(OS_LIB_DIR "MacOS")
@@ -36,7 +36,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+
+#set(Eigen3_DIR "libs/eigen-3.3.8/Ubuntu/cmake/")
+#find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(OpenCV_DIR "libs/OpenCV_4.5.1/${OS_LIB_DIR}/lib/cmake/opencv4")
 find_package(OpenCV REQUIRED)
@@ -52,12 +54,14 @@ add_subdirectory(gui)
 add_subdirectory(src)
 
 
-
+set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/OpenCV;/usr/local/lib/JARVIS-AcquisitionTool/Qt5/lib;/usr/local/lib/JARVIS-AcquisitionTool/FlirSpinnaker/lib)
 add_executable(${PROJECT_NAME}
     main.cpp
     globals.hpp
     gui/Qt-DarkStyle/darkstyle.qrc
 )
+install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_0.3-1_amd64_2004/usr/local/bin)
+
 
 if(USE_CUDA)
 	find_package(CUDA)

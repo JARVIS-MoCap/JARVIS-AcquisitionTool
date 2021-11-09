@@ -58,8 +58,8 @@ target_include_directories(src
 
 add_library(Flir_Spinnaker SHARED IMPORTED)
 set_target_properties(Flir_Spinnaker PROPERTIES
-  IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/FlirSpinnaker/lib/libSpinnaker.so"
-  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/FlirSpinnaker/include"
+  IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/FlirSpinnaker/Ubuntu_2004/lib/libSpinnaker.so"
+  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/libs/FlirSpinnaker/Ubuntu_2004/include"
 )
 
 if(USE_CUDA)
