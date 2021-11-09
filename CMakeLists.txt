@@ -54,7 +54,7 @@ add_subdirectory(gui)
 add_subdirectory(src)
 
 
-set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/OpenCV;/usr/local/lib/JARVIS-AcquisitionTool/Qt5/lib;/usr/local/lib/JARVIS-AcquisitionTool/FlirSpinnaker/lib)
+set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/OpenCV;/usr/local/lib/JARVIS-AcquisitionTool/Qt5/lib;/usr/local/lib/JARVIS-AcquisitionTool/FlirSpinnaker/lib;/usr/local/lib/JARVIS-AcquisitionTool/nvjpeg)
 add_executable(${PROJECT_NAME}
     main.cpp
     globals.hpp
