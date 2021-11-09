@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 
 	QStringList themeSearchPaths =
 				{"/home/trackingsetup/Documents/AnnotationToolbox/IconThemes",
-				"IconThemes", "../IconThemes"};
+				"IconThemes", "../IconThemes", "/usr/local/share/JARVIS-AcquisitionTool/icons"};
 	QIcon::setThemeSearchPaths(themeSearchPaths);
 	QIcon::setThemeName("DarkIconTheme");
 

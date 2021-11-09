@@ -21,6 +21,7 @@
 *.exe
 *.out
 *.app
+*.deb
 
 cudajpegencoder/images/
 Imgs/
