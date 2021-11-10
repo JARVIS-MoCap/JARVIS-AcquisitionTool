@@ -60,7 +60,7 @@ add_executable(${PROJECT_NAME}
     globals.hpp
     gui/Qt-DarkStyle/darkstyle.qrc
 )
-install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_0.3-1_amd64_2004/usr/local/bin)
+install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_0.3-1_amd64_1804/usr/local/bin)
 
 
 if(USE_CUDA)

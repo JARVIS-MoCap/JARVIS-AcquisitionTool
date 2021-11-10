@@ -75,5 +75,25 @@ set_target_properties(opencv_calib3d PROPERTIES
 list(APPEND _IMPORT_CHECK_TARGETS opencv_calib3d )
 list(APPEND _IMPORT_CHECK_FILES_FOR_opencv_calib3d "${_IMPORT_PREFIX}/lib/libopencv_calib3d.so.4.5.0" )
 
+# Import target "opencv_highgui" for configuration "RELEASE"
+set_property(TARGET opencv_highgui APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+set_target_properties(opencv_highgui PROPERTIES
+  IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib/libopencv_highgui.so.4.5.0"
+  IMPORTED_SONAME_RELEASE "libopencv_highgui.so.4.5"
+  )
+
+list(APPEND _IMPORT_CHECK_TARGETS opencv_highgui )
+list(APPEND _IMPORT_CHECK_FILES_FOR_opencv_highgui "${_IMPORT_PREFIX}/lib/libopencv_highgui.so.4.5.0" )
+
+# Import target "opencv_aruco" for configuration "RELEASE"
+set_property(TARGET opencv_aruco APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
+set_target_properties(opencv_aruco PROPERTIES
+  IMPORTED_LOCATION_RELEASE "${_IMPORT_PREFIX}/lib/libopencv_aruco.so.4.5.0"
+  IMPORTED_SONAME_RELEASE "libopencv_aruco.so.4.5"
+  )
+
+list(APPEND _IMPORT_CHECK_TARGETS opencv_aruco )
+list(APPEND _IMPORT_CHECK_FILES_FOR_opencv_aruco "${_IMPORT_PREFIX}/lib/libopencv_aruco.so.4.5.0" )
+
 # Commands beyond this point should not need to know the version.
 set(CMAKE_IMPORT_FILE_VERSION)

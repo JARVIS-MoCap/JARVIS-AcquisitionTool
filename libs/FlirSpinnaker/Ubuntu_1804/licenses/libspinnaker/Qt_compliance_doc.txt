@@ -1,0 +1,1 @@
+The Qt libraries used by the SpinView_QT application can be downloaded from https://download.qt.io/official_releases/qt/ using the platform specific installers provided by Qt for Linux and MacOS.  
