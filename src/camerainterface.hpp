@@ -73,7 +73,7 @@ class CameraInterface : public QObject {
 		virtual void changeSimpleSetting(const QString& setting, const QString& val) = 0;
 		virtual int getBufferUsage() = 0;
 		virtual int getBufferSize() = 0;
-		virtual bool setupCameraForExternalTrigger() = 0;
+		virtual bool setupCamera(const CameraSettings &cameraSettings) = 0;
 
 	public slots:
 		virtual void settingChangedSlot(const QString& name, QList<QString> subMenus,

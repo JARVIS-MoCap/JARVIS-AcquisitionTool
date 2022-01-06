@@ -91,14 +91,13 @@ void AcquisitionMode::loadCameraPresetSlot(SettingsObject* activeSettings) {
 				activeSettings->parent());
 }
 
-void AcquisitionMode::setupAllCamerasClickedSlot() {
+void AcquisitionMode::setupAllCamerasClickedSlot(const CameraSettings &cameraSettings) {
 	for(const auto &cam : CameraInterface::cameraList) {
 		if (cam->isStreaming()) {
 			return;
 		}
 	}
 	for(const auto &cam : CameraInterface::cameraList) {
-		std::cout << "Setting up " << cam->cameraName().toStdString() << std::endl;
-		cam->setupCameraForExternalTrigger();
+		cam->setupCamera(cameraSettings);
 	}
 }

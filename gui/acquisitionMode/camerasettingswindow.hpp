@@ -18,6 +18,7 @@
 #include "loadcamerapresetsinterface.hpp"
 #include "toggleswitch.hpp"
 #include "camerainterface.hpp"
+#include "setupallcameraswindow.hpp"
 
 
 #include <QDockWidget>
@@ -40,7 +41,7 @@ class CameraSettingsWindow : public QDockWidget {
 
 	signals:
 		void loadPreset(SettingsObject*);
-		void setupAllCamerasButtonClicked();
+		void setupAllCamerasButtonClicked(const CameraSettings &cameraSettings);
 
 	private:
 		QSettings *settings;
@@ -49,6 +50,7 @@ class CameraSettingsWindow : public QDockWidget {
 		SaveCameraPresetsInterface *saveCameraPresetsWindow;
 		LoadCameraPresetsInterface *loadCameraPresetsWindow;
 		QLabel *settingsLabel;
+		SetupAllCamerasWindow *setupAllCamerasWindow;
 
 		QSplitter *mainSplitter;
 		QWidget *mainWidget;
@@ -100,6 +102,7 @@ class CameraSettingsWindow : public QDockWidget {
 		void loadPresetsClickedSlot();
 		void simpleSettingChangedSlot(const QString& settingName,
 					const QString& value, bool enabled, double min, double max);
+		void setupAllCamerasButtonClickedSlot();
 
 		void exposureAutoToggledSlot(bool toggle);
 		void exposureEditChangedSlot(double val);
@@ -113,5 +116,6 @@ class CameraSettingsWindow : public QDockWidget {
 		void flipVerticalToggledSlot(bool toggle);
 
 };
+
 
 #endif

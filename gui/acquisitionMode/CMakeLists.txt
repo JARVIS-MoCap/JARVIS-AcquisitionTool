@@ -21,6 +21,8 @@ add_library(acquisitionMode
     monitoringwindow.cpp
     latencychartview.hpp
     latencychartview.cpp
+    setupallcameraswindow.hpp
+    setupallcameraswindow.cpp
 )
 
 target_include_directories(acquisitionMode

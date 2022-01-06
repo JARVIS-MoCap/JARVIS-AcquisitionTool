@@ -50,7 +50,7 @@ class AcquisitionMode : public QMainWindow {
 
 	private slots:
 		void loadCameraPresetSlot(SettingsObject* activeSettings);
-		void setupAllCamerasClickedSlot();
+		void setupAllCamerasClickedSlot(const CameraSettings &cameraSettings);
 };
 
 

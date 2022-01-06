@@ -46,7 +46,7 @@ class TestCamera : public CameraInterface {
 		void changeSimpleSetting(const QString& setting, const QString& val) {}
 		int getBufferUsage() {return 10;}
 		int getBufferSize() {return 100;}
-		bool setupCameraForExternalTrigger() {return true;}
+		bool setupCamera(const CameraSettings &cameraSettings) {return true;}
 
 	public slots:
 		void settingChangedSlot(const QString& name, QList<QString> subMenus,

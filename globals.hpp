@@ -70,6 +70,14 @@ typedef struct AcquisitionSpecs {
 	PixelFormat pixelFormat;
 } AcquisitionSpecs;
 
+struct CameraSettings {
+	bool loadDefaults = true;
+	bool useExternalTrigger = true;
+	bool exposureAuto = false;
+	float exposureTime = 2.0;
+	bool gainAuto = false;
+	float gain = 10.0;
+};
 
 typedef struct statusLog {
 	statusType type;

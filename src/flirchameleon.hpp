@@ -54,7 +54,7 @@ class FLIRChameleon : public CameraInterface {
 		const QString& getDeviceID() {return m_serialNumber;}
 		int getBufferUsage();
 		int getBufferSize();
-		bool setupCameraForExternalTrigger();
+		bool setupCamera(const CameraSettings &cameraSettings);
 
 	public slots:
 		void settingChangedSlot(const QString& name, QList<QString> subMenus,
@@ -70,6 +70,7 @@ class FLIRChameleon : public CameraInterface {
 
 	private:
 		void createSettings();
+		void reloadUserSet();
 		const QString m_serialNumber;
 		const Spinnaker::SystemPtr m_camSystem;
 		Spinnaker::CameraPtr m_pCam;

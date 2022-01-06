@@ -105,6 +105,7 @@ FLIRChameleon::FLIRChameleon(const QString& cameraName,
 	CameraList cameraList = m_camSystem->GetCameras();
 	m_pCam = cameraList.GetBySerial(m_serialNumber.toStdString());
 	createSettings();
+	reloadUserSet();
 	QTimer *timer = new QTimer(this);
 	connect(timer, &QTimer::timeout, this, &FLIRChameleon::statusInitReady);
 	timer->setSingleShot(true);
@@ -119,6 +120,31 @@ FLIRChameleon::~FLIRChameleon() {
 	delete (m_cameraSettings);
 }
 
+void FLIRChameleon::reloadUserSet() {
+	try {
+		bool deinit = false;
+		if (!m_pCam->IsInitialized()) {
+			m_pCam->Init();
+			deinit = true;
+		}
+		QString defaultUserSet = getDefaultUserSet();
+		settingChangedSlot("UserSetSelector", {"FLIR Chameleon"},
+		SettingsNode::Enumeration, "Default", false);
+		settingChangedSlot("UserSetLoad", {"FLIR Chameleon"},
+		SettingsNode::Action, "", false);
+		settingChangedSlot("UserSetSelector", {"FLIR Chameleon"},
+		SettingsNode::Enumeration, defaultUserSet, false);
+		settingChangedSlot("UserSetLoad", {"FLIR Chameleon"},
+		SettingsNode::Action, "", true);
+		if (deinit) {
+			m_pCam->DeInit();
+		}
+	}
+	catch (Spinnaker::Exception& e) {
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
+	}
+}
 
 bool FLIRChameleon::savePreset(const QString& preset) {
 	try {
@@ -254,6 +280,7 @@ void FLIRChameleon::settingChangedSlot(const QString& name,
 		}
 
 		else if(type == SettingsNode::Enumeration) {
+			std::cout << "VALUE: " << val.toStdString() << std::endl;
 			GenApi::CEnumerationPtr ptrEnum =
 						static_cast<GenApi::CEnumerationPtr>(ptrNode);
 			if (IsAvailable(ptrEnum) && IsWritable(ptrEnum)) {
@@ -280,7 +307,7 @@ void FLIRChameleon::settingChangedSlot(const QString& name,
 			GenApi::CCommandPtr ptrCommand =
 						static_cast<GenApi::CCommandPtr>(ptrNode);
 			if (IsAvailable(ptrCommand) && IsWritable(ptrCommand)) {
-				std::cout << "Not Implemented yet" << std::endl;
+				ptrCommand->Execute();
 			}
 
 		}
@@ -762,21 +789,51 @@ void FLIRChameleon::changeSimpleSetting(const QString& setting,
 	}
 }
 
-bool FLIRChameleon::setupCameraForExternalTrigger() {
-	m_pCam->Init();
-	settingChangedSlot("TriggerMode", {"FLIR Chameleon"},
-				SettingsNode::Enumeration, "On", false);
-	settingChangedSlot("TriggerSelector", {"FLIR Chameleon"},
-				SettingsNode::Enumeration, "FrameStart", false);
-	settingChangedSlot("TriggerSource", {"FLIR Chameleon"},
-				SettingsNode::Enumeration, "Line3", false);
-	settingChangedSlot("TriggerOverlap", {"FLIR Chameleon"},
-				SettingsNode::Enumeration, "Off", false);
-	settingChangedSlot("PixelFormat", {"FLIR Chameleon"},
-				SettingsNode::Enumeration, "BayerRG8", true);
-	//settingChangedSlot("ExposureAuto", {"FLIR Chameleon"},
-	//			SettingsNode::Enumeration, "Off", true);
-	return true;
+bool FLIRChameleon::setupCamera(const CameraSettings &cameraSettings) {
+	try {
+		bool deinit = false;
+		if (!m_pCam->IsInitialized()) {
+			m_pCam->Init();
+			deinit = true;
+		}
+		if (cameraSettings.loadDefaults) {
+			settingChangedSlot("UserSetSelector", {"FLIR Chameleon"},
+			SettingsNode::Enumeration, "Default", false);
+			settingChangedSlot("UserSetLoad", {"FLIR Chameleon"},
+			SettingsNode::Action, "", false);
+		}
+		if (cameraSettings.useExternalTrigger) {
+			settingChangedSlot("TriggerMode", {"FLIR Chameleon"},
+						SettingsNode::Enumeration, "On", false);
+			settingChangedSlot("TriggerSelector", {"FLIR Chameleon"},
+						SettingsNode::Enumeration, "FrameStart", false);
+			settingChangedSlot("TriggerSource", {"FLIR Chameleon"},
+						SettingsNode::Enumeration, "Line3", false);
+			settingChangedSlot("TriggerOverlap", {"FLIR Chameleon"},
+						SettingsNode::Enumeration, "Off", false);
+		}
+		settingChangedSlot("PixelFormat", {"FLIR Chameleon"},
+					SettingsNode::Enumeration, "BayerRG8", false);
+		QString exposureAuto = (cameraSettings.exposureAuto) ? "On" : "Off";
+		settingChangedSlot("ExposureAuto", {"FLIR Chameleon"},
+					SettingsNode::Enumeration, exposureAuto, false);
+		settingChangedSlot("ExposureTime", {"FLIR Chameleon"},
+					SettingsNode::Float, QString::number(cameraSettings.exposureTime * 1000.0), false);
+		QString gainAuto = (cameraSettings.gainAuto) ? "On" : "Off";
+		settingChangedSlot("GainAuto", {"FLIR Chameleon"},
+					SettingsNode::Enumeration, gainAuto, false);
+		settingChangedSlot("Gain", {"FLIR Chameleon"},
+					SettingsNode::Float, QString::number(cameraSettings.gain), true);
+		if (deinit) {
+			m_pCam->DeInit();
+		}
+		return true;
+	}
+	catch (Spinnaker::Exception& e) {
+		std::cout << "Error: " << e.what() << std::endl;
+		emit statusUpdated(statusType::Warning, e.what());
+		return false;
+	}
 }
 
 //TODO:: probably delete since now done by signal relay

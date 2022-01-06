@@ -26,6 +26,7 @@ CameraSettingsWindow::CameraSettingsWindow(QWidget *parent,
 	settings = new QSettings();
 	setMinimumSize(335,100);
 	setWindowTitle("Camera Settings");
+  setupAllCamerasWindow = new SetupAllCamerasWindow(this);
 	mainSplitter = new QSplitter(Qt::Vertical, this);
 	mainWidget = new QWidget (mainSplitter);
 	setWidget(mainSplitter);
@@ -216,7 +217,7 @@ CameraSettingsWindow::CameraSettingsWindow(QWidget *parent,
 
   setupAllCamerasButton = new QPushButton("Setup all Cameras");
   connect(setupAllCamerasButton, &QPushButton::clicked,
-          this, &CameraSettingsWindow::setupAllCamerasButtonClicked);
+          this, &CameraSettingsWindow::setupAllCamerasButtonClickedSlot);
   QWidget *bottomSpacer = new QWidget(simpleBox);
   bottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   int i = 0;
@@ -540,6 +541,13 @@ void CameraSettingsWindow::loadPresetsClickedSlot() {
       loadCameraPresetsWindow = new LoadFlirPresetsWindow(cam);
     }
     loadCameraPresetsWindow->exec();
+  }
+}
+
+void CameraSettingsWindow::setupAllCamerasButtonClickedSlot() {
+  if (setupAllCamerasWindow->exec()) {
+    CameraSettings cameraSettings = setupAllCamerasWindow->getSettings();
+    emit setupAllCamerasButtonClicked(cameraSettings);
   }
 }
 
