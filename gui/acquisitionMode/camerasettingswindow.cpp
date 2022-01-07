@@ -526,9 +526,9 @@ void CameraSettingsWindow::savePresetsClickedSlot() {
     if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
       FLIRChameleon *cam = static_cast<FLIRChameleon*>(
             m_activeSettings->parent());
-      saveCameraPresetsWindow = new SaveFlirPresetsWindow(cam);
+      saveCameraPresetsWindow = new SaveFlirPresetsWindow(cam, this);
     }
-    saveCameraPresetsWindow->show();
+    saveCameraPresetsWindow->exec();
   }
 }
 
@@ -538,7 +538,7 @@ void CameraSettingsWindow::loadPresetsClickedSlot() {
     if (m_activeSettings->getRootNode()->name() == "FLIR Chameleon") {
       FLIRChameleon *cam = static_cast<FLIRChameleon*>(
             m_activeSettings->parent());
-      loadCameraPresetsWindow = new LoadFlirPresetsWindow(cam);
+      loadCameraPresetsWindow = new LoadFlirPresetsWindow(cam, this);
     }
     loadCameraPresetsWindow->exec();
   }

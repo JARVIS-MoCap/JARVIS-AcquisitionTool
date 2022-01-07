@@ -24,17 +24,17 @@ ConnectionWidget::ConnectionWidget(QWidget *parent) :
 	settings = new QSettings();
 	this->setFocusPolicy(Qt::StrongFocus);
 	camLoadPresetsWindow = new PresetsWindow(&camPresets, "load",
-				"connectionMode/camPresets");
+				"connectionMode/camPresets", this);
 	camSavePresetsWindow = new PresetsWindow(&camPresets, "save",
-				"connectionMode/camPresets");
+				"connectionMode/camPresets", this);
 	connect(camLoadPresetsWindow, &PresetsWindow::loadPreset,
 					this, &ConnectionWidget::camLoadPresetSlot);
 	connect(camSavePresetsWindow, &PresetsWindow::savePreset,
 					this, &ConnectionWidget::camSavePresetSlot);
 	triggerLoadPresetsWindow = new PresetsWindow(&triggerPresets, "load",
-				"connectionMode/triggerPresets");
+				"connectionMode/triggerPresets", this);
 	triggerSavePresetsWindow = new PresetsWindow(&triggerPresets, "save",
-				"connectionMode/triggerPresets");
+				"connectionMode/triggerPresets", this);
 	connect(triggerLoadPresetsWindow, &PresetsWindow::loadPreset,
 					this, &ConnectionWidget::triggerLoadPresetSlot);
 	connect(triggerSavePresetsWindow, &PresetsWindow::savePreset,
@@ -171,13 +171,13 @@ void ConnectionWidget::statusUpdatedSlot(CameraInterface* cam,
 
 void ConnectionWidget::camLoadPresetsClickedSlot() {
 	camLoadPresetsWindow->updateListSlot();
-	camLoadPresetsWindow->show();
+	camLoadPresetsWindow->exec();
 }
 
 
 void ConnectionWidget::camSavePresetsClickedSlot() {
 	camSavePresetsWindow->updateListSlot();
-	camSavePresetsWindow->show();
+	camSavePresetsWindow->exec();
 }
 
 
@@ -241,13 +241,13 @@ void ConnectionWidget::camSavePresetSlot(QString preset) {
 
 void ConnectionWidget::triggerLoadPresetsClickedSlot() {
 	triggerLoadPresetsWindow->updateListSlot();
-	triggerLoadPresetsWindow->show();
+	triggerLoadPresetsWindow->exec();
 }
 
 
 void ConnectionWidget::triggerSavePresetsClickedSlot() {
 	triggerSavePresetsWindow->updateListSlot();
-	triggerSavePresetsWindow->show();
+	triggerSavePresetsWindow->exec();
 }
 
 
@@ -259,13 +259,6 @@ void ConnectionWidget::triggerLoadPresetSlot(QString preset) {
 	connect(triggerPanel, &TriggerConnectionPanel::triggerInstanceChanged,
 					this, &ConnectionWidget::triggerInstanceChangedSlot);
 	if (settings->value("isConfigured").toBool()) {
-		/*triggerPanel->example1Info->setText(settings->value("example1Info").toString());
-		triggerPanel->example2Info->setText(settings->value("example2Info").toString());
-		triggerPanel->triggerTypeCombo->setCurrentText(settings->value("triggerType").toString());
-		if (triggerPanel->triggerTypeCombo->currentText() == "Test Trigger") {
-			TriggerInterface::triggerInstance = new TestTrigger(triggerPanel->example1Info->text().toInt(), triggerPanel->example2Info->text());
-			connect(TriggerInterface::triggerInstance, SIGNAL(statusUpdated(statusType, QString)), triggerPanel, SLOT(statusUpdatedSlot(statusType, QString)));
-		}*/
 		statusLog statusLog;
 		statusLog.type = Connecting;
 		statusLog.time = new QTime(0,0);
@@ -283,8 +276,6 @@ void ConnectionWidget::triggerSavePresetSlot(QString preset) {
 	settings->beginGroup(preset);
 	settings->setValue("isConfigured",
 				triggerPanel->stackWidget->currentIndex() != 0);
-	/*settings->setValue("example1Info", triggerPanel->example1Info->text());
-	settings->setValue("example2Info", triggerPanel->example2Info->text());*/
 	settings->setValue("triggerType",
 				triggerPanel->triggerTypeCombo->currentText());
 	settings->endGroup();
