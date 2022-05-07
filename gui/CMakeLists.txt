@@ -19,8 +19,6 @@ add_library(gui
     toggleswitch.hpp
     settingswindow.hpp
     settingswindow.cpp
-    helpwindow.hpp
-    helpwindow.cpp
 )
 
 target_include_directories(gui
