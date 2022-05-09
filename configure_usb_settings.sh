@@ -3,7 +3,7 @@ if [ "$(id -u)" -ne "0" ]
 then
     echo
     echo "This script needs to be run as root, e.g.:"
-    echo "sudo configure_usbfs.sh"
+    echo "sudo sh configure_usb_settings.sh"
     echo
     exit 0
 fi
