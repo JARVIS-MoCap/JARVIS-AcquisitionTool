@@ -57,6 +57,6 @@ If you want to remove it run
 
      sudo dpkg -r AnnotationTool
 
-## Widows
+## Windows
 coming soon...
       
