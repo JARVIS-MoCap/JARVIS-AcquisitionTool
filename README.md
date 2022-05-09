@@ -10,7 +10,7 @@ This is the official Github Repository for the **JARVIS Annotation Tool**. To fi
 All you need to get started is a set of supported cameras (currently only FLIR machine vision cameras are supported) and an Arduino Uno (or similar).
 The AcquisitionTool lets you capture videos at high framerates and resolutions using **online JPEG compression**. It also lets you **adjust all the settings** ony our cameras and handles **synchronization**.
 
-**Installing our prebuild packages is easy!** Just go to **[our downloads page](https://jarvis-mocap.github.io/jarvis-docs//2021-10-29-downloads.html)** and grab the installer for your operating system. We currently support Ubuntu 20.04 and 18.04 and plan to add support for Windows very soon. Installers for the current and previous versions can also be found under [Releases](https://github.com/JARVIS-MoCap/JARVIS-AcquisitionTool/releases).
+**Installing our prebuild packages is easy!** Just go to **[our downloads page](https://jarvis-mocap.github.io/jarvis-docs//2021-10-29-downloads.html)** and grab the installer for your operating system. We currently support Ubuntu 20.04 and 18.04 and plan to add support for Windows very soon. Installers for the current and previous versions can also be found under **[Releases](https://github.com/JARVIS-MoCap/JARVIS-AcquisitionTool/releases)**.
 
 After installation please run the USB configuration script by running
 
