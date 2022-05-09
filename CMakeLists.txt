@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 
-
-project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
+if(USE_CUDA)
+	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
+else()
+	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX)
+endif()
 
 if(APPLE)
   set(OS_LIB_DIR "MacOS")
