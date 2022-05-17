@@ -53,6 +53,14 @@ void FlirWorker::acquireImages() {
 				auto t1 = std::chrono::high_resolution_clock::now();
 				m_img = m_recordingInterface->recordFrame(
 							static_cast<uchar*>(pResultImage->GetData()));
+
+				// TODO forward frame metadata
+				uint64_t frame_timestamp = pResultImage->GetTimeStamp();
+				uint64_t frame_id = pResultImage->GetID();
+				// Those value are useful to calculate if we missed a frame or like to synchronise the cameras in post.
+				std::cout << "frame_timestamp: " << frame_timestamp << "\n";
+				std::cout << "frame_id: " << frame_id << "\n";
+
 				pResultImage->Release();
 				if (!m_acquisitionSpecs.record || globalSettings.streamingEnabled) {
 					emit streamImage(m_img);
