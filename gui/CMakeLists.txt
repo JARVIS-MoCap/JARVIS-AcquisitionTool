@@ -10,9 +10,9 @@ add_library(gui
     presetswindow.hpp
     presetswindow.cpp
     imageviewer.hpp
-		imageviewer.cpp
+    imageviewer.cpp
     streamingpanel.hpp
-		streamingpanel.cpp
+    streamingpanel.cpp
     labelwithtooltip.hpp
     labelwithtooltip.cpp
     toggleswitch.cpp
