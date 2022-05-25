@@ -40,9 +40,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 
-#set(Eigen3_DIR "libs/eigen-3.3.8/Ubuntu/cmake/")
-#find_package(Eigen3 3.3 REQUIRED NO_MODULE)
-
 # set(OpenCV_DIR "libs/OpenCV_4.5.1/${OS_LIB_DIR}/lib/cmake/opencv4")
 find_package(OpenCV REQUIRED)
 message(STATUS "OPENCV_DIR ${OpenCV_DIR}")
