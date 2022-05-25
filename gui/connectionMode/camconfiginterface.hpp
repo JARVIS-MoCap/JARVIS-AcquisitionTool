@@ -1,8 +1,8 @@
 /*******************************************************************************
- * File:			  camconfiginterface.hpp
- * Created: 	  03. October 2021
- * Author:		  Timo Hueser
- * Contact: 	  timo.hueser@gmail.com
+ * File:        camconfiginterface.hpp
+ * Created:     03. October 2021
+ * Author:      Timo Hueser
+ * Contact:     timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
  * License:     LGPL v3.0
  ******************************************************************************/
@@ -10,32 +10,30 @@
 #ifndef CAMCONFIGINTERFACE_H
 #define CAMCONFIGINTERFACE_H
 
-#include "globals.hpp"
 #include "camerainterface.hpp"
+#include "globals.hpp"
 
 #include <QGroupBox>
 #include <QSettings>
 
-
 class CamConfigInterface : public QWidget {
-	Q_OBJECT
-	
-	public:
-		explicit CamConfigInterface(QWidget *parent = 0) {}
+    Q_OBJECT
 
-		QGroupBox *configEditBox;
-		QGroupBox *configInfoBox;
+  public:
+    explicit CamConfigInterface(QWidget *parent = 0) {}
 
-		virtual bool confirmConfigClicked() = 0;
-		virtual void loadPreset(QSettings *settings) = 0;
-		virtual void savePreset(QSettings *settings) = 0;
-		virtual CameraInterface* getCamera(const QString &cameraName) = 0;
+    QGroupBox *configEditBox;
+    QGroupBox *configInfoBox;
 
-	private:
+    virtual bool confirmConfigClicked() = 0;
+    virtual void loadPreset(QSettings *settings) = 0;
+    virtual void savePreset(QSettings *settings) = 0;
+    virtual CameraInterface *getCamera(const QString &cameraName) = 0;
 
-	signals:
+  private:
+  signals:
 
-	private slots:
+  private slots:
 };
 
 #endif

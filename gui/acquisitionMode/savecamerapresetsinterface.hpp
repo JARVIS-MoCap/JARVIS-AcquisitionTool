@@ -1,8 +1,8 @@
 /*******************************************************************************
- * File:			  savecamerapresetsinterface.hpp
- * Created: 	  23. October 2020
- * Author:		  Timo Hueser
- * Contact: 	  timo.hueser@gmail.com
+ * File:        savecamerapresetsinterface.hpp
+ * Created:     23. October 2020
+ * Author:      Timo Hueser
+ * Contact:     timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
  * License:     LGPL v3.0
  ******************************************************************************/
@@ -12,28 +12,26 @@
 
 #include "globals.hpp"
 
-#include <QToolButton>
-#include <QPushButton>
-#include <QListWidget>
-#include <QLabel>
+#include <QDialog>
 #include <QGridLayout>
+#include <QLabel>
+#include <QListWidget>
+#include <QPushButton>
 #include <QSettings>
 #include <QToolBar>
-#include <QDialog>
-
+#include <QToolButton>
 
 class SaveCameraPresetsInterface : public QDialog {
-	Q_OBJECT
+    Q_OBJECT
 
-	public:
-		explicit SaveCameraPresetsInterface(QWidget *parent = nullptr) {};
-		virtual QString getActivePreset() = 0;
+  public:
+    explicit SaveCameraPresetsInterface(QWidget *parent = nullptr){};
+    virtual QString getActivePreset() = 0;
 
-	signals:
+  signals:
 
-	private:
-
-	private slots:
+  private:
+  private slots:
 };
 
 #endif
