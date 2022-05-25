@@ -56,15 +56,28 @@ target_include_directories(src
     ${OpenCV_INCLUDE_DIRS}
 )
 
-add_library(Flir_Spinnaker SHARED IMPORTED)
-set_target_properties(Flir_Spinnaker PROPERTIES
-  IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/FlirSpinnaker/${OS_LIB_DIR}/lib/libSpinnaker.so"
-  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/libs/FlirSpinnaker/${OS_LIB_DIR}/include"
+find_path(Spinnaker_INCLUDE_DIRS NAMES
+  Spinnaker.h
+  PATHS
+  /opt/spinnaker/include
+  "${CMAKE_SOURCE_DIR}/libs/FlirSpinnaker/${OS_LIB_DIR}/include"
+  )
+find_library(Spinnaker_LIBRARIES NAMES Spinnaker
+  PATHS
+  /opt/spinnaker/lib
+  "${CMAKE_SOURCE_DIR}/libs/FlirSpinnaker/${OS_LIB_DIR}/lib/"
 )
 
+message(STATUS "Spinnaker_INCLUDE_DIRS: ${Spinnaker_INCLUDE_DIRS}")
+message(STATUS "Spinnaker_LIBRARIES:    ${Spinnaker_LIBRARIES}")
+
+add_library(Flir_Spinnaker SHARED IMPORTED) # Why not STATIC?
+set_target_properties(Flir_Spinnaker PROPERTIES
+  IMPORTED_LOCATION "${Spinnaker_LIBRARIES}"
+  INTERFACE_INCLUDE_DIRECTORIES "${Spinnaker_INCLUDE_DIRS}"
+)
 if(USE_CUDA)
   target_compile_definitions(src PUBLIC USE_CUDA=1)
-  message(STATUS "USING CUDA")
 target_link_libraries(src
   Qt5::Widgets
   Qt5::Core

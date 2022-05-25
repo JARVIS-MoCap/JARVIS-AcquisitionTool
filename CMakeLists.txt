@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 
+
+
 if(USE_CUDA)
 	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
-else()
+  message(STATUS "Using CUDA")
+  else()
 	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX)
+  message(STATUS "Skipping CUDA")
 endif()
 
 if(APPLE)
@@ -12,7 +16,6 @@ if(APPLE)
 elseif(WIN32)
   set(OS_LIB_DIR "Windows")
 elseif(UNIX)
-  message ("System ${CMAKE_SYSTEM}")
   if(${UBUNTU_VERSION} STREQUAL "2004")
     set(OS_LIB_DIR "Ubuntu_2004")
   else()
@@ -43,14 +46,15 @@ set(CMAKE_AUTOUIC ON)
 #set(Eigen3_DIR "libs/eigen-3.3.8/Ubuntu/cmake/")
 #find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
-set(OpenCV_DIR "libs/OpenCV_4.5.1/${OS_LIB_DIR}/lib/cmake/opencv4")
+#set(OpenCV_DIR "libs/OpenCV_4.5.1/${OS_LIB_DIR}/lib/cmake/opencv4")
 find_package(OpenCV REQUIRED)
 message(STATUS "OPENCV_DIR ${OpenCV_DIR}")
 
-
 # detect operating system and host processor
-message(STATUS "We are on a ${CMAKE_SYSTEM_NAME} system")
-message(STATUS "The host processor is ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_SYSTEM_INFO_FILE: ${CMAKE_SYSTEM_INFO_FILE}")
+message(STATUS "CMAKE_SYSTEM_NAME:      ${CMAKE_SYSTEM_NAME}")
+message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_SYSTEM:           ${CMAKE_SYSTEM}")
 
 
 add_subdirectory(gui)
