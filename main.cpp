@@ -22,6 +22,7 @@
 
 
 Q_DECLARE_METATYPE(QList<int>)
+Q_DECLARE_METATYPE(statusType)
 
 int main(int argc, char **argv)
 {
@@ -30,7 +31,7 @@ int main(int argc, char **argv)
 	QCoreApplication::setApplicationName("Camera Controller");
 	qRegisterMetaTypeStreamOperators<QList<QString> >("QList<QString>");
 	qRegisterMetaTypeStreamOperators<QVector<QPoint> >("QVector<QPoint>");
-	qRegisterMetaTypeStreamOperators<statusType>("statusType");
+	qRegisterMetaType<statusType>();
 	QApplication app (argc, argv);
 	app.setStyle(new DarkStyle);
 
