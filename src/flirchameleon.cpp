@@ -32,66 +32,6 @@ FlirWorker::FlirWorker(Spinnaker::CameraPtr pCam, const QString &cameraName,
 FlirWorker::~FlirWorker() { delete m_recordingInterface; }
 
 void FlirWorker::acquireImages() {
-<<<<<<< HEAD
-	unsigned long frameIndex = 0;
-	int duration_sum = 0;
-	forever {
-		try {
-			if (TriggerInterface::triggerInstance == nullptr &&
-						QThread::currentThread()->isInterruptionRequested()) break;
-			ImagePtr pResultImage = m_pCam->GetNextImage(2000 /
-						m_acquisitionSpecs.frameRate);
-
-			if (pResultImage->IsIncomplete()) {
-				emit statusUpdated(statusType::Error, "Incomplete Image received");
-			}
-			else {
-				auto t1 = std::chrono::high_resolution_clock::now();
-				m_img = m_recordingInterface->recordFrame(
-							static_cast<uchar*>(pResultImage->GetData()));
-
-				// TODO forward frame metadata
-				uint64_t frame_timestamp = pResultImage->GetTimeStamp();
-				uint64_t frame_id = pResultImage->GetID();
-				// Those value are useful to calculate if we missed a frame or like to synchronise the cameras in post.
-				std::cout << "frame_timestamp: " << frame_timestamp << "\n";
-				std::cout << "frame_id: " << frame_id << "\n";
-
-				pResultImage->Release();
-				if (!m_acquisitionSpecs.record || globalSettings.streamingEnabled) {
-					emit streamImage(m_img);
-				}
-				auto t2 = std::chrono::high_resolution_clock::now();
-				auto duration = std::chrono::duration_cast<std::chrono::microseconds>
-							(t2 - t1).count();
-				duration_sum += duration;
-				if (frameIndex > 0 && frameIndex%(std::max(1,
-							m_acquisitionSpecs.frameRate / 8)) == 0) {
-					emit latencyAndFrameNumberUpdate(duration_sum /
-								std::max(1, m_acquisitionSpecs.frameRate / 8), frameIndex);
-					duration_sum = 0;
-				}
-				frameIndex++;
-			}
-		}
-		catch (Spinnaker::Exception& e)
-		{
-				if (e == SPINNAKER_ERR_TIMEOUT) {
-					if (QThread::currentThread()->isInterruptionRequested()) {
-						return;
-					}
-					else if (TriggerInterface::triggerInstance == nullptr) {
-						emit statusUpdated(statusType::Error, e.what());
-					}
-				}
-				else {
-					emit statusUpdated(statusType::Error, e.what());
-					delayl(1000);
-				}
-		}
-
-	}
-=======
     unsigned long frameIndex = 0;
     int duration_sum = 0;
     forever {
@@ -109,6 +49,16 @@ void FlirWorker::acquireImages() {
                 auto t1 = std::chrono::high_resolution_clock::now();
                 m_img = m_recordingInterface->recordFrame(
                     static_cast<uchar *>(pResultImage->GetData()));
+
+                // TODO forward frame metadata
+                uint64_t frame_timestamp = pResultImage->GetTimeStamp();
+                uint64_t frame_id = pResultImage->GetID();
+                // Those value are useful to calculate if we missed a frame or
+                // like to synchronise the cameras in post.
+                std::cout << "frame_timestamp: " << frame_timestamp
+                          << std::endl;
+                std::cout << "frame_id: " << frame_id << std::endl;
+
                 pResultImage->Release();
                 if (!m_acquisitionSpecs.record ||
                     globalSettings.streamingEnabled) {
@@ -145,7 +95,6 @@ void FlirWorker::acquireImages() {
             }
         }
     }
->>>>>>> upstream/master
 }
 
 FLIRChameleon::FLIRChameleon(const QString &cameraName,
