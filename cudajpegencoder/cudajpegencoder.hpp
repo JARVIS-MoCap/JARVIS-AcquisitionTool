@@ -1,8 +1,8 @@
 /*******************************************************************************
- * File:        cudajpegencoder.hpp
- * Created:     20. November 2020
- * Author:      Timo Hueser
- * Contact:     timo.hueser@gmail.com
+ * File:			  cudajpegencoder.hpp
+ * Created: 	  20. November 2020
+ * Author:		  Timo Hueser
+ * Contact: 	  timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
  * License:     LGPL v3.0
  ******************************************************************************/

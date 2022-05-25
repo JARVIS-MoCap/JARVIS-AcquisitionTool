@@ -58,9 +58,9 @@
 #endif
 
 #include "cuda_runtime.h"
+#include "nvjpeg.h"
 #include "helper_cuda.h"
 #include "helper_timer.h"
-#include "nvjpeg.h"
 
 #include <cstdlib>
 #include <fstream>
@@ -69,11 +69,11 @@
 #include <string>
 #include <vector>
 
-#include <string.h> // strcmpi
+#include <string.h>  // strcmpi
 #ifndef _WIN64
-#include <sys/time.h> // timings
+#include <sys/time.h>  // timings
 
-#include <dirent.h> // linux dir traverse
+#include <dirent.h>  // linux dir traverse
 #include <unistd.h>
 #endif
 #include <sys/stat.h>
