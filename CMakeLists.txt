@@ -4,17 +4,11 @@ set(CMAKE_CXX_STANDARD 11)
 
 
 if(USE_CUDA)
-<<<<<<< HEAD
 	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
   message(STATUS "Using CUDA")
   else()
 	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX)
   message(STATUS "Skipping CUDA")
-=======
-  project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
-else()
-  project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX)
->>>>>>> upstream/master
 endif()
 
 if(APPLE)
