@@ -39,8 +39,8 @@ Go into the repository and create a build directory
     
 Run cmake (replace XX04 by either 2004 or 1804) depending on your Ubuntu Version. If you do not have a CUDA enabled GPU select False for `-DUSE_CUDA`.
 
-	cmake -DUBUNTU_VERSION=xx04 -DUSE_CUDA=True/False ..
-	
+     cmake -DUBUNTU_VERSION=xx04 -DUSE_CUDA=True/False ..
+
 Run make to build the tool (replace x by the number of available cores on your CPU)
 
      make -jx

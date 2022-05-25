@@ -1,0 +1,7 @@
+{
+    "editor.formatOnSave": false,
+    "cmake.configureArgs": [
+        "-DUBUNTU_VERSION=2004",
+        "-DUSE_CUDA=ON"
+    ],
+}

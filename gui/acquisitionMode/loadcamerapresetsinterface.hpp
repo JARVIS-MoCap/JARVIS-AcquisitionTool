@@ -1,8 +1,8 @@
 /*******************************************************************************
- * File:			  loadcamerapresetsinterface.hpp
- * Created: 	  23. October 2020
- * Author:		  Timo Hueser
- * Contact: 	  timo.hueser@gmail.com
+ * File:        loadcamerapresetsinterface.hpp
+ * Created:     23. October 2020
+ * Author:      Timo Hueser
+ * Contact:     timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
  * License:     LGPL v3.0
  ******************************************************************************/
@@ -12,27 +12,25 @@
 
 #include "globals.hpp"
 
-#include <QToolButton>
-#include <QPushButton>
-#include <QListWidget>
-#include <QLabel>
+#include <QDialog>
 #include <QGridLayout>
+#include <QLabel>
+#include <QListWidget>
+#include <QPushButton>
 #include <QSettings>
 #include <QToolBar>
-#include <QDialog>
-
+#include <QToolButton>
 
 class LoadCameraPresetsInterface : public QDialog {
-	Q_OBJECT
+    Q_OBJECT
 
-	public:
-		explicit LoadCameraPresetsInterface(QWidget *parent = nullptr) {};
+  public:
+    explicit LoadCameraPresetsInterface(QWidget *parent = nullptr){};
 
-	signals:
+  signals:
 
-	private:
-
-	private slots:
+  private:
+  private slots:
 };
 
 #endif

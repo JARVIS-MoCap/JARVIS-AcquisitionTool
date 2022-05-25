@@ -1,25 +1,24 @@
 /*******************************************************************************
- * File:			  main.cpp
- * Created: 	  23. October 2020
- * Author:		  Timo Hueser
- * Contact: 	  timo.hueser@gmail.com
+ * File:        main.cpp
+ * Created:     23. October 2020
+ * Author:      Timo Hueser
+ * Contact:     timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
  * License:     LGPL v3.0
  ******************************************************************************/
 
-#include "globals.hpp"
 #include "DarkStyle.hpp"
-#include "mainwindow.hpp"
 #include "camerainterface.hpp"
-#include "triggerinterface.hpp"
 #include "flirconfigbackend.hpp"
+#include "globals.hpp"
+#include "mainwindow.hpp"
+#include "triggerinterface.hpp"
 
-#include <iostream>
 #include <QApplication>
-#include <QSplashScreen>
-#include <QSettings>
 #include <QImage>
-
+#include <QSettings>
+#include <QSplashScreen>
+#include <iostream>
 
 Q_DECLARE_METATYPE(QList<int>)
 Q_DECLARE_METATYPE(statusType)

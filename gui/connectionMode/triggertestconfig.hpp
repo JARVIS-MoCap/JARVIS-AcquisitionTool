@@ -1,8 +1,8 @@
 /*******************************************************************************
- * File:			  triggertestconfig.hpp
- * Created: 	  03. October 2021
- * Author:		  Timo Hueser
- * Contact: 	  timo.hueser@gmail.com
+ * File:        triggertestconfig.hpp
+ * Created:     03. October 2021
+ * Author:      Timo Hueser
+ * Contact:     timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
  * License:     LGPL v3.0
  ******************************************************************************/
@@ -16,21 +16,20 @@
 
 #include <QLineEdit>
 
-
 class TriggerTestConfig : public TriggerConfigInterface {
-	Q_OBJECT
-	public:
-		explicit TriggerTestConfig(QWidget *parent = 0);
+    Q_OBJECT
+  public:
+    explicit TriggerTestConfig(QWidget *parent = 0);
 
-		QLineEdit *example1Edit;
-		QLineEdit *example2Edit;
-		QLineEdit *example1Info;
-		QLineEdit *example2Info;
+    QLineEdit *example1Edit;
+    QLineEdit *example2Edit;
+    QLineEdit *example1Info;
+    QLineEdit *example2Info;
 
-		bool confirmConfigClicked();
-		void loadPreset(QSettings *settings);
-		void savePreset(QSettings *settings);
-		TriggerInterface* getTrigger();
+    bool confirmConfigClicked();
+    void loadPreset(QSettings *settings);
+    void savePreset(QSettings *settings);
+    TriggerInterface *getTrigger();
 };
 
 #endif

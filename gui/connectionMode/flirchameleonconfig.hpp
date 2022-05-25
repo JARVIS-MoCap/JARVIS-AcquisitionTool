@@ -1,8 +1,8 @@
 /*******************************************************************************
- * File:			  flirchameleonconfig.hpp
- * Created: 	  03. October 2021
- * Author:		  Timo Hueser
- * Contact: 	  timo.hueser@gmail.com
+ * File:        flirchameleonconfig.hpp
+ * Created:     03. October 2021
+ * Author:      Timo Hueser
+ * Contact:     timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
  * License:     LGPL v3.0
  ******************************************************************************/
@@ -10,37 +10,36 @@
 #ifndef FLIRCHAMELEONCONFIG_H
 #define FLIRCHAMELEONCONFIG_H
 
-#include "globals.hpp"
 #include "camconfiginterface.hpp"
 #include "flirconfigbackend.hpp"
+#include "globals.hpp"
 
 #include <QComboBox>
 #include <QLineEdit>
 
-
 class FlirChameleonConfig : public CamConfigInterface {
-	Q_OBJECT
-	
-	public:
-		explicit FlirChameleonConfig(QWidget *parent = 0);
+    Q_OBJECT
 
-		QComboBox *camIDCombo;
-		QPushButton *updateCamIDsButton;
-		QLineEdit *camIDInfo;
+  public:
+    explicit FlirChameleonConfig(QWidget *parent = 0);
 
-		bool confirmConfigClicked();
-		void loadPreset(QSettings *settings);
-		void savePreset(QSettings *settings);
-		CameraInterface* getCamera(const QString &cameraName);
+    QComboBox *camIDCombo;
+    QPushButton *updateCamIDsButton;
+    QLineEdit *camIDInfo;
 
-	public slots:
-		void updateDeviceIDs();
+    bool confirmConfigClicked();
+    void loadPreset(QSettings *settings);
+    void savePreset(QSettings *settings);
+    CameraInterface *getCamera(const QString &cameraName);
 
-	private:
-		FlirConfigBackend *configBackend;
+  public slots:
+    void updateDeviceIDs();
 
-	private slots:
-		void updateCamIDs();
+  private:
+    FlirConfigBackend *configBackend;
+
+  private slots:
+    void updateCamIDs();
 };
 
 #endif
