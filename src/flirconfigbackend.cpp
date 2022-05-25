@@ -42,6 +42,7 @@ QList<QString> FlirConfigBackend::getCameraIDs() {
 void FlirConfigBackend::updateIDs() {
 	m_cameraIDList.clear();
 	CameraList cameraList = m_camSystem->GetCameras();
+
 	unsigned int numCameras = cameraList.GetSize();
 	for (unsigned int i = 0; i < numCameras; ++i) {
 	 CameraPtr pCamera = cameraList.GetByIndex(i);

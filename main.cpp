@@ -48,6 +48,7 @@ int main(int argc, char **argv)
 	//delayl(100);
 	FlirConfigBackend::getInstance();
 
+
 	MainWindow m_window;
 	m_window.show();
 	//splash.finish(&m_window);

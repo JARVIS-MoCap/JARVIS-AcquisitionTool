@@ -21,7 +21,7 @@ class FlirConfigBackend : public QObject {
 
 	public:
 		static FlirConfigBackend* getInstance() {
-            static FlirConfigBackend    instance;
+            static FlirConfigBackend instance;
             return &instance;
     }
 		explicit FlirConfigBackend(QObject *parent = nullptr);
