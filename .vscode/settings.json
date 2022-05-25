@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "files.associations": {
         "array": "cpp",
         "atomic": "cpp",
@@ -67,6 +68,8 @@
         "__nullptr": "cpp",
         "tensor": "cpp"
     },
+=======
+>>>>>>> upstream/master
     "editor.formatOnSave": false,
     "cmake.configureArgs": [
         "-DUBUNTU_VERSION=2004",

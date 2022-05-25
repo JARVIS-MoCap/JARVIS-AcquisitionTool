@@ -1,8 +1,8 @@
 /*******************************************************************************
- * File:			  arduinoconfigbackend.hpp
- * Created: 	  05. September 2021
- * Author:		  Timo Hueser
- * Contact: 	  timo.hueser@gmail.com
+ * File:        arduinoconfigbackend.hpp
+ * Created:     05. September 2021
+ * Author:      Timo Hueser
+ * Contact:     timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
  * License:     LGPL v3.0
  ******************************************************************************/
@@ -13,20 +13,19 @@
 #include "globals.hpp"
 #include "serialinterface.hpp"
 
-
 class ArduinoConfigBackend : public QObject {
-	Q_OBJECT
+    Q_OBJECT
 
-	public:
-		static ArduinoConfigBackend* getInstance() {
-	    static ArduinoConfigBackend instance;
-	    return &instance;
+  public:
+    static ArduinoConfigBackend *getInstance() {
+        static ArduinoConfigBackend instance;
+        return &instance;
     }
-		explicit ArduinoConfigBackend(QObject *parent = nullptr);
-		QList<QString> getAvailableDevices();
+    explicit ArduinoConfigBackend(QObject *parent = nullptr);
+    QList<QString> getAvailableDevices();
 
-	private:
-		QList<QString> availableDevices;
+  private:
+    QList<QString> availableDevices;
 };
 
 #endif

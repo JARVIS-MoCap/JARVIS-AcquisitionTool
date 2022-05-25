@@ -4,11 +4,17 @@ set(CMAKE_CXX_STANDARD 11)
 
 
 if(USE_CUDA)
+<<<<<<< HEAD
 	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
   message(STATUS "Using CUDA")
   else()
 	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX)
   message(STATUS "Skipping CUDA")
+=======
+  project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
+else()
+  project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX)
+>>>>>>> upstream/master
 endif()
 
 if(APPLE)
@@ -69,16 +75,16 @@ add_executable(${PROJECT_NAME}
 )
 
 if(${UBUNTU_VERSION} STREQUAL "2004")
-	install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_0.3-1_amd64_2004/usr/local/bin)
+  install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_0.3-1_amd64_2004/usr/local/bin)
 else()
-	install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_0.3-1_amd64_1804/usr/local/bin)
+  install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_0.3-1_amd64_1804/usr/local/bin)
 endif()
 
 
 
 if(USE_CUDA)
-	find_package(CUDA)
-	add_subdirectory(cudajpegencoder)
+  find_package(CUDA)
+  add_subdirectory(cudajpegencoder)
 endif()
 
 target_compile_options(${PROJECT_NAME} PRIVATE -O3)
@@ -92,7 +98,7 @@ target_include_directories( ${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   Qt5::Widgets
-	Qt5::Charts
+  Qt5::Charts
   gui
   src
   darkstyle

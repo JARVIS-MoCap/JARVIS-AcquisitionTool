@@ -1,8 +1,8 @@
 /*******************************************************************************
- * File:			  streamingpanel.hpp
- * Created: 	  23. October 2020
- * Author:		  Timo Hueser
- * Contact: 	  timo.hueser@gmail.com
+ * File:        streamingpanel.hpp
+ * Created:     23. October 2020
+ * Author:      Timo Hueser
+ * Contact:     timo.hueser@gmail.com
  * Copyright:   2021 Timo Hueser
  * License:     LGPL v3.0
  ******************************************************************************/
@@ -10,43 +10,42 @@
 #ifndef STREAMINGPANEL_H
 #define STREAMINGPANEL_H
 
+#include "camerainterface.hpp"
 #include "globals.hpp"
 #include "imageviewer.hpp"
-#include "camerainterface.hpp"
 
+#include <QDrag>
+#include <QFrame>
 #include <QGridLayout>
 #include <QLabel>
-#include <QToolBar>
-#include <QMouseEvent>
-#include <QDrag>
 #include <QMimeData>
-#include <QFrame>
-
+#include <QMouseEvent>
+#include <QToolBar>
 
 class StreamingPanel : public QWidget {
-	Q_OBJECT
-	
-	public:
-		explicit StreamingPanel(CameraInterface * camera = nullptr,
-					QWidget *parent = nullptr);
-		QLabel *camNameLabel;
-		ImageViewer *imgViewer;
-		QToolBar *toolBar;
-		void setSize(int w, int h) {m_size = QSize(w,h);}
-		QSize sizeHint() const override {return m_size;}
-		void setCamera(CameraInterface * cam);
+    Q_OBJECT
 
-	signals:
-		void closeClicked(CameraInterface* cam);
+  public:
+    explicit StreamingPanel(CameraInterface *camera = nullptr,
+                            QWidget *parent = nullptr);
+    QLabel *camNameLabel;
+    ImageViewer *imgViewer;
+    QToolBar *toolBar;
+    void setSize(int w, int h) { m_size = QSize(w, h); }
+    QSize sizeHint() const override { return m_size; }
+    void setCamera(CameraInterface *cam);
 
-	private:
-		CameraInterface *m_camera;
-		QSize m_size;
-		QToolButton *closeButton;
-		QAction *closeAction;
+  signals:
+    void closeClicked(CameraInterface *cam);
 
-	private slots:
-		void closeClickedSlot();
+  private:
+    CameraInterface *m_camera;
+    QSize m_size;
+    QToolButton *closeButton;
+    QAction *closeAction;
+
+  private slots:
+    void closeClickedSlot();
 };
 
 #endif

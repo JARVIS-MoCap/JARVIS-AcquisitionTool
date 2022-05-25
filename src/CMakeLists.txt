@@ -1,7 +1,7 @@
 if(USE_CUDA)
   add_library(src
     camerainterface.hpp
-  	recordinginterface.hpp
+    recordinginterface.hpp
     baserecorder.cpp
     cudarecorder.hpp
     cudarecorder.cpp

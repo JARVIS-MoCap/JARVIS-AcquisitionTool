@@ -1,10 +1,10 @@
 /*******************************************************************************
- * File:			  cudajpegencoder.cpp
- * Created: 	  20. November 2020
- * Author:		  Timo Hueser
- * Contact: 	  timo.hueser@gmail.com
- * Copyright:   2021 Timo Hueser
- * License:     LGPL v3.0
+ * File:          cudajpegencoder.cpp
+ * Created:       20. November 2020
+ * Author:        Timo Hueser
+ * Contact:       timo.hueser@gmail.com
+ * Copyright:     2021 Timo Hueser
+ * License:       LGPL v3.0
  ******************************************************************************/
 
 #include "cudajpegencoder.hpp"
