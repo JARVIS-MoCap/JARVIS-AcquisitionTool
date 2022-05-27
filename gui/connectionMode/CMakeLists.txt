@@ -1,4 +1,4 @@
-add_compile_options("-O3")
+#add_compile_options("-O3")
 
 add_library(connectionMode
     connectionmode.hpp

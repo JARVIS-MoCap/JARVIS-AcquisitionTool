@@ -104,7 +104,11 @@ CudaJPEGEncoder::CudaJPEGEncoder(CudaJPEGEncoderConfig encoderConfig) :
           std::to_string(m_encoderConfig.frameRate) +
           " -i pipe: -codec copy " + m_encoderConfig.videoPath;
     char* FFMPEGCommand = const_cast<char*>(FFMPEGCommandString.c_str());
-    m_pipeout = popen(FFMPEGCommand, "w");
+    #ifdef _WIN32
+      m_pipeout = _popen(FFMPEGCommand, "wb");
+    #else
+      m_pipeout = popen(FFMPEGCommand, "w");
+    #endif
   }
 }
 
@@ -117,7 +121,11 @@ CudaJPEGEncoder::~CudaJPEGEncoder() {
 
   if (m_encoderConfig.saveRecording) {
     fflush(m_pipeout);
-    pclose(m_pipeout);
+    #ifdef _WIN32
+      _pclose(m_pipeout);
+    #else
+      pclose(m_pipeout);
+    #endif
   }
 }
 
