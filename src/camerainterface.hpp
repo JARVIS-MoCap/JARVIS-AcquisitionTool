@@ -53,6 +53,8 @@ class AcquisitionWorker : public QObject {
     void streamImage(const QImage &img);
     void latencyAndFrameNumberUpdate(int latency, unsigned long frameNumber);
     void statusUpdated(statusType status, const QString &statusMessage);
+    void provideMetadata(QString &frame_camera_name, uint64_t frame_id,
+                         uint64_t frame_timestamp, uint64_t frame_image_uid);
 };
 
 class CameraInterface : public QObject {
