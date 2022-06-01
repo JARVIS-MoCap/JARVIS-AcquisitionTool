@@ -31,12 +31,12 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 if(GIT_DIRTY_RET)
-set(VERSION_STRING "git ${GIT_BRANCH}:${GIT_COMMIT_HASH}-dirty")
+set(VERSION_STRING "(git)_${GIT_BRANCH}:${GIT_COMMIT_HASH}-dirty")
 else()
 set(VERSION_STRING "git ${GIT_BRANCH}:${GIT_COMMIT_HASH}")
 endif()
 add_definitions("-DVERSION_STRING=\"${VERSION_STRING}\"")
-message("VERSION " ${VERSION_STRING})
+message(STATUS "VERSION_STRING " ${VERSION_STRING})
 
 if(APPLE)
   set(OS_LIB_DIR "MacOS")
