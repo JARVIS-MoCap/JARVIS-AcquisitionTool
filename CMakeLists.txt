@@ -31,7 +31,7 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 if(GIT_DIRTY_RET)
-set(VERSION_STRING "(git)_${GIT_BRANCH}:${GIT_COMMIT_HASH}-dirty")
+set(VERSION_STRING "(git)${GIT_BRANCH}:${GIT_COMMIT_HASH}-dirty")
 else()
 set(VERSION_STRING "git ${GIT_BRANCH}:${GIT_COMMIT_HASH}")
 endif()

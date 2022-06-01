@@ -20,6 +20,7 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QTreeWidget>
+#include <iomanip>
 
 using namespace Spinnaker;
 // using namespace Spinnaker::GenApi;
@@ -52,12 +53,18 @@ void FlirWorker::acquireImages() {
 
                 // TODO forward frame metadata
                 uint64_t frame_timestamp = pResultImage->GetTimeStamp();
-                uint64_t frame_id = pResultImage->GetID();
+                uint64_t frame_id = pResultImage->GetFrameID();
+                uint64_t frame_image_uid = pResultImage->GetID();
+                QString frame_camera_name = this->m_cameraName;
+
                 // Those value are useful to calculate if we missed a frame or
                 // like to synchronise the cameras in post.
-                std::cout << "frame_timestamp: " << frame_timestamp
-                          << std::endl;
-                std::cout << "frame_id: " << frame_id << std::endl;
+
+                std::cout << "frame_camera_name: " << std::setw(10)
+                          << frame_camera_name.toStdString()
+                          << "; frame_id: " << std::setw(10) << frame_id
+                          << "; frame_timestamp: " << std::setw(20)
+                          << frame_timestamp << std::endl;
 
                 pResultImage->Release();
                 if (!m_acquisitionSpecs.record ||
