@@ -44,6 +44,7 @@ set(CMAKE_AUTOUIC ON)
 
 if(NOT WIN32)
 	set(OpenCV_DIR "libs/OpenCV_4.5.1/${OS_LIB_DIR}/lib/cmake/opencv4")
+  find_package(Eigen3 REQUIRED)
 else()
 	set(OpenCV_DIR "libs/OpenCV_4.5.1/${OS_LIB_DIR}")
 endif()
@@ -62,7 +63,7 @@ add_subdirectory(gui)
 add_subdirectory(src)
 
 
-set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/OpenCV;/usr/local/lib/JARVIS-AcquisitionTool/nvjpeg)
+set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/nvjpeg)
 add_executable(${PROJECT_NAME}
     main.cpp
     globals.hpp
@@ -70,9 +71,9 @@ add_executable(${PROJECT_NAME}
 )
 
 if(${UBUNTU_VERSION} AND ${UBUNTU_VERSION} STREQUAL "2004")
-  install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_0.3-1_amd64_2004/usr/local/bin)
+  install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.0-1_amd64_2004/usr/local/bin)
 elseif(${UBUNTU_VERSION})
-  install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_0.3-1_amd64_1804/usr/local/bin)
+  install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.0-1_amd64_1804/usr/local/bin)
 endif()
 
 
