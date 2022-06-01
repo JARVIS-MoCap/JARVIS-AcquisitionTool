@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 
-
-
 if(USE_CUDA)
 	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
   message(STATUS "Using CUDA")
@@ -10,6 +8,35 @@ if(USE_CUDA)
 	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX)
   message(STATUS "Skipping CUDA")
 endif()
+
+# Version String
+# Get the current working branch
+execute_process(
+    COMMAND git rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_BRANCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Get the latest commit hash
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(
+  COMMAND git diff --quiet
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  RESULT_VARIABLE GIT_DIRTY_RET
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if(GIT_DIRTY_RET)
+set(VERSION_STRING "git ${GIT_BRANCH}:${GIT_COMMIT_HASH}-dirty")
+else()
+set(VERSION_STRING "git ${GIT_BRANCH}:${GIT_COMMIT_HASH}")
+endif()
+add_definitions("-DVERSION_STRING=\"${VERSION_STRING}\"")
+message("VERSION " ${VERSION_STRING})
 
 if(APPLE)
   set(OS_LIB_DIR "MacOS")
@@ -97,3 +124,6 @@ target_link_libraries(${PROJECT_NAME}
   src
   darkstyle
 )
+
+
+
