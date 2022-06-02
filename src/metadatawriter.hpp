@@ -14,8 +14,9 @@ class MetaDataWriter : public QObject {
     void newFile(const char *filepath);
 
   public slots:
-    void writeMetadata(const QString &frame_camera_name, uint64_t frame_id,
-                       uint64_t frame_timestamp, uint64_t frame_image_uid);
+    void writeMetadataSlot(QString frame_camera_uid, QString frame_camera_name,
+                           int frame_id, uint64_t frame_timestamp,
+                           int frame_image_uid);
 
   signals:
   private:

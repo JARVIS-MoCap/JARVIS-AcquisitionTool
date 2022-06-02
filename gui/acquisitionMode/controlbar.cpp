@@ -124,6 +124,9 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
     oneBigVisAction->setVisible(false);
     twoBigVisAction->setVisible(false);
     fourBigVisAction->setVisible(false);
+
+    // create instance of Metadata writer
+    metawriter = new MetaDataWriter();
 }
 
 void ControlBar::recordClickedSlot(bool toggled) {
@@ -168,6 +171,16 @@ void ControlBar::recordClickedSlot(bool toggled) {
         stopAction->setEnabled(true);
         recordingTimer->start(100);
         startTime->restart();
+
+        // connect cameras
+        for (const auto &cam : CameraInterface::cameraList) {
+            // m_acquisitionWorker is instantiated with "emit startAcquisition".
+            qRegisterMetaType<uint64_t>("uint64_t");
+            connect(cam->m_acquisitionWorker,
+                    &AcquisitionWorker::provideMetadata, metawriter,
+                    &MetaDataWriter::writeMetadataSlot);
+            std::cout << "cam connected" << std::endl;
+        }
 
         bool trigger = false;
         while (!trigger) {

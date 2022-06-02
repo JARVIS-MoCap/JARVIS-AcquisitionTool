@@ -54,15 +54,16 @@ void FlirWorker::acquireImages() {
                 // Those value are useful to calculate if we missed a frame or
                 // like to synchronise the cameras in post.
                 uint64_t frame_timestamp = pResultImage->GetTimeStamp();
-                uint64_t frame_id = pResultImage->GetFrameID();
-                uint64_t frame_image_uid = pResultImage->GetID();
+                int frame_id = pResultImage->GetFrameID();
+                int frame_image_uid = pResultImage->GetID();
+                QString frame_camera_uid = (m_pCam->GetUniqueID()).c_str();
                 QString frame_camera_name = this->m_cameraName;
 
                 // Signal stuff
                 if (globalSettings.metadataEnabled) {
-                    std::cout << "provideMetadata" << std::endl;
-                    emit provideMetadata(frame_camera_name, frame_id,
-                                         frame_timestamp, frame_image_uid);
+                    emit provideMetadata(frame_camera_uid, frame_camera_name,
+                                         frame_id, frame_timestamp,
+                                         frame_image_uid);
                 }
 
                 pResultImage->Release();

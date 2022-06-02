@@ -19,6 +19,8 @@
 #include <QLineEdit>
 #include <QToolBar>
 
+#include "metadatawriter.hpp"
+
 class ControlBar : public QToolBar {
     Q_OBJECT
   public:
@@ -70,6 +72,8 @@ class ControlBar : public QToolBar {
     QToolButton *fourBigButton;
     QAction *fourBigAction;
     QAction *fourBigVisAction;
+
+    MetaDataWriter *metawriter;
 
   private slots:
     void recordClickedSlot(bool toggled);
