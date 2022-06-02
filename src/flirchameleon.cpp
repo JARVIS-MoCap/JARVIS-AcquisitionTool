@@ -32,6 +32,7 @@ FlirWorker::FlirWorker(Spinnaker::CameraPtr pCam, const QString &cameraName,
 FlirWorker::~FlirWorker() { delete m_recordingInterface; }
 
 void FlirWorker::acquireImages() {
+    bool send_timeout_err = false;
     unsigned long frameIndex = 0;
     int duration_sum = 0;
     forever {
@@ -76,12 +77,12 @@ void FlirWorker::acquireImages() {
             if (e == SPINNAKER_ERR_TIMEOUT) {
                 if (QThread::currentThread()->isInterruptionRequested()) {
                     return;
-                } else if (TriggerInterface::triggerInstance == nullptr) {
+                } else if (TriggerInterface::triggerInstance == nullptr && !send_timeout_err) {
                     emit statusUpdated(statusType::Error, e.what());
+                    send_timeout_err = true;
                 }
             } else {
                 emit statusUpdated(statusType::Error, e.what());
-                delayl(1000);
             }
         }
     }
@@ -437,7 +438,7 @@ void FLIRChameleon::createSettings() {
         nodeMapTLStream.GetNode("StreamBufferCountManual");
     try {
         if (IsAvailable(ptrNode) && IsWritable(ptrNode))
-            ptrNode->SetValue(55);
+            ptrNode->SetValue(100);
     } catch (Spinnaker::Exception &e) {
         // if this error occurs try sudo sh -c 'echo 1
         // >/proc/sys/vm/drop_caches' and rerun
