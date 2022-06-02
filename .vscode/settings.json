@@ -4,6 +4,9 @@
         "-DUBUNTU_VERSION=2004",
         "-DUSE_CUDA=ON"
     ],
+    "cmake.environment": {
+        //"DISPLAY": ":0"
+    },
     "files.associations": {
         "qspinbox": "cpp",
         "qaction": "cpp",
@@ -72,6 +75,8 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "__nullptr": "cpp",
-        "numericaldiff": "cpp"
+        "numericaldiff": "cpp",
+        "tensor": "cpp",
+        "__config": "cpp"
     },
 }
