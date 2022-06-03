@@ -263,6 +263,11 @@ void CamConnectionPanel::statusUpdatedSlot(statusType status,
     statusLog.message = statusMessage;
     statusLogWindow->statusLogList.push_back(statusLog);
     statusLogWindow->updateListSlot();
+    if (status == Error) {
+      QErrorMessage errorMessage;
+      errorMessage.showMessage(camera->cameraName() + ": " + statusMessage);
+      errorMessage.exec();
+    }
     emit statusUpdated(camera, status, statusMessage);
 }
 

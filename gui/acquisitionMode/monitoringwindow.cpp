@@ -124,7 +124,6 @@ void CameraMonitor::latencyAndFrameNumberUpdateSlot(int latency,
     m_frameNumber = frameNumber;
     if (latencyChartView->isVisible()) {
         latencyChartView->update(latency);
-        std::cout << "Updateing" << std::endl;
     }
     if (m_bufferUpdateCounter % 10 == 0) {
         updateBufferState();
