@@ -23,8 +23,12 @@
 *.app
 *.deb
 
+# Project
 cudajpegencoder/images/
 Imgs/
 Savefiles/
 CalibParams/
 build/
+
+# Editors
+.vscode/
