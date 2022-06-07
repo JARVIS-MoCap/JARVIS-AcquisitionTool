@@ -173,16 +173,19 @@ void ControlBar::recordClickedSlot(bool toggled) {
         startTime->restart();
 
         // create Metadata file
-        metawriter->newFile(recordingDir.path() + "/metadata.csv");
+        if (globalSettings.metadataEnabled) {
+            metawriter->newFile(recordingDir.path() + "/metadata.csv");
 
-        // connect cameras
-        for (const auto &cam : CameraInterface::cameraList) {
-            // m_acquisitionWorker is instantiated with "emit startAcquisition".
-            qRegisterMetaType<uint64_t>("uint64_t");
-            connect(cam->m_acquisitionWorker,
-                    &AcquisitionWorker::provideMetadata, metawriter,
-                    &MetaDataWriter::writeMetadataSlot);
-            std::cout << "cam connected" << std::endl;
+            // connect cameras
+            for (const auto &cam : CameraInterface::cameraList) {
+                // m_acquisitionWorker is instantiated with "emit
+                // startAcquisition".
+                qRegisterMetaType<uint64_t>("uint64_t");
+                connect(cam->m_acquisitionWorker,
+                        &AcquisitionWorker::provideMetadata, metawriter,
+                        &MetaDataWriter::writeMetadataSlot);
+                std::cout << "cam connected" << std::endl;
+            }
         }
 
         bool trigger = false;

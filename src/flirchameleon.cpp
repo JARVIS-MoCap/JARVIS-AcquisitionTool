@@ -51,21 +51,17 @@ void FlirWorker::acquireImages() {
                 m_img = m_recordingInterface->recordFrame(
                     static_cast<uchar *>(pResultImage->GetData()));
 
-                // TODO forward frame metadata
-                // Those value are useful to calculate if we missed a frame or
-                // like to synchronise the cameras in post.
+                // MetaDataWriter
                 uint64_t frame_timestamp = pResultImage->GetTimeStamp();
                 int frame_id = pResultImage->GetFrameID();
                 int frame_image_uid = pResultImage->GetID();
                 QString frame_camera_uid = (m_pCam->GetUniqueID()).c_str();
                 QString frame_camera_name = this->m_cameraName;
 
-                // Signal stuff
-                if (globalSettings.metadataEnabled) {
-                    emit provideMetadata(frame_camera_uid, frame_camera_name,
-                                         frame_id, frame_timestamp,
-                                         frame_image_uid);
-                }
+                emit provideMetadata(frame_camera_uid, frame_camera_name,
+                                     frame_id, frame_timestamp,
+                                     frame_image_uid);
+                // MetaDataWriter
 
                 pResultImage->Release();
                 if (!m_acquisitionSpecs.record ||
@@ -94,7 +90,8 @@ void FlirWorker::acquireImages() {
             if (e == SPINNAKER_ERR_TIMEOUT) {
                 if (QThread::currentThread()->isInterruptionRequested()) {
                     return;
-                } else if (TriggerInterface::triggerInstance == nullptr && !send_timeout_err) {
+                } else if (TriggerInterface::triggerInstance == nullptr &&
+                           !send_timeout_err) {
                     emit statusUpdated(statusType::Error, e.what());
                     send_timeout_err = true;
                 }

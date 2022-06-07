@@ -31,13 +31,6 @@ void MetaDataWriter::writeMetadataSlot(QString frame_camera_uid,
                                        uint64_t frame_timestamp,
                                        int frame_image_uid) {
 
-    std::cout << "frame_camera_uid: " << std::setw(35)
-              << frame_camera_uid.toStdString() << "; "
-              << "frame_camera_name: " << std::setw(10)
-              << frame_camera_name.toStdString() << "; "
-              << "frame_id: " << std::setw(10) << frame_id << "; "
-              << "frame_timestamp: " << std::setw(20) << frame_timestamp
-              << std::endl;
     if (!current_file.isWritable()) {
         std::cout << "Error: No open file! Skipping..." << std::endl;
         return;
