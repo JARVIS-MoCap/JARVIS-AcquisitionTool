@@ -103,7 +103,7 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent,
     QGridLayout *simplelayout = new QGridLayout(simpleBox);
     LabelWithToolTip *frameRateLabel = new LabelWithToolTip("FrameRate");
     frameRateEdit = new QSpinBox(this);
-    frameRateEdit->setRange(0, 170);
+    frameRateEdit->setRange(0, 500);
     frameRateEdit->setEnabled(false);
     connect(frameRateEdit, QOverload<int>::of(&QSpinBox::valueChanged), this,
             &TriggerSettingsWindow::frameRateEditChangedSlot);
