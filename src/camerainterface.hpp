@@ -101,6 +101,7 @@ class CameraInterface : public QObject {
     void statusUpdated(statusType status, const QString &statusMessage);
     void simpleSettingChanged(const QString &settingName, const QString &value,
                               bool enabled, double min, double max);
+    void AquisitionStopped();
 
   protected:
     QSettings *settings = new QSettings();

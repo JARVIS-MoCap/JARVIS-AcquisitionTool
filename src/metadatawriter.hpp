@@ -1,9 +1,8 @@
-
-
 #ifndef METADATAWRITER_H
 #define METADATAWRITER_H
 
 #include "globals.hpp"
+#include <QTextStream>
 
 class MetaDataWriter : public QObject {
     Q_OBJECT
@@ -11,7 +10,8 @@ class MetaDataWriter : public QObject {
   public:
     MetaDataWriter();
 
-    void newFile(const char *filepath);
+    void newFile(QString filepath);
+    void closeFile();
 
   public slots:
     void writeMetadataSlot(QString frame_camera_uid, QString frame_camera_name,
@@ -20,6 +20,10 @@ class MetaDataWriter : public QObject {
 
   signals:
   private:
+    void writeHeader();
+
+    QFile current_file;
+    QTextStream current_file_out;
 };
 
 #endif

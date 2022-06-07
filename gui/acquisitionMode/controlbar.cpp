@@ -172,6 +172,9 @@ void ControlBar::recordClickedSlot(bool toggled) {
         recordingTimer->start(100);
         startTime->restart();
 
+        // create Metadata file
+        metawriter->newFile(recordingDir.path() + "/metadata.csv");
+
         // connect cameras
         for (const auto &cam : CameraInterface::cameraList) {
             // m_acquisitionWorker is instantiated with "emit startAcquisition".
@@ -260,6 +263,8 @@ void ControlBar::stopClickedSlot() {
     recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
 }
 
+void ControlBar::AquisitionStoppedSlot() { metawriter->closeFile(); }
+
 void ControlBar::recordingTimerSlot() {
     *recordingTime = recordingTime->addMSecs(100);
     recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
@@ -297,6 +302,8 @@ void ControlBar::camAddedSlot(CameraInterface *cam) {
             &CameraInterface::startAcquisitionSlot);
     connect(this, &ControlBar::stopAcquisition, cam,
             &CameraInterface::stopAcquisitionSlot);
+    connect(cam, &CameraInterface::AquisitionStopped, this,
+            &ControlBar::AquisitionStoppedSlot);
 }
 
 void ControlBar::camVisibilityToggledSlot(CameraInterface *cam, bool toggled) {

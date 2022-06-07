@@ -30,6 +30,7 @@ class ControlBar : public QToolBar {
     void updateListSlot();
     void camAddedSlot(CameraInterface *cam);
     void camVisibilityToggledSlot(CameraInterface *cam, bool toggled);
+    void AquisitionStoppedSlot();
 
   signals:
     void startAcquisition(AcquisitionSpecs);
