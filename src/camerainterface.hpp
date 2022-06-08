@@ -53,6 +53,9 @@ class AcquisitionWorker : public QObject {
     void streamImage(const QImage &img);
     void latencyAndFrameNumberUpdate(int latency, unsigned long frameNumber);
     void statusUpdated(statusType status, const QString &statusMessage);
+    void provideMetadata(QString frame_camera_uid, QString frame_camera_name,
+                         int frame_id, uint64_t frame_timestamp,
+                         int frame_image_uid);
 };
 
 class CameraInterface : public QObject {
@@ -80,6 +83,8 @@ class CameraInterface : public QObject {
     virtual int getBufferSize() = 0;
     virtual bool setupCamera(const CameraSettings &cameraSettings) = 0;
 
+    AcquisitionWorker *m_acquisitionWorker;
+
   public slots:
     virtual void settingChangedSlot(const QString &name,
                                     QList<QString> subMenus,
@@ -96,6 +101,7 @@ class CameraInterface : public QObject {
     void statusUpdated(statusType status, const QString &statusMessage);
     void simpleSettingChanged(const QString &settingName, const QString &value,
                               bool enabled, double min, double max);
+    void AquisitionStopped();
 
   protected:
     QSettings *settings = new QSettings();
@@ -106,7 +112,6 @@ class CameraInterface : public QObject {
     SettingsObject *m_cameraSettings;
     bool m_isStreaming = false;
     statusType m_cameraStatus = Connecting;
-    AcquisitionWorker *m_acquisitionWorker;
 
     frameRate_t m_frameRate = 100;
     frameSize_t m_frameSize{1280, 1024};

@@ -1,21 +1,55 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 
+
+
+
 if(USE_CUDA)
   if (WIN32)
     set (CMAKE_CUDA_COMPILER "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.2/bin/nvcc.exe")
   endif()
   project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX CUDA)
-else()
-  project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX)
+  message(STATUS "Using CUDA")
+  else()
+	project(AcquisitionTool VERSION 0.3.0  LANGUAGES CXX)
+  message(STATUS "Skipping CUDA")
 endif()
+
+# Version String
+# Get the current working branch
+execute_process(
+    COMMAND git rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_BRANCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Get the latest commit hash
+execute_process(
+    COMMAND git rev-parse --short HEAD
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Get working tree status (dirty)
+execute_process(
+  COMMAND git diff --quiet
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  RESULT_VARIABLE GIT_DIRTY_RET
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if(GIT_DIRTY_RET)
+  set(VERSION_STRING "(git)${GIT_BRANCH}:${GIT_COMMIT_HASH}-dirty")
+else()
+  set(VERSION_STRING "git ${GIT_BRANCH}:${GIT_COMMIT_HASH}")
+endif()
+add_definitions("-DVERSION_STRING=\"${VERSION_STRING}\"")
+message(STATUS "VERSION_STRING " ${VERSION_STRING})
 
 if(APPLE)
   set(OS_LIB_DIR "MacOS")
 elseif(WIN32)
   set(OS_LIB_DIR "Windows")
 elseif(UNIX)
-  message ("System ${CMAKE_SYSTEM}")
   if(${UBUNTU_VERSION} STREQUAL "2004")
     set(OS_LIB_DIR "Ubuntu_2004")
   else()
@@ -53,10 +87,11 @@ find_package(OpenCV REQUIRED)
 
 message(STATUS "OPENCV_DIR ${OpenCV_DIR}")
 
-
 # detect operating system and host processor
-message(STATUS "We are on a ${CMAKE_SYSTEM_NAME} system")
-message(STATUS "The host processor is ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_SYSTEM_INFO_FILE: ${CMAKE_SYSTEM_INFO_FILE}")
+message(STATUS "CMAKE_SYSTEM_NAME:      ${CMAKE_SYSTEM_NAME}")
+message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "CMAKE_SYSTEM:           ${CMAKE_SYSTEM}")
 
 
 add_subdirectory(gui)
@@ -103,3 +138,6 @@ target_link_libraries(${PROJECT_NAME}
   src
   darkstyle
 )
+
+
+

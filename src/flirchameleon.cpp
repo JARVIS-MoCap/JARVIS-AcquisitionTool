@@ -50,6 +50,19 @@ void FlirWorker::acquireImages() {
                 auto t1 = std::chrono::high_resolution_clock::now();
                 m_img = m_recordingInterface->recordFrame(
                     static_cast<uchar *>(pResultImage->GetData()));
+
+                // MetaDataWriter
+                uint64_t frame_timestamp = pResultImage->GetTimeStamp();
+                int frame_id = pResultImage->GetFrameID();
+                int frame_image_uid = pResultImage->GetID();
+                QString frame_camera_uid = (m_pCam->GetUniqueID()).c_str();
+                QString frame_camera_name = this->m_cameraName;
+
+                emit provideMetadata(frame_camera_uid, frame_camera_name,
+                                     frame_id, frame_timestamp,
+                                     frame_image_uid);
+                // MetaDataWriter
+
                 pResultImage->Release();
                 if (!m_acquisitionSpecs.record ||
                     globalSettings.streamingEnabled) {
@@ -77,7 +90,8 @@ void FlirWorker::acquireImages() {
             if (e == SPINNAKER_ERR_TIMEOUT) {
                 if (QThread::currentThread()->isInterruptionRequested()) {
                     return;
-                } else if (TriggerInterface::triggerInstance == nullptr && !send_timeout_err) {
+                } else if (TriggerInterface::triggerInstance == nullptr &&
+                           !send_timeout_err) {
                     emit statusUpdated(statusType::Error, e.what());
                     send_timeout_err = true;
                 }
@@ -423,6 +437,8 @@ void FLIRChameleon::stopAcquisitionSlot() {
         emit statusUpdated(statusType::Error, e.what());
     }
     m_isStreaming = false;
+
+    emit AquisitionStopped();
 }
 
 void FLIRChameleon::createSettings() {

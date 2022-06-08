@@ -48,6 +48,7 @@ struct GlobalSettings {
     QString recorderType = "Cuda Recorder";
     bool recordVideos = true;
     int jpegQualityFactor = 95;
+    bool metadataEnabled = true;
     int streamingSubsamplingRatio = 4;
     bool streamingEnabled = true;
     int recordingSubsamplingRatio = 2;

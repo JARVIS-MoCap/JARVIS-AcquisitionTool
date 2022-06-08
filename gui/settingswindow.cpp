@@ -75,12 +75,24 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
     connect(jpegQualityEdit, QOverload<int>::of(&QSpinBox::valueChanged), this,
             &SettingsWindow::jpegQualityChangedSlot);
 
+    LabelWithToolTip *metadataLabel = new LabelWithToolTip(
+        "Create Frame-Metadate file",
+        "For each recording, all created metadata is saved as a CSV file."
+        "The file is created in the same folder as the video files.");
+    metadataEnabledSwitch = new ToggleSwitch();
+    metadataEnabledSwitch->setMaximumSize(50, 20);
+    metadataEnabledSwitch->setToggled(true);
+    connect(metadataEnabledSwitch, &ToggleSwitch::toggled, this,
+            &SettingsWindow::metadataEnableToggledSlot);
+
     recordersettingslayout->addWidget(recorderTypeLabel, 0, 0);
     recordersettingslayout->addWidget(recorderTypeBox, 0, 1);
     recordersettingslayout->addWidget(imageOrVideoLabel, 1, 0);
     recordersettingslayout->addWidget(imageOrVideoSelectorBox, 1, 1);
     recordersettingslayout->addWidget(jpegQualityLabel, 2, 0);
     recordersettingslayout->addWidget(jpegQualityEdit, 2, 1);
+    recordersettingslayout->addWidget(metadataLabel, 3, 0);
+    recordersettingslayout->addWidget(metadataEnabledSwitch, 3, 1);
 
     LabelWithToolTip *streamingSubsamplingRatioLabel = new LabelWithToolTip(
         "Streaming Subsampling Ratio",
@@ -101,7 +113,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
         "If this is unselected no live view of your cameras is available during"
         " recording. Recording at slightly higher frame rates are possible.");
     streamingEnabledSwitch = new ToggleSwitch();
-    streamingEnabledSwitch->setMaximumSize(80, 20);
+    streamingEnabledSwitch->setMaximumSize(50, 20);
     streamingEnabledSwitch->setToggled(true);
     connect(streamingEnabledSwitch, &ToggleSwitch::toggled, this,
             &SettingsWindow::streamingEnableToggledSlot);
@@ -200,6 +212,7 @@ void SettingsWindow::updateSettings() {
     settings->setValue("RecorderType", recorderTypeBox->currentText());
     settings->setValue("ImageOrVideo", imageOrVideoSelectorBox->currentText());
     settings->setValue("jpegQualityFactor", jpegQualityEdit->value());
+    settings->setValue("MetadataEnabled", metadataEnabledSwitch->isToggled());
     settings->endGroup();
     settings->beginGroup("StreamingSettings");
     settings->setValue("StreamingSubsamplingRatio",
@@ -228,6 +241,10 @@ void SettingsWindow::imageOrVideoSelectorChangedSlot(const QString &type) {
 
 void SettingsWindow::jpegQualityChangedSlot(int val) {
     globalSettings.jpegQualityFactor = val;
+    updateSettings();
+}
+void SettingsWindow::metadataEnableToggledSlot(bool toggle) {
+    globalSettings.metadataEnabled = toggle;
     updateSettings();
 }
 

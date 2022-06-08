@@ -124,6 +124,9 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
     oneBigVisAction->setVisible(false);
     twoBigVisAction->setVisible(false);
     fourBigVisAction->setVisible(false);
+
+    // create instance of Metadata writer
+    metawriter = new MetaDataWriter();
 }
 
 void ControlBar::recordClickedSlot(bool toggled) {
@@ -168,6 +171,22 @@ void ControlBar::recordClickedSlot(bool toggled) {
         stopAction->setEnabled(true);
         recordingTimer->start(100);
         startTime->restart();
+
+        // create Metadata file
+        if (globalSettings.metadataEnabled) {
+            metawriter->newFile(recordingDir.path() + "/metadata.csv");
+
+            // connect cameras
+            for (const auto &cam : CameraInterface::cameraList) {
+                // m_acquisitionWorker is instantiated with "emit
+                // startAcquisition".
+                qRegisterMetaType<uint64_t>("uint64_t");
+                connect(cam->m_acquisitionWorker,
+                        &AcquisitionWorker::provideMetadata, metawriter,
+                        &MetaDataWriter::writeMetadataSlot);
+                std::cout << "cam connected" << std::endl;
+            }
+        }
 
         bool trigger = false;
         while (!trigger) {
@@ -247,6 +266,8 @@ void ControlBar::stopClickedSlot() {
     recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
 }
 
+void ControlBar::AquisitionStoppedSlot() { metawriter->closeFile(); }
+
 void ControlBar::recordingTimerSlot() {
     *recordingTime = recordingTime->addMSecs(100);
     recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
@@ -284,6 +305,8 @@ void ControlBar::camAddedSlot(CameraInterface *cam) {
             &CameraInterface::startAcquisitionSlot);
     connect(this, &ControlBar::stopAcquisition, cam,
             &CameraInterface::stopAcquisitionSlot);
+    connect(cam, &CameraInterface::AquisitionStopped, this,
+            &ControlBar::AquisitionStoppedSlot);
 }
 
 void ControlBar::camVisibilityToggledSlot(CameraInterface *cam, bool toggled) {

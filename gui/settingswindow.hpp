@@ -43,6 +43,7 @@ class SettingsWindow : public QWidget {
     QComboBox *recorderTypeBox;
     QComboBox *imageOrVideoSelectorBox;
     QSpinBox *jpegQualityEdit;
+    ToggleSwitch *metadataEnabledSwitch;
 
     // streamingSettings
     QComboBox *streamingSubsamplingRatioBox;
@@ -53,6 +54,7 @@ class SettingsWindow : public QWidget {
     void recorderTypeChangedSlot(const QString &type);
     void imageOrVideoSelectorChangedSlot(const QString &type);
     void jpegQualityChangedSlot(int val);
+    void metadataEnableToggledSlot(bool toggle);
     void streamingSubsamplingRatioChangedSlot(const QString &ratio);
     void streamingEnableToggledSlot(bool toggle);
     void recordingSubsamplingRatioChangedSlot(const QString &ratio);

@@ -19,6 +19,8 @@
 #include <QLineEdit>
 #include <QToolBar>
 
+#include "metadatawriter.hpp"
+
 class ControlBar : public QToolBar {
     Q_OBJECT
   public:
@@ -28,6 +30,7 @@ class ControlBar : public QToolBar {
     void updateListSlot();
     void camAddedSlot(CameraInterface *cam);
     void camVisibilityToggledSlot(CameraInterface *cam, bool toggled);
+    void AquisitionStoppedSlot();
 
   signals:
     void startAcquisition(AcquisitionSpecs);
@@ -70,6 +73,8 @@ class ControlBar : public QToolBar {
     QToolButton *fourBigButton;
     QAction *fourBigAction;
     QAction *fourBigVisAction;
+
+    MetaDataWriter *metawriter;
 
   private slots:
     void recordClickedSlot(bool toggled);

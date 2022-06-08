@@ -7,6 +7,10 @@
  * License:     LGPL v3.0
  ******************************************************************************/
 
+#ifndef VERSION_STRING
+#define VERSION_STRING "unknown version"
+#endif
+
 #include "mainbar.hpp"
 
 MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
@@ -18,12 +22,21 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
 
     QLabel *iconLabel = new QLabel(this);
     iconLabel->setPixmap(QIcon::fromTheme("hand").pixmap(50, 50));
+
     QWidget *nameSpacer = new QWidget(this);
     nameSpacer->setMinimumSize(5, 5);
+
     QLabel *nameLabel = new QLabel(this);
     nameLabel->setFont(QFont("Sans Serif", 20, QFont::Bold));
-    nameLabel->setText("<font color=#2664a3>Camera</font><font "
-                       "color=#64a420>Controller</font>");
+    nameLabel->setText("<font color=#2664a3>Camera</font>"
+                       "<font color=#64a420>Controller</font>");
+
+    QLabel *versionLabel = new QLabel(this);
+    versionLabel->setFont(QFont("Sans Serif", 10, QFont::Bold));
+    versionLabel->setText(VERSION_STRING);
+    versionLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    versionLabel->setCursor(QCursor(Qt::IBeamCursor));
+
     QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     settingsButton = new QToolButton(this);
@@ -37,6 +50,7 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
     this->addWidget(nameSpacer);
     this->addWidget(nameLabel);
     this->addWidget(spacer);
+    this->addWidget(versionLabel);
     this->addWidget(settingsButton);
     this->addSeparator();
 }
