@@ -22,6 +22,7 @@ class SerialInterface {
     SerialInterface(const QString &deviceName);
     ~SerialInterface();
     int write(int val);
+    int writeBuffer(const char *buffer, unsigned int len);
     int send_instruction(int mode, int readwrite, int val1, int val2);
     int get_answer(int answer[]);
     int get_answer();

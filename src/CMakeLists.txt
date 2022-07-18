@@ -25,6 +25,9 @@ if(USE_CUDA)
     arduinoconfigbackend.cpp
     metadatawriter.cpp
     metadatawriter.hpp
+    arduinoserialmessages.hpp
+    arduinoserialpeer.cpp
+    arduinoserialpeer.hpp
   )
 else()
   add_library(src
@@ -51,6 +54,9 @@ else()
     arduinoconfigbackend.cpp
     metadatawriter.cpp
     metadatawriter.hpp
+    arduinoserialmessages.hpp
+    arduinoserialpeer.cpp
+    arduinoserialpeer.hpp
   )
 endif()
 

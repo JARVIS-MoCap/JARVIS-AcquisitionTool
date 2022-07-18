@@ -10,6 +10,7 @@
 #ifndef ARDUINOTRIGGER_H
 #define ARDUINOTRIGGER_H
 
+#include "arduinoserialpeer.hpp"
 #include "globals.hpp"
 #include "serialinterface.hpp"
 #include "triggerinterface.hpp"
@@ -29,6 +30,7 @@ class ArduinoTrigger : public TriggerInterface {
   private:
     SerialInterface *serialInterface;
     void createSettings();
+    SerialPeer serial_peer;
 
   private slots:
     void intitialStatusSlot();

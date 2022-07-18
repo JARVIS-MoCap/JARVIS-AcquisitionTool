@@ -54,6 +54,16 @@ int SerialInterface::write(int val) {
     return 0;
 }
 
+int SerialInterface::writeBuffer(const char *buffer, unsigned int len) {
+    QByteArray cmd;
+    if (serial_conn) {
+        serialPort->write(buffer, len);
+        serialPort->waitForBytesWritten(len);
+        return 1;
+    }
+    return 0;
+}
+
 int SerialInterface::send_instruction(int mode, int readwrite, int val1,
                                       int val2) {
     QByteArray cmd;

@@ -8,6 +8,7 @@
  ******************************************************************************/
 
 #include "arduinotrigger.hpp"
+#include "arduinoserialpeer.hpp"
 
 #include <QApplication>
 #include <QTimer>
