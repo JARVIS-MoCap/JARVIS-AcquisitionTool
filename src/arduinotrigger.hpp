@@ -29,8 +29,8 @@ class ArduinoTrigger : public TriggerInterface {
 
   private:
     SerialInterface *serialInterface;
+    SerialPeer *serialPeer;
     void createSettings();
-    SerialPeer serial_peer;
 
   private slots:
     void intitialStatusSlot();

@@ -28,6 +28,7 @@ if(USE_CUDA)
     arduinoserialmessages.hpp
     arduinoserialpeer.cpp
     arduinoserialpeer.hpp
+    cobs.hpp
   )
 else()
   add_library(src
@@ -57,6 +58,7 @@ else()
     arduinoserialmessages.hpp
     arduinoserialpeer.cpp
     arduinoserialpeer.hpp
+    cobs.hpp
   )
 endif()
 

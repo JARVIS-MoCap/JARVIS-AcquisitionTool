@@ -32,14 +32,25 @@ class SerialPeer {
 
   public:
     typedef void (*PacketSenderFunction)(const uint8_t *buffer, size_t size);
+    typedef void (*PacketSenderFunctionClass)(void *them, const uint8_t *buffer,
+                                              size_t size);
 
     void setPacketSender(PacketSenderFunction sendPacketFunction) {
         _sendPacketFunction = sendPacketFunction;
+        _sendClassPacketFunction = nullptr;
+        _callback_class = nullptr;
+    }
+    void setPacketSender(void *them,
+                         PacketSenderFunctionClass sendPacketFunction) {
+        _sendPacketFunction = nullptr;
+        _sendClassPacketFunction = sendPacketFunction;
+        _callback_class = them;
     }
 
     SerialPeer();
     uint8_t handleMessage(uint8_t *msg, size_t len);
     uint8_t getSetup(SetupStruct *setup);
+    void sendSetup(SetupStruct *setup);
     void handleSetup(setup_message *msg, size_t len);
 
     void sendMessage(uint8_t *msg, size_t len);
@@ -56,6 +67,8 @@ class SerialPeer {
     SetupStruct _setup;
     uint8_t _setup_changed = false;
     PacketSenderFunction _sendPacketFunction = nullptr;
+    PacketSenderFunctionClass _sendClassPacketFunction = nullptr;
+    void *_callback_class = nullptr;
 };
 
 #endif

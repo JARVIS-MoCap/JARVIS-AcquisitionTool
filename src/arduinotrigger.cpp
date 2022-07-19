@@ -9,6 +9,7 @@
 
 #include "arduinotrigger.hpp"
 #include "arduinoserialpeer.hpp"
+#include "cobs.hpp"
 
 #include <QApplication>
 #include <QTimer>
@@ -17,6 +18,21 @@ ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
     : TriggerInterface{arduinoTrigger} {
     createSettings();
     serialInterface = new SerialInterface(deviceName);
+
+    serialPeer = new SerialPeer();
+    serialPeer->setPacketSender(this, [](void *them, const uint8_t *buffer,
+                                         size_t size) {
+        ArduinoTrigger *this_class = (ArduinoTrigger *)them;
+
+        const char *cobs_buffer = (const char *)malloc(size);
+        unsigned int cobs_buffer_len = 0;
+        memcpy((void *)cobs_buffer, buffer, size);
+        cobs_buffer_len =
+            cobs::encode((uint8_t *)cobs_buffer, (const size_t)size);
+        this_class->serialInterface->writeBuffer(cobs_buffer, cobs_buffer_len);
+        free((void *)cobs_buffer);
+    });
+
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(intitialStatusSlot()));
     timer->setSingleShot(true);
@@ -57,7 +73,16 @@ void ArduinoTrigger::createSettings() {
             &ArduinoTrigger::settingChangedSlot);
 }
 
-void ArduinoTrigger::enable() { serialInterface->write(m_frameRate); }
+void ArduinoTrigger::enable() {
+    serialInterface->write(m_frameRate);
+
+    SetupStruct setup;
+
+    setup.delay_us = 0;
+    setup.pulse_hz = m_frameRate;
+    setup.pulse_limit = 0;
+    serialPeer->getSetup(&setup);
+}
 
 void ArduinoTrigger::disable() { serialInterface->write(0); }
 

@@ -121,8 +121,32 @@ uint8_t SerialPeer::getSetup(SetupStruct *setup) {
     return true;
 }
 
+void SerialPeer::sendSetup(SetupStruct *setup) {
+
+    setup_message *msg;
+    msg = (setup_message *)this->_buffer;
+
+    msg->delay_us = setup->delay_us;
+    msg->pulse_hz = setup->pulse_hz;
+    msg->pulse_limit = setup->pulse_limit;
+
+    msg->header.type = TYPE_SETUP;
+    msg->header.length = LENGTH_SETUP_MESSAGE - LENGTH_MSG_HEADER;
+    msg->header.crc = calculateCrc(((message *)msg)->value, msg->header.length);
+
+    sendMessage((uint8_t *)msg, LENGTH_SETUP_MESSAGE);
+}
+
 void SerialPeer::sendMessage(uint8_t *msg, size_t len) {
-    this->_sendPacketFunction(msg, len);
+    if (_callback_class && _sendClassPacketFunction) {
+        this->_sendClassPacketFunction(_callback_class, msg, len);
+        return;
+    }
+    if (_sendPacketFunction) {
+        this->_sendPacketFunction(msg, len);
+        return;
+    }
+    std::cout << "Error: sendMessage" << std::endl;
 }
 
 void SerialPeer::sendAck() {
@@ -168,8 +192,7 @@ void SerialPeer::sendInputs(uint32_t uptime_us, uint32_t pulse_id,
 
     msg->header.type = TYPE_INPUTS;
     msg->header.length = LENGTH_INPUT_STATE_MESSAGE - LENGTH_MSG_HEADER;
-    msg->header.crc =
-        calculateCrc((uint8_t *)msg + LENGTH_MSG_HEADER, msg->header.length);
+    msg->header.crc = calculateCrc(((message *)msg)->value, msg->header.length);
 
     sendMessage((uint8_t *)msg, LENGTH_INPUT_STATE_MESSAGE);
 }
