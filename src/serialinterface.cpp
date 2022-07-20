@@ -81,6 +81,28 @@ int SerialInterface::send_instruction(int mode, int readwrite, int val1,
     return 1;
 }
 
+unsigned int SerialInterface::get_cobs_packet(char *buffer, unsigned int len) {
+    char temp[255]; // Max size COBS
+    temp[0] = 0;
+
+    if (!serialPort->waitForReadyRead(100)) {
+        return 0;
+    }
+    int curser;
+    for (curser = 0; curser <= std::min((unsigned int)sizeof(temp), len);
+         curser++) {
+        if (!serialPort->bytesAvailable()) {
+            return 0;
+        }
+        serialPort->read((char *)&(temp[curser]), 1);
+        if (temp[curser] == 0) {
+            break;
+        }
+    }
+    memcpy((void *)buffer, (void *)temp, curser);
+    return curser;
+}
+
 int SerialInterface::get_answer(int answer[]) {
     uint8_t temp[5];
     temp[0] = 0;

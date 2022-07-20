@@ -101,18 +101,48 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent,
     simpleBox->setStyleSheet(
         "QGroupBox{margin-top:0px; background-color:rgb(34, 36, 40)}");
     QGridLayout *simplelayout = new QGridLayout(simpleBox);
-    LabelWithToolTip *frameRateLabel = new LabelWithToolTip("FrameRate");
+    LabelWithToolTip *frameRateLabel = new LabelWithToolTip("FrameRate (FPS)");
     frameRateEdit = new QSpinBox(this);
-    frameRateEdit->setRange(0, 500);
+    frameRateEdit->setRange(std::numeric_limits<uint8_t>::min(),
+                            std::numeric_limits<uint8_t>::max());
+
+    LabelWithToolTip *frameLimitLabel =
+        new LabelWithToolTip("FrameLimit (Frames)");
+    frameLimitEdit = new QDoubleSpinBox(this);
+    frameLimitEdit->setRange(std::numeric_limits<uint32_t>::min(),
+                             std::numeric_limits<uint32_t>::max());
+    frameLimitEdit->setDecimals(0);
+
+    std::cout << std::numeric_limits<uint32_t>::min() << std::endl;
+    std::cout << std::numeric_limits<uint32_t>::max() << std::endl;
+
+    LabelWithToolTip *cmdDelayLabel =
+        new LabelWithToolTip("CmdDelay (\u00B5s)");
+    cmdDelayEdit = new QDoubleSpinBox(this);
+    cmdDelayEdit->setRange(std::numeric_limits<uint32_t>::min(),
+                           std::numeric_limits<uint32_t>::max());
+    cmdDelayEdit->setDecimals(0);
+
     frameRateEdit->setEnabled(false);
+    frameLimitEdit->setEnabled(false);
+    cmdDelayEdit->setEnabled(false);
     connect(frameRateEdit, QOverload<int>::of(&QSpinBox::valueChanged), this,
             &TriggerSettingsWindow::frameRateEditChangedSlot);
+    connect(frameLimitEdit,
+            QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+            &TriggerSettingsWindow::frameLimitEditChangedSlot);
+    connect(cmdDelayEdit, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+            this, &TriggerSettingsWindow::cmdDelayEditChangedSlot);
 
     QWidget *bottomSpacer = new QWidget(simpleBox);
     bottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     simplelayout->addWidget(frameRateLabel, 0, 0);
     simplelayout->addWidget(frameRateEdit, 0, 1);
-    simplelayout->addWidget(bottomSpacer, 1, 0, 1, 2);
+    simplelayout->addWidget(frameLimitLabel, 1, 0);
+    simplelayout->addWidget(frameLimitEdit, 1, 1);
+    simplelayout->addWidget(cmdDelayLabel, 2, 0);
+    simplelayout->addWidget(cmdDelayEdit, 2, 1);
+    simplelayout->addWidget(bottomSpacer, 3, 0, 1, 2);
 
     advancedSimpleStackWidget = new QStackedWidget(this);
     advancedSimpleStackWidget->addWidget(simpleBox);
@@ -150,6 +180,8 @@ void TriggerSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
                     << "";
         m_activeSettings->settingsTree()->setHeaderLabels(ColumnNames);
         frameRateEdit->setEnabled(false);
+        frameLimitEdit->setEnabled(false);
+        cmdDelayEdit->setEnabled(false);
     } else {
         m_activeSettings = newSettings;
         m_activeSettings->setSettingsTree(newSettings->settingsTree());
@@ -160,6 +192,12 @@ void TriggerSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
         frameRateEdit->setEnabled(true);
         frameRateEdit->setValue(
             TriggerInterface::triggerInstance->getFrameRate());
+        frameLimitEdit->setEnabled(true);
+        frameLimitEdit->setValue(
+            TriggerInterface::triggerInstance->getFrameLimit());
+        cmdDelayEdit->setEnabled(true);
+        cmdDelayEdit->setValue(
+            TriggerInterface::triggerInstance->getCmdDelay());
     }
     advancedSimpleStackWidget->addWidget(m_activeSettings->settingsTree());
 }
@@ -306,4 +344,14 @@ void TriggerSettingsWindow::frameRateEditChangedSlot(int val) {
     std::cout << "FrameRate Edit: " << val << std::endl;
     TriggerInterface::triggerInstance->changeSimpleSetting(
         "FrameRate", QString::number(val));
+}
+void TriggerSettingsWindow::frameLimitEditChangedSlot(double val) {
+    std::cout << "FrameLimit Edit: " << val << std::endl;
+    TriggerInterface::triggerInstance->changeSimpleSetting(
+        "FrameLimit", QString::number(val, 'd'));
+}
+void TriggerSettingsWindow::cmdDelayEditChangedSlot(double val) {
+    std::cout << "CmdDelay Edit: " << val << std::endl;
+    TriggerInterface::triggerInstance->changeSimpleSetting(
+        "CmdDelay", QString::number(val, 'd'));
 }
