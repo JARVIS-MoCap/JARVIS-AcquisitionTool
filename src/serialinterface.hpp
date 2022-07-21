@@ -26,7 +26,8 @@ class SerialInterface {
     int send_instruction(int mode, int readwrite, int val1, int val2);
     int get_answer(int answer[]);
     int get_answer();
-    unsigned int get_cobs_packet(char *buffer, unsigned int len);
+    unsigned int get_cobs_packet(char *buffer, unsigned int len,
+                                 int msec = 30000);
     bool isConnected() { return serial_conn; }
 
   private:

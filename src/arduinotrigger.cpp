@@ -15,23 +15,57 @@
 #include <QTimer>
 #include <limits.h>
 
-#define TRIGGER_DEBUG 0
+#define GET_COBS_PACKET_TIMEOUT 1000
+#define RECEIVEWORKER_TERMINATE_TIMEOUT 2000
+#define GET_COBS_PACKET_BUFFER_SIZE 255
+
+#define TRIGGER_DEBUG false
+#define TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE 15
+
+ReceiveWorker::ReceiveWorker(SerialPeer *serialPeer,
+                             SerialInterface *serialInterface)
+    : QThread{}, m_serialPeer{serialPeer}, m_serialInterface{serialInterface} {}
+
+ReceiveWorker::~ReceiveWorker() {}
+
+void ReceiveWorker::run() {
+    while (!isInterruptionRequested()) {
+        char receive_buffer[GET_COBS_PACKET_BUFFER_SIZE];
+        unsigned int receive_buffer_len = 0;
+        receive_buffer_len = m_serialInterface->get_cobs_packet(
+            receive_buffer, GET_COBS_PACKET_BUFFER_SIZE,
+            GET_COBS_PACKET_TIMEOUT);
+        if (receive_buffer_len < LENGTH_MSG_HEADER + 1) {
+            continue;
+        }
+
+        cobs::decode((uint8_t *)receive_buffer, receive_buffer_len);
+
+        m_serialPeer->handleMessage((uint8_t *)receive_buffer + 1,
+                                    receive_buffer_len - 1);
+    }
+    std::cout << "Receive Worker ended" << std::endl;
+}
 
 ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
     : TriggerInterface{arduinoTrigger} {
     createSettings();
     serialInterface = new SerialInterface(deviceName);
 
-    serialPeer = new SerialPeer();
+    serialPeer = new SerialPeer(serialInterface);
+    connect(serialPeer, &SerialPeer::statusUpdated, this,
+            &ArduinoTrigger::statusUpdated);
     serialPeer->setPacketSender(this, [](void *them, const uint8_t *buffer,
                                          size_t size) {
-        ArduinoTrigger *this_class = (ArduinoTrigger *)them;
+        ArduinoTrigger *this_class = static_cast<ArduinoTrigger *>(them);
 
 #if TRIGGER_DEBUG
-        uint8_t lookatme_buffer[15];
-        memset((void *)lookatme_buffer, 'N', 15);
+        uint8_t lookatme_buffer[TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE];
+        memset((void *)lookatme_buffer, 'N',
+               TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE);
         memcpy((void *)lookatme_buffer, buffer,
-               std::min((unsigned long)15, (unsigned long)size));
+               std::min((unsigned long)TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE,
+                        (unsigned long)size));
 #endif
 
         char *cobs_buffer = (char *)malloc(size + 2);
@@ -43,10 +77,12 @@ ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
         cobs_buffer[cobs_buffer_len++] = 0; // Message delimiter
 
 #if TRIGGER_DEBUG
-        uint8_t lookatme_cobs_buffer[15];
-        memset((void *)lookatme_cobs_buffer, 'N', 15);
+        uint8_t lookatme_cobs_buffer[TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE];
+        memset((void *)lookatme_cobs_buffer, 'N',
+               TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE);
         memcpy((void *)lookatme_cobs_buffer, cobs_buffer,
-               std::min((unsigned long)15, (unsigned long)cobs_buffer_len));
+               std::min((unsigned long)TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE,
+                        (unsigned long)cobs_buffer_len));
 
         setup_message *setup = (setup_message *)lookatme_buffer;
 #endif
@@ -54,21 +90,11 @@ ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
         this_class->serialInterface->writeBuffer(cobs_buffer, cobs_buffer_len);
         free((void *)cobs_buffer);
 
-#if TRIGGER_DEBUG
-        char lookatme_recv_buffer[15];
-        unsigned int lookatme_recv_buffer_len = 0;
-        for (unsigned int i = 0; i < 3; i++) {
-            memset((void *)lookatme_recv_buffer, 'N', 15);
-            lookatme_recv_buffer_len =
-                this_class->serialInterface->get_cobs_packet(
-                    lookatme_recv_buffer, 15);
-            cobs::decode((uint8_t *)lookatme_recv_buffer,
-                         lookatme_recv_buffer_len);
-        }
-#endif
-
         std::cout << "Serial send" << std::endl;
     });
+
+    receiveWorker = new ReceiveWorker(serialPeer, serialInterface);
+    receiveWorker->start();
 
     disable();
 
@@ -80,7 +106,16 @@ ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
 }
 
 ArduinoTrigger::~ArduinoTrigger() {
+
+    // TODO: call super class destructor
+
+    receiveWorker->requestInterruption();
+    if (!receiveWorker->wait(RECEIVEWORKER_TERMINATE_TIMEOUT)) {
+        receiveWorker->terminate();
+    }
+
     delete serialInterface;
+    delete serialPeer;
     delete m_triggerSettings;
 }
 

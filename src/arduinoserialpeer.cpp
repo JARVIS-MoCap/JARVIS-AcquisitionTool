@@ -9,11 +9,20 @@
 
 #include "arduinoserialpeer.hpp"
 #include "arduinoserialmessages.hpp"
+
+#include <QQueue>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 
-SerialPeer::SerialPeer() {}
+#define ACK_TIMEOUT_MS 200
+
+SerialPeer::SerialPeer(SerialInterface *serialInterface)
+    : QObject(), m_serialInterface{serialInterface} {
+    m_ack_queue = new QQueue<qint64>();
+}
+
+SerialPeer::~SerialPeer() { delete m_ack_queue; }
 
 uint8_t SerialPeer::calculateCrc(uint8_t *buffer, size_t len) {
     uint8_t crc = 0;
@@ -50,16 +59,28 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg, size_t len) {
         error_flags |= SERIAL_PEER_ERROR_NOT_IMPLEMENTED;
         break;
     case TYPE_INPUTS:
-        // Not implemented
-        error_flags |= SERIAL_PEER_ERROR_NOT_IMPLEMENTED;
+        if (len != LENGTH_INPUT_STATE_MESSAGE) {
+            error_flags |= SERIAL_PEER_ERROR_LENGTH;
+            break;
+        }
+        handleInput((input_state_message *)msg);
         break;
     case TYPE_ACK:
         // Not implemented
-        error_flags |= SERIAL_PEER_ERROR_NOT_IMPLEMENTED;
+        if (checkAck()) {
+            error_flags |= SERIAL_PEER_ERROR_ACK_TIMEOUT;
+            break;
+        }
+        emit statusUpdated(Ready, QString::fromStdString("Got ACK"));
         break;
     case TYPE_ERROR:
         // Not implemented
-        error_flags |= SERIAL_PEER_ERROR_NOT_IMPLEMENTED;
+        checkAck();
+        error_flags |= SERIAL_PEER_ERROR_MCU;
+        emit statusUpdated(
+            Error, QString::fromStdString("Trigger Error: ") +
+                       QString::fromUtf8((const char *)type_message->value,
+                                         (int)length));
         break;
     default:
         // unknown packet type
@@ -87,7 +108,8 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg, size_t len) {
         if (error_flags & SERIAL_PEER_ERROR_NOT_IMPLEMENTED) {
             error_len += snprintf((char *)error_str + error_len,
                                   SERIAL_PEER_MAX_BUFFER_SIZE - error_len,
-                                  " # NOT IMPLEMENTED ERROR ");
+                                  " # NOT IMPLEMENTED ERROR / header.type %d",
+                                  type_message->header.type);
         }
         if (error_flags & SERIAL_PEER_ERROR_UNKNOWN_PACKET) {
             error_len += snprintf((char *)error_str + error_len,
@@ -95,30 +117,59 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg, size_t len) {
                                   " # UNKNOWN PACKET ERROR / header.type: %d",
                                   type_message->header.type);
         }
+        if (error_flags & SERIAL_PEER_ERROR_ACK_TIMEOUT) {
+            error_len += snprintf((char *)error_str + error_len,
+                                  SERIAL_PEER_MAX_BUFFER_SIZE - error_len,
+                                  " # ACK TIMEOUT ERROR");
+        }
+        if (error_flags & SERIAL_PEER_ERROR_MCU) {
+            error_len += snprintf((char *)error_str + error_len,
+                                  SERIAL_PEER_MAX_BUFFER_SIZE - error_len,
+                                  " # ERROR MCU ERROR");
+        }
 
         std::cout << "Error: " << ((char *)error_str) << std::endl;
-
-    } else {
-        sendAck();
+        emit statusUpdated(Error, QString::fromStdString(((char *)error_str)));
     }
 
     return error_flags;
 }
 
-void SerialPeer::handleSetup(setup_message *msg, size_t len) {
-    _setup.delay_us = ntohl(msg->delay_us);
-    _setup.pulse_limit = ntohl(msg->pulse_limit);
-    _setup.pulse_hz = msg->pulse_hz;
-    _setup_changed = true;
+void SerialPeer::expectAck() {
+    m_ack_queue_mutex.lock();
+    forever {
+        if (m_ack_queue->length() &&
+            QDateTime::currentMSecsSinceEpoch() - m_ack_queue->last() >
+                ACK_TIMEOUT_MS) {
+            emit statusUpdated(Error,
+                               QString::fromStdString("Error: Missed ACK"));
+            m_ack_queue->dequeue();
+        } else {
+            break;
+        }
+    }
+    m_ack_queue->enqueue(QDateTime::currentMSecsSinceEpoch());
+    m_ack_queue_mutex.unlock();
+}
+bool SerialPeer::checkAck() {
+    qint64 ack_timestamp_ms = 0;
+    qint64 now_ms = 0;
+    qint64 diff_ms = 0;
+
+    m_ack_queue_mutex.lock();
+    if (!m_ack_queue->empty()) {
+        ack_timestamp_ms = m_ack_queue->dequeue();
+    }
+    m_ack_queue_mutex.unlock();
+
+    now_ms = QDateTime::currentMSecsSinceEpoch();
+    diff_ms = now_ms - ack_timestamp_ms;
+    return (diff_ms > ACK_TIMEOUT_MS);
 }
 
-uint8_t SerialPeer::getSetup(SetupStruct *setup) {
-    if (!this->_setup_changed) {
-        return false;
-    }
-    this->_setup_changed = false;
-    memcpy(setup, &(this->_setup), LENGTH_SETUP_STRUCT);
-    return true;
+void SerialPeer::handleInput(input_state_message *msg) {
+    std::cout << "Got inputs: " << msg->inputs_state << " - " << msg->pulse_id
+              << " - " << msg->uptime_us << std::endl;
 }
 
 void SerialPeer::sendSetup(SetupStruct *setup) {
@@ -134,6 +185,7 @@ void SerialPeer::sendSetup(SetupStruct *setup) {
     msg->header.length = LENGTH_SETUP_MESSAGE - LENGTH_MSG_HEADER;
     msg->header.crc = calculateCrc(((message *)msg)->value, msg->header.length);
 
+    expectAck();
     sendMessage((uint8_t *)msg, LENGTH_SETUP_MESSAGE);
 }
 

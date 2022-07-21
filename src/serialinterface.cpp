@@ -81,15 +81,16 @@ int SerialInterface::send_instruction(int mode, int readwrite, int val1,
     return 1;
 }
 
-unsigned int SerialInterface::get_cobs_packet(char *buffer, unsigned int len) {
-    char temp[255]; // Max size COBS
+unsigned int SerialInterface::get_cobs_packet(char *buffer, unsigned int len,
+                                              int msec) {
+    char temp[256]; // Max size COBS
     temp[0] = 0;
 
-    if (!serialPort->waitForReadyRead(100)) {
+    if (!serialPort->waitForReadyRead(msec)) {
         return 0;
     }
-    int curser;
-    for (curser = 0; curser <= std::min((unsigned int)sizeof(temp), len);
+    int curser = 0;
+    for (curser; curser <= std::min((unsigned int)sizeof(temp) - 1, len);
          curser++) {
         if (!serialPort->bytesAvailable()) {
             return 0;

@@ -3,6 +3,9 @@
 #define _SERIAL_PEER_H
 
 #include "arduinoserialmessages.hpp"
+#include "globals.hpp"
+#include "serialinterface.hpp"
+#include <QMutex>
 
 #define htons(x) (((x) << 8 & 0xFF00) | ((x) >> 8 & 0x00FF))
 #define ntohs(x) htons(x)
@@ -26,10 +29,11 @@ enum SERIAL_PEER_ERROR_CODE {
     SERIAL_PEER_ERROR_CRC = 1 << 1,
     SERIAL_PEER_ERROR_NOT_IMPLEMENTED = 1 << 2,
     SERIAL_PEER_ERROR_UNKNOWN_PACKET = 1 << 3,
-
+    SERIAL_PEER_ERROR_ACK_TIMEOUT = 1 << 4,
+    SERIAL_PEER_ERROR_MCU = 1 << 5,
 };
-class SerialPeer {
-
+class SerialPeer : public QObject {
+    Q_OBJECT
   public:
     typedef void (*PacketSenderFunction)(const uint8_t *buffer, size_t size);
     typedef void (*PacketSenderFunctionClass)(void *them, const uint8_t *buffer,
@@ -47,11 +51,11 @@ class SerialPeer {
         _callback_class = them;
     }
 
-    SerialPeer();
+    SerialPeer(SerialInterface *serialInterface);
+    ~SerialPeer();
     uint8_t handleMessage(uint8_t *msg, size_t len);
-    uint8_t getSetup(SetupStruct *setup);
     void sendSetup(SetupStruct *setup);
-    void handleSetup(setup_message *msg, size_t len);
+    void handleInput(input_state_message *msg);
 
     void sendMessage(uint8_t *msg, size_t len);
     void sendInputs(uint32_t uptime_us, uint32_t pulse_id,
@@ -60,15 +64,24 @@ class SerialPeer {
     void sendTxt(uint8_t *msg, uint8_t len);
     void sendAck();
 
+    void expectAck();
+    bool checkAck();
+
+  signals:
+    void statusUpdated(statusType status, const QString &statusMessage);
+
   private:
     void _sendTypedMessage(uint8_t type, uint8_t *msg, uint8_t len);
     uint8_t calculateCrc(uint8_t *payload, size_t len);
     uint8_t _buffer[SERIAL_PEER_MAX_BUFFER_SIZE];
-    SetupStruct _setup;
-    uint8_t _setup_changed = false;
     PacketSenderFunction _sendPacketFunction = nullptr;
     PacketSenderFunctionClass _sendClassPacketFunction = nullptr;
     void *_callback_class = nullptr;
+
+    // Jarvis stuff
+    QQueue<qint64> *m_ack_queue;
+    QMutex m_ack_queue_mutex;
+    SerialInterface *m_serialInterface;
 };
 
 #endif

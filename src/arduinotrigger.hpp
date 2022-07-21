@@ -15,7 +15,23 @@
 #include "serialinterface.hpp"
 #include "triggerinterface.hpp"
 
+#include <QQueue>
+#include <QThread>
 #include <QTreeWidget>
+
+class ReceiveWorker : public QThread {
+    Q_OBJECT
+  public:
+    ReceiveWorker(SerialPeer *m_serialPeer, SerialInterface *serialInterface);
+    ~ReceiveWorker();
+
+  public:
+    void run() override;
+
+  private:
+    SerialPeer *m_serialPeer;
+    SerialInterface *m_serialInterface;
+};
 
 class ArduinoTrigger : public TriggerInterface {
     Q_OBJECT
@@ -30,6 +46,7 @@ class ArduinoTrigger : public TriggerInterface {
   private:
     SerialInterface *serialInterface;
     SerialPeer *serialPeer;
+    ReceiveWorker *receiveWorker;
     void createSettings();
 
   private slots:
