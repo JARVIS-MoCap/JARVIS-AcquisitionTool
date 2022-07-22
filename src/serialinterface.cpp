@@ -97,7 +97,7 @@ unsigned int SerialInterface::get_cobs_packet(char *buffer, unsigned int len,
         }
         serialPort->read((char *)&(temp[curser]), 1);
         if (temp[curser] == 0) {
-            msg_len = curser;
+            msg_len = curser + 1;
             curser = 0;
             break;
         }

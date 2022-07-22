@@ -9,6 +9,7 @@
 
 #include "arduinoserialpeer.hpp"
 #include "arduinoserialmessages.hpp"
+#include "cobs.hpp"
 
 #include <QQueue>
 #include <cstdio>
@@ -32,14 +33,75 @@ uint8_t SerialPeer::calculateCrc(uint8_t *buffer, size_t len) {
     return crc;
 }
 
-uint8_t SerialPeer::handleMessage(uint8_t *msg, size_t len) {
+size_t SerialPeer::msgToCobs(uint8_t *cobs_buffer, message *msg_buffer,
+                             size_t size) {
+    uint8_t tmp_buffer[SERIAL_PEER_MAX_BUFFER_SIZE +
+                       SERIAL_PEER_DELIMITER_OVERHEAD +
+                       SERIAL_PEER_COBS_OVERHEAD];
+    int tmp_buffer_len;
+
+    if (size >= SERIAL_PEER_MAX_BUFFER_SIZE) {
+        return 0;
+    }
+
+    // First Byte is reserved for COBS overhead byte
+    memcpy(static_cast<void *>(tmp_buffer + SERIAL_PEER_COBS_OVERHEAD),
+           msg_buffer, size);
+
+    tmp_buffer_len = cobs::encode(
+        (uint8_t *)tmp_buffer, (const size_t)size + SERIAL_PEER_COBS_OVERHEAD);
+    tmp_buffer[tmp_buffer_len++] = 0; // Message delimiter
+
+    memcpy(static_cast<void *>(cobs_buffer), tmp_buffer, tmp_buffer_len);
+
+    return tmp_buffer_len;
+}
+
+size_t SerialPeer::cobsToMsg(message_t *msg_buffer, uint8_t *cobs_buffer,
+                             size_t size) {
+    uint8_t tmp_buffer[SERIAL_PEER_MAX_BUFFER_SIZE +
+                       SERIAL_PEER_DELIMITER_OVERHEAD +
+                       SERIAL_PEER_COBS_OVERHEAD];
+    int tmp_buffer_size;
+
+    if (size >= SERIAL_PEER_MAX_BUFFER_SIZE + SERIAL_PEER_DELIMITER_OVERHEAD +
+                    SERIAL_PEER_COBS_OVERHEAD) {
+        return 0;
+    }
+
+    memcpy(static_cast<void *>(tmp_buffer), static_cast<void *>(cobs_buffer),
+           size - SERIAL_PEER_DELIMITER_OVERHEAD);
+
+    tmp_buffer_size = cobs::decode((uint8_t *)tmp_buffer,
+                                   size - SERIAL_PEER_DELIMITER_OVERHEAD);
+
+    memcpy(static_cast<void *>(msg_buffer),
+           static_cast<void *>(tmp_buffer + SERIAL_PEER_COBS_OVERHEAD),
+           tmp_buffer_size);
+    return tmp_buffer_size;
+}
+
+uint8_t SerialPeer::handleCobsMessage(uint8_t *cobs_buffer, size_t size) {
+    uint8_t msg_buffer[SERIAL_PEER_MAX_BUFFER_SIZE];
+    int msg_buffer_size;
+
+    msg_buffer_size =
+        cobsToMsg(reinterpret_cast<message *>(&msg_buffer), cobs_buffer, size);
+
+    if (msg_buffer_size != size - 2) {
+        std::cout << "cobsToMsg Error" << std::endl;
+    }
+    return handleMessage(msg_buffer, msg_buffer_size);
+}
+
+uint8_t SerialPeer::handleMessage(uint8_t *msg_buffer, size_t size) {
     // Variables
     uint8_t error_flags = 0;
     message *type_message;
-    type_message = (message *)msg;
+    type_message = reinterpret_cast<message *>(msg_buffer);
 
     uint8_t length = type_message->header.length;
-    if (len < MIN_LENGTH_MESSAGE || len - LENGTH_MSG_HEADER != length) {
+    if (size < MIN_LENGTH_MESSAGE || size - LENGTH_MSG_HEADER != length) {
         error_flags |= SERIAL_PEER_ERROR_LENGTH;
     }
     uint8_t *payload = type_message->value;
@@ -50,20 +112,18 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg, size_t len) {
 
     switch (type_message->header.type) {
     case TYPE_ECHO:
-        this->_buffer[0] = TYPE_ECHO;
-        memcpy(this->_buffer, type_message, len);
-        sendMessage((uint8_t *)type_message, len);
+        sendMessage(type_message, size);
         break;
     case TYPE_SETUP:
         // Not implemented
         error_flags |= SERIAL_PEER_ERROR_NOT_IMPLEMENTED;
         break;
     case TYPE_INPUTS:
-        if (len != LENGTH_INPUT_STATE_MESSAGE) {
+        if (size != LENGTH_INPUT_STATE_MESSAGE) {
             error_flags |= SERIAL_PEER_ERROR_LENGTH;
             break;
         }
-        handleInput((input_state_message *)msg);
+        handleInput(reinterpret_cast<input_state_message *>(msg_buffer));
         break;
     case TYPE_ACK:
         // Not implemented
@@ -103,7 +163,7 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg, size_t len) {
                                   SERIAL_PEER_MAX_BUFFER_SIZE - error_len,
                                   " # LENGHT ERROR / header.length: %d / len: "
                                   "%lu / MIN_LENGTH_MESSAGE: %lu",
-                                  length, len, MIN_LENGTH_MESSAGE);
+                                  length, size, MIN_LENGTH_MESSAGE);
         }
         if (error_flags & SERIAL_PEER_ERROR_NOT_IMPLEMENTED) {
             error_len += snprintf((char *)error_str + error_len,
@@ -170,81 +230,43 @@ bool SerialPeer::checkAck() {
 void SerialPeer::handleInput(input_state_message *msg) {
     std::cout << "Got inputs: " << msg->inputs_state << " - " << msg->pulse_id
               << " - " << msg->uptime_us << std::endl;
+    sendAck();
 }
 
 void SerialPeer::sendSetup(SetupStruct *setup) {
+    setup_message msg;
 
-    setup_message *msg;
-    msg = (setup_message *)this->_buffer;
+    msg.pulse_hz = setup->pulse_hz;
+    msg.delay_us = htonl(setup->delay_us);
+    msg.pulse_limit = htonl(setup->pulse_limit);
 
-    msg->pulse_hz = setup->pulse_hz;
-    msg->delay_us = htonl(setup->delay_us);
-    msg->pulse_limit = htonl(setup->pulse_limit);
-
-    msg->header.type = TYPE_SETUP;
-    msg->header.length = LENGTH_SETUP_MESSAGE - LENGTH_MSG_HEADER;
-    msg->header.crc = calculateCrc(((message *)msg)->value, msg->header.length);
+    msg.header.type = TYPE_SETUP;
+    msg.header.length = LENGTH_SETUP_MESSAGE - LENGTH_MSG_HEADER;
+    msg.header.crc = calculateCrc(reinterpret_cast<message *>(&msg)->value,
+                                  msg.header.length);
 
     expectAck();
-    sendMessage((uint8_t *)msg, LENGTH_SETUP_MESSAGE);
+    sendMessage((message *)&msg, LENGTH_SETUP_MESSAGE);
 }
 
-void SerialPeer::sendMessage(uint8_t *msg, size_t len) {
-    if (_callback_class && _sendClassPacketFunction) {
-        this->_sendClassPacketFunction(_callback_class, msg, len);
-        return;
-    }
-    if (_sendPacketFunction) {
-        this->_sendPacketFunction(msg, len);
-        return;
-    }
-    std::cout << "Error: sendMessage" << std::endl;
+void SerialPeer::sendMessage(message *buffer, size_t size) {
+    uint8_t cobs_buffer[SERIAL_PEER_MAX_BUFFER_SIZE +
+                        SERIAL_PEER_DELIMITER_OVERHEAD +
+                        SERIAL_PEER_COBS_OVERHEAD];
+    size_t cobs_buffer_len = msgToCobs(cobs_buffer, buffer, size);
+
+    m_serialInterface->writeBuffer((const char *)(cobs_buffer),
+                                   cobs_buffer_len);
+
+    std::cout << "Serial send" << std::endl;
 }
 
 void SerialPeer::sendAck() {
-    ack_message *msg;
-    msg = (ack_message *)this->_buffer;
+    ack_message msg;
 
-    msg->header.type = TYPE_ACK;
-    msg->header.length = 0;
-    msg->header.crc = 0;
+    msg.header.type = TYPE_ACK;
+    msg.header.length = 0;
+    msg.header.crc = 0;
 
-    sendMessage((uint8_t *)msg, LENGTH_ACK_MESSAGE);
-}
-
-void SerialPeer::sendError(uint8_t *value, uint8_t len) {
-    _sendTypedMessage(TYPE_ERROR, value, len);
-}
-
-void SerialPeer::sendTxt(uint8_t *value, uint8_t len) {
-    _sendTypedMessage(TYPE_TXT, value, len);
-}
-
-void SerialPeer::_sendTypedMessage(uint8_t type, uint8_t *value, uint8_t len) {
-    message *msg;
-    msg = (message *)this->_buffer;
-
-    memcpy(msg->value, value, len);
-
-    msg->header.type = type;
-    msg->header.length = len;
-    msg->header.crc = calculateCrc(msg->value, msg->header.length);
-
-    sendMessage((uint8_t *)msg, MIN_LENGTH_TXT_MESSAGE + len);
-}
-
-void SerialPeer::sendInputs(uint32_t uptime_us, uint32_t pulse_id,
-                            uint8_t inputs_state) {
-    input_state_message *msg;
-    msg = (input_state_message *)this->_buffer;
-
-    msg->uptime_us = uptime_us;
-    msg->pulse_id = pulse_id;
-    msg->inputs_state = inputs_state;
-
-    msg->header.type = TYPE_INPUTS;
-    msg->header.length = LENGTH_INPUT_STATE_MESSAGE - LENGTH_MSG_HEADER;
-    msg->header.crc = calculateCrc(((message *)msg)->value, msg->header.length);
-
-    sendMessage((uint8_t *)msg, LENGTH_INPUT_STATE_MESSAGE);
+    sendMessage(static_cast<message *>(&msg), LENGTH_ACK_MESSAGE);
 }

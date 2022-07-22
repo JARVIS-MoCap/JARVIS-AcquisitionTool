@@ -9,7 +9,6 @@
 
 #include "arduinotrigger.hpp"
 #include "arduinoserialpeer.hpp"
-#include "cobs.hpp"
 
 #include <QApplication>
 #include <QTimer>
@@ -19,9 +18,6 @@
 #define RECEIVEWORKER_TERMINATE_TIMEOUT 2000
 #define GET_COBS_PACKET_BUFFER_SIZE 255
 
-#define TRIGGER_DEBUG false
-#define TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE 15
-
 ReceiveWorker::ReceiveWorker(SerialPeer *serialPeer,
                              SerialInterface *serialInterface)
     : QThread{}, m_serialPeer{serialPeer}, m_serialInterface{serialInterface} {}
@@ -30,19 +26,17 @@ ReceiveWorker::~ReceiveWorker() {}
 
 void ReceiveWorker::run() {
     while (!isInterruptionRequested()) {
-        char receive_buffer[GET_COBS_PACKET_BUFFER_SIZE];
+        uint8_t receive_buffer[GET_COBS_PACKET_BUFFER_SIZE];
         unsigned int receive_buffer_len = 0;
         receive_buffer_len = m_serialInterface->get_cobs_packet(
-            receive_buffer, GET_COBS_PACKET_BUFFER_SIZE,
-            GET_COBS_PACKET_TIMEOUT);
-        if (receive_buffer_len < LENGTH_MSG_HEADER + 1) {
+            reinterpret_cast<char *>(receive_buffer),
+            GET_COBS_PACKET_BUFFER_SIZE, GET_COBS_PACKET_TIMEOUT);
+
+        if (receive_buffer_len < MIN_LENGTH_MESSAGE) {
             continue;
         }
 
-        cobs::decode((uint8_t *)receive_buffer, receive_buffer_len);
-
-        m_serialPeer->handleMessage((uint8_t *)receive_buffer + 1,
-                                    receive_buffer_len - 1);
+        m_serialPeer->handleCobsMessage(receive_buffer, receive_buffer_len);
     }
     std::cout << "Receive Worker ended" << std::endl;
 }
@@ -55,43 +49,6 @@ ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
     serialPeer = new SerialPeer(serialInterface);
     connect(serialPeer, &SerialPeer::statusUpdated, this,
             &ArduinoTrigger::statusUpdated);
-    serialPeer->setPacketSender(this, [](void *them, const uint8_t *buffer,
-                                         size_t size) {
-        ArduinoTrigger *this_class = static_cast<ArduinoTrigger *>(them);
-
-#if TRIGGER_DEBUG
-        uint8_t lookatme_buffer[TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE];
-        memset((void *)lookatme_buffer, 'N',
-               TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE);
-        memcpy((void *)lookatme_buffer, buffer,
-               std::min((unsigned long)TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE,
-                        (unsigned long)size));
-#endif
-
-        char *cobs_buffer = (char *)malloc(size + 2);
-        unsigned int cobs_buffer_len = 0;
-        memcpy((void *)(cobs_buffer + 1), buffer,
-               size); // First Byte is reserved for COBS overhead byte
-        cobs_buffer_len =
-            cobs::encode((uint8_t *)cobs_buffer, (const size_t)size + 1);
-        cobs_buffer[cobs_buffer_len++] = 0; // Message delimiter
-
-#if TRIGGER_DEBUG
-        uint8_t lookatme_cobs_buffer[TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE];
-        memset((void *)lookatme_cobs_buffer, 'N',
-               TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE);
-        memcpy((void *)lookatme_cobs_buffer, cobs_buffer,
-               std::min((unsigned long)TRIGGER_DEBUG_LOOKATME_BUFFER_SIZE,
-                        (unsigned long)cobs_buffer_len));
-
-        setup_message *setup = (setup_message *)lookatme_buffer;
-#endif
-
-        this_class->serialInterface->writeBuffer(cobs_buffer, cobs_buffer_len);
-        free((void *)cobs_buffer);
-
-        std::cout << "Serial send" << std::endl;
-    });
 
     receiveWorker = new ReceiveWorker(serialPeer, serialInterface);
     receiveWorker->start();

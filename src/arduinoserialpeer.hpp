@@ -15,7 +15,9 @@
      ((x) >> 8 & 0x0000FF00UL) | ((x) >> 24 & 0x000000FFUL))
 #define ntohl(x) htonl(x)
 
-#define SERIAL_PEER_MAX_BUFFER_SIZE (0xFF - MIN_LENGTH_ERROR_MESSAGE)
+#define SERIAL_PEER_MAX_BUFFER_SIZE (0xFF)
+#define SERIAL_PEER_COBS_OVERHEAD (1)
+#define SERIAL_PEER_DELIMITER_OVERHEAD (1)
 struct setup_struct_t {
     uint32_t delay_us;    // delay until first pulse
     uint32_t pulse_limit; // 0 -> unlimited pulses
@@ -53,17 +55,12 @@ class SerialPeer : public QObject {
 
     SerialPeer(SerialInterface *serialInterface);
     ~SerialPeer();
-    uint8_t handleMessage(uint8_t *msg, size_t len);
+    uint8_t handleCobsMessage(uint8_t *cobs_buffer, size_t size);
+    uint8_t handleMessage(uint8_t *msg_buffer, size_t size);
     void sendSetup(SetupStruct *setup);
     void handleInput(input_state_message *msg);
-
-    void sendMessage(uint8_t *msg, size_t len);
-    void sendInputs(uint32_t uptime_us, uint32_t pulse_id,
-                    uint8_t inputs_state);
-    void sendError(uint8_t *msg, uint8_t len);
-    void sendTxt(uint8_t *msg, uint8_t len);
+    void sendMessage(message *buffer, size_t size);
     void sendAck();
-
     void expectAck();
     bool checkAck();
 
@@ -71,9 +68,10 @@ class SerialPeer : public QObject {
     void statusUpdated(statusType status, const QString &statusMessage);
 
   private:
-    void _sendTypedMessage(uint8_t type, uint8_t *msg, uint8_t len);
     uint8_t calculateCrc(uint8_t *payload, size_t len);
-    uint8_t _buffer[SERIAL_PEER_MAX_BUFFER_SIZE];
+    size_t msgToCobs(uint8_t *cobs_buffer, message_t *msg_buffer, size_t size);
+    size_t cobsToMsg(message_t *msg_buffer, uint8_t *cobs_buffer, size_t size);
+
     PacketSenderFunction _sendPacketFunction = nullptr;
     PacketSenderFunctionClass _sendClassPacketFunction = nullptr;
     void *_callback_class = nullptr;
