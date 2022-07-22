@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 11)
 
-
+set (UBUNTU_VERSION 2004)
+set (USE_CUDA True)
 
 
 if(USE_CUDA)
@@ -98,7 +99,7 @@ add_subdirectory(gui)
 add_subdirectory(src)
 
 
-set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/nvjpeg)
+set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/nvjpeg;/usr/local/lib/JARVIS-AcquisitionTool/spinnaker)
 add_executable(${PROJECT_NAME}
     main.cpp
     globals.hpp
@@ -138,6 +139,3 @@ target_link_libraries(${PROJECT_NAME}
   src
   darkstyle
 )
-
-
-
