@@ -12,6 +12,7 @@
 #include "cobs.hpp"
 
 #include <QQueue>
+#include <bitset>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -126,7 +127,6 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg_buffer, size_t size) {
         handleInput(reinterpret_cast<input_state_message *>(msg_buffer));
         break;
     case TYPE_ACK:
-        // Not implemented
         if (checkAck()) {
             error_flags |= SERIAL_PEER_ERROR_ACK_TIMEOUT;
             break;
@@ -197,16 +197,11 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg_buffer, size_t size) {
 
 void SerialPeer::expectAck() {
     m_ack_queue_mutex.lock();
-    forever {
-        if (m_ack_queue->length() &&
-            QDateTime::currentMSecsSinceEpoch() - m_ack_queue->last() >
-                ACK_TIMEOUT_MS) {
-            emit statusUpdated(Error,
-                               QString::fromStdString("Error: Missed ACK"));
-            m_ack_queue->dequeue();
-        } else {
-            break;
-        }
+    while (m_ack_queue->length() &&
+           QDateTime::currentMSecsSinceEpoch() - m_ack_queue->last() >
+               ACK_TIMEOUT_MS) {
+        emit statusUpdated(Error, QString::fromStdString("Error: Missed ACK"));
+        m_ack_queue->dequeue();
     }
     m_ack_queue->enqueue(QDateTime::currentMSecsSinceEpoch());
     m_ack_queue_mutex.unlock();
@@ -228,7 +223,9 @@ bool SerialPeer::checkAck() {
 }
 
 void SerialPeer::handleInput(input_state_message *msg) {
-    std::cout << "Got inputs: " << msg->inputs_state << " - " << msg->pulse_id
+
+    std::bitset<8> inputs_state_bits(msg->inputs_state);
+    std::cout << "Got inputs: " << inputs_state_bits << " - " << msg->pulse_id
               << " - " << msg->uptime_us << std::endl;
     sendAck();
 }
