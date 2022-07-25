@@ -19,20 +19,6 @@
 #include <QThread>
 #include <QTreeWidget>
 
-class ReceiveWorker : public QThread {
-    Q_OBJECT
-  public:
-    ReceiveWorker(SerialPeer *m_serialPeer, SerialInterface *serialInterface);
-    ~ReceiveWorker();
-
-  public:
-    void run() override;
-
-  private:
-    SerialPeer *m_serialPeer;
-    SerialInterface *m_serialInterface;
-};
-
 class ArduinoTrigger : public TriggerInterface {
     Q_OBJECT
   public:
@@ -46,7 +32,6 @@ class ArduinoTrigger : public TriggerInterface {
   private:
     SerialInterface *serialInterface;
     SerialPeer *serialPeer;
-    ReceiveWorker *receiveWorker;
     void createSettings();
 
   private slots:
@@ -54,6 +39,7 @@ class ArduinoTrigger : public TriggerInterface {
     void settingChangedSlot(const QString &name, QList<QString> subMenus,
                             SettingsNode::nodeType type, const QString &val,
                             bool update);
+    void serialReadReadySlot();
 };
 
 #endif

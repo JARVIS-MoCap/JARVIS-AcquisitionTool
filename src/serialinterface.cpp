@@ -34,10 +34,26 @@ SerialInterface::SerialInterface(const QString &deviceName) {
                 serialPort->setFlowControl(QSerialPort::NoFlowControl);
                 serialPort->setDataBits(QSerialPort::Data8);
                 delayl(1000);
+            } else {
                 return;
             }
         }
     }
+
+    connect(serialPort, &QSerialPort::readyRead, [&]() {
+        // this is called when readyRead() is emitted
+        // QByteArray datas = serialPort->readAll();
+        emit serialReadReadySignal();
+        // TODO consider adding a ring buffer to this class
+    });
+    connect(serialPort, &QSerialPort::errorOccurred,
+            [&](QSerialPort::SerialPortError error) {
+                // this is called when a serial communication error
+                // occurs
+
+                qDebug() << "An error occured: " << error;
+                // return qApp->quit();
+            });
 }
 
 SerialInterface::~SerialInterface() { serialPort->close(); }

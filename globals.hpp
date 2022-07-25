@@ -12,6 +12,7 @@
 
 #include <QAction>
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QTime>
 #include <QToolButton>

@@ -18,29 +18,6 @@
 #define RECEIVEWORKER_TERMINATE_TIMEOUT 2000
 #define GET_COBS_PACKET_BUFFER_SIZE 255
 
-ReceiveWorker::ReceiveWorker(SerialPeer *serialPeer,
-                             SerialInterface *serialInterface)
-    : QThread{}, m_serialPeer{serialPeer}, m_serialInterface{serialInterface} {}
-
-ReceiveWorker::~ReceiveWorker() {}
-
-void ReceiveWorker::run() {
-    while (!isInterruptionRequested()) {
-        uint8_t receive_buffer[GET_COBS_PACKET_BUFFER_SIZE];
-        unsigned int receive_buffer_len = 0;
-        receive_buffer_len = m_serialInterface->get_cobs_packet(
-            reinterpret_cast<char *>(receive_buffer),
-            GET_COBS_PACKET_BUFFER_SIZE, GET_COBS_PACKET_TIMEOUT);
-
-        if (receive_buffer_len < MIN_LENGTH_MESSAGE) {
-            continue;
-        }
-
-        m_serialPeer->handleCobsMessage(receive_buffer, receive_buffer_len);
-    }
-    std::cout << "Receive Worker ended" << std::endl;
-}
-
 ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
     : TriggerInterface{arduinoTrigger} {
     createSettings();
@@ -50,8 +27,8 @@ ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
     connect(serialPeer, &SerialPeer::statusUpdated, this,
             &ArduinoTrigger::statusUpdated);
 
-    receiveWorker = new ReceiveWorker(serialPeer, serialInterface);
-    receiveWorker->start();
+    connect(serialInterface, &SerialInterface::serialReadReadySignal, this,
+            &ArduinoTrigger::serialReadReadySlot);
 
     disable();
 
@@ -62,14 +39,42 @@ ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
     timer->start(100);
 }
 
+void ArduinoTrigger::serialReadReadySlot() {
+
+    uint8_t receive_buffer[GET_COBS_PACKET_BUFFER_SIZE];
+    unsigned int receive_buffer_len = 0;
+    do {
+        receive_buffer_len = serialInterface->get_cobs_packet(
+            reinterpret_cast<char *>(receive_buffer),
+            GET_COBS_PACKET_BUFFER_SIZE, GET_COBS_PACKET_TIMEOUT);
+
+        if (receive_buffer_len < MIN_LENGTH_MESSAGE) {
+            return;
+        }
+
+        serialPeer->handleCobsMessage(receive_buffer, receive_buffer_len);
+    } while (receive_buffer_len >= MIN_LENGTH_MESSAGE);
+}
+
+void ArduinoTrigger::enable() {
+    SetupStruct setup;
+    setup.delay_us = m_cmdDelay;
+    setup.pulse_hz = m_frameRate;
+    setup.pulse_limit = m_frameLimit;
+    serialPeer->sendSetup(&setup);
+}
+
+void ArduinoTrigger::disable() {
+    SetupStruct setup;
+    setup.delay_us = 0;
+    setup.pulse_hz = 0;
+    setup.pulse_limit = 0;
+    serialPeer->sendSetup(&setup);
+}
+
 ArduinoTrigger::~ArduinoTrigger() {
 
     // TODO: call super class destructor
-
-    receiveWorker->requestInterruption();
-    if (!receiveWorker->wait(RECEIVEWORKER_TERMINATE_TIMEOUT)) {
-        receiveWorker->terminate();
-    }
 
     delete serialInterface;
     delete serialPeer;
@@ -122,22 +127,6 @@ void ArduinoTrigger::createSettings() {
 
     connect(m_triggerSettings, &SettingsObject::settingChanged, this,
             &ArduinoTrigger::settingChangedSlot);
-}
-
-void ArduinoTrigger::enable() {
-    SetupStruct setup;
-    setup.delay_us = m_cmdDelay;
-    setup.pulse_hz = m_frameRate;
-    setup.pulse_limit = m_frameLimit;
-    serialPeer->sendSetup(&setup);
-}
-
-void ArduinoTrigger::disable() {
-    SetupStruct setup;
-    setup.delay_us = 0;
-    setup.pulse_hz = 0;
-    setup.pulse_limit = 0;
-    serialPeer->sendSetup(&setup);
 }
 
 void ArduinoTrigger::settingChangedSlot(const QString &name,

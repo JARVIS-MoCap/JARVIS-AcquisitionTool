@@ -15,8 +15,8 @@
 #include <QSerialPortInfo>
 #include <QtSerialPort/QSerialPort>
 
-class SerialInterface {
-
+class SerialInterface : public QObject {
+    Q_OBJECT
   public:
     static QList<QString> getAvailableDevices();
     SerialInterface(const QString &deviceName);
@@ -34,6 +34,9 @@ class SerialInterface {
     bool serial_conn = false;
     QString serialPortName;
     QSerialPort *serialPort;
+
+  signals:
+    void serialReadReadySignal();
 };
 
 #endif
