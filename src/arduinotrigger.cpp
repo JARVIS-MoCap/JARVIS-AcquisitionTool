@@ -11,6 +11,7 @@
 #include "arduinoserialpeer.hpp"
 
 #include <QApplication>
+#include <QThread>
 #include <QTimer>
 #include <limits.h>
 
@@ -18,29 +19,33 @@
 #define RECEIVEWORKER_TERMINATE_TIMEOUT 2000
 #define GET_COBS_PACKET_BUFFER_SIZE 255
 
-ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
-    : TriggerInterface{arduinoTrigger} {
-    createSettings();
+ArduinoTriggerWorker::ArduinoTriggerWorker(const QString &deviceName)
+    : QObject{} {
     serialInterface = new SerialInterface(deviceName);
-
     serialPeer = new SerialPeer(serialInterface);
-    connect(serialPeer, &SerialPeer::statusUpdated, this,
-            &ArduinoTrigger::statusUpdated);
 
     connect(serialInterface, &SerialInterface::serialReadReadySignal, this,
-            &ArduinoTrigger::serialReadReadySlot);
-
-    disable();
-
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(intitialStatusSlot()));
-
-    timer->setSingleShot(true);
-    timer->start(100);
+            &ArduinoTriggerWorker::recvSlot);
 }
 
-void ArduinoTrigger::serialReadReadySlot() {
+ArduinoTriggerWorker::~ArduinoTriggerWorker() {
+    delete serialInterface;
+    delete serialPeer;
+}
 
+void ArduinoTriggerWorker::sendSetupSlot(int m_cmdDelay, int m_frameRate,
+                                         int m_frameLimit) {
+    std::cout << "ArduinoTriggerWorker::send()" << std::endl;
+
+    SetupStruct setup;
+    setup.delay_us = m_cmdDelay;
+    setup.pulse_hz = m_frameRate;
+    setup.pulse_limit = m_frameLimit;
+    serialPeer->sendSetup(&setup);
+}
+
+void ArduinoTriggerWorker::recvSlot() {
+    std::cout << "ArduinoTriggerWorker::recv()" << std::endl;
     uint8_t receive_buffer[GET_COBS_PACKET_BUFFER_SIZE];
     unsigned int receive_buffer_len = 0;
     do {
@@ -56,37 +61,48 @@ void ArduinoTrigger::serialReadReadySlot() {
     } while (receive_buffer_len >= MIN_LENGTH_MESSAGE);
 }
 
-void ArduinoTrigger::enable() {
-    SetupStruct setup;
-    setup.delay_us = m_cmdDelay;
-    setup.pulse_hz = m_frameRate;
-    setup.pulse_limit = m_frameLimit;
-    serialPeer->sendSetup(&setup);
+ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
+    : TriggerInterface{arduinoTrigger} {
+    createSettings();
+
+    workerClass = new ArduinoTriggerWorker(deviceName);
+    workerClass->moveToThread(&workerThread);
+    workerThread.start();
+
+    connect(workerClass, &ArduinoTriggerWorker::statusUpdated, this,
+            &ArduinoTrigger::statusUpdated);
+
+    connect(this, &ArduinoTrigger::sendSetupSignal, workerClass,
+            &ArduinoTriggerWorker::sendSetupSlot);
+
+    disable();
+
+    QTimer *timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(intitialStatusSlot()));
+
+    timer->setSingleShot(true);
+    timer->start(100);
 }
 
-void ArduinoTrigger::disable() {
-    SetupStruct setup;
-    setup.delay_us = 0;
-    setup.pulse_hz = 0;
-    setup.pulse_limit = 0;
-    serialPeer->sendSetup(&setup);
+void ArduinoTrigger::enable() {
+    emit sendSetupSignal(m_cmdDelay, m_frameRate, m_frameLimit);
 }
+
+void ArduinoTrigger::disable() { emit sendSetupSignal(0, 0, 0); }
 
 ArduinoTrigger::~ArduinoTrigger() {
 
     // TODO: call super class destructor
 
-    delete serialInterface;
-    delete serialPeer;
     delete m_triggerSettings;
 }
 
 void ArduinoTrigger::intitialStatusSlot() {
-    if (serialInterface->isConnected()) {
-        emit statusUpdated(Ready, "");
-    } else {
-        emit statusUpdated(Error, "Connection Failed!");
-    }
+    // if (serialInterface->isConnected()) {
+    emit statusUpdated(Ready, "Ready");
+    // } else {
+    //     emit statusUpdated(Error, "Connection Failed!");
+    // }
 }
 
 void ArduinoTrigger::createSettings() {

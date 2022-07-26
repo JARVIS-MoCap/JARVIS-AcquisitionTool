@@ -103,9 +103,6 @@ unsigned int SerialInterface::get_cobs_packet(char *buffer, unsigned int len,
     static int curser = 0;
     int msg_len;
 
-    if (!serialPort->waitForReadyRead(msec)) {
-        return 0;
-    }
     for (curser; curser <= std::min((unsigned int)sizeof(temp) - 1, len);
          curser++) {
         if (!serialPort->bytesAvailable()) {

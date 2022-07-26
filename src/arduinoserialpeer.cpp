@@ -127,11 +127,13 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg_buffer, size_t size) {
         handleInput(reinterpret_cast<input_state_message *>(msg_buffer));
         break;
     case TYPE_ACK:
+        std::cout << "Got ack" << std::endl;
         if (checkAck()) {
             error_flags |= SERIAL_PEER_ERROR_ACK_TIMEOUT;
             break;
         }
         emit statusUpdated(Ready, QString::fromStdString("Got ACK"));
+
         break;
     case TYPE_ERROR:
         // Not implemented
