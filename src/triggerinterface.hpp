@@ -36,6 +36,7 @@ class TriggerInterface : public QObject {
     int getCmdDelay() const { return m_cmdDelay; }
     virtual void enable() = 0;
     virtual void disable() = 0;
+    virtual void pause(bool state) = 0;
     virtual void changeSimpleSetting(const QString &setting,
                                      const QString &value) = 0;
 

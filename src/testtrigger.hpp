@@ -24,6 +24,7 @@ class TestTrigger : public TriggerInterface {
     ~TestTrigger();
     void enable() {}
     void disable() {}
+    void pause(bool state) {}
     void changeSimpleSetting(const QString &setting, const QString &value) {}
 
   private:

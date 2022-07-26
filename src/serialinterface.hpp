@@ -19,7 +19,7 @@ class SerialInterface : public QObject {
     Q_OBJECT
   public:
     static QList<QString> getAvailableDevices();
-    SerialInterface(const QString &deviceName);
+    SerialInterface(const QString &deviceName, QObject *parent = nullptr);
     ~SerialInterface();
     int write(int val);
     int writeBuffer(const char *buffer, unsigned int len);

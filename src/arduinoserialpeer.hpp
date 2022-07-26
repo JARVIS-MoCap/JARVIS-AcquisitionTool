@@ -22,6 +22,7 @@ struct setup_struct_t {
     uint32_t delay_us;    // delay until first pulse
     uint32_t pulse_limit; // 0 -> unlimited pulses
     uint8_t pulse_hz;     // Frequency in herz 1-255; 0 -> OFF
+    uint8_t flags;        // booleans see setup_flags
 };
 typedef struct setup_struct_t SetupStruct;
 #define LENGTH_SETUP_STRUCT sizeof(SetupStruct)

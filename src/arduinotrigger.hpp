@@ -30,7 +30,8 @@ class ArduinoTriggerWorker : public QObject {
     SerialPeer *serialPeer;
 
   public slots:
-    void sendSetupSlot(int m_cmdDelay, int m_frameRate, int m_frameLimit);
+    void sendSetupSlot(int cmdDelay, int frameRate, int frameLimit,
+                       bool resetCounter = true);
 
   private slots:
     void recvSlot();
@@ -47,6 +48,7 @@ class ArduinoTrigger : public TriggerInterface {
 
     void enable();
     void disable();
+    void pause(bool state);
     void changeSimpleSetting(const QString &setting, const QString &value);
 
   private:
@@ -55,13 +57,13 @@ class ArduinoTrigger : public TriggerInterface {
     void createSettings();
 
   private slots:
-    void intitialStatusSlot();
     void settingChangedSlot(const QString &name, QList<QString> subMenus,
                             SettingsNode::nodeType type, const QString &val,
                             bool update);
 
   signals:
-    void sendSetupSignal(int m_cmdDelay, int m_frameRate, int m_frameLimit);
+    void sendSetupSignal(int cmdDelay, int frameRate, int frameLimit,
+                         bool resetCounter = true);
 };
 
 #endif

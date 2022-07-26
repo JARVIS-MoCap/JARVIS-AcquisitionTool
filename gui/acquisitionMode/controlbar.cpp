@@ -239,12 +239,12 @@ void ControlBar::pauseClickedSlot(bool toggled) {
     if (toggled) {
         recordingTimer->stop();
         if (TriggerInterface::triggerInstance != nullptr) {
-            TriggerInterface::triggerInstance->disable();
+            TriggerInterface::triggerInstance->pause(true);
         }
     } else {
         recordingTimer->start(100);
         if (TriggerInterface::triggerInstance != nullptr) {
-            TriggerInterface::triggerInstance->enable();
+            TriggerInterface::triggerInstance->pause(false);
         }
     }
 }

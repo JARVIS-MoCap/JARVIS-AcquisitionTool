@@ -16,6 +16,10 @@ enum message_type {
     TYPE_ERROR,
 };
 
+enum setup_flags {
+    RESET_COUNTER = 1 << 0,
+};
+
 // +-------+-------+-------+-------+
 // |  type | length| crc   |   X   |
 // +-------+-------+-------+-------+
@@ -73,6 +77,7 @@ struct setup_message_t {
     uint8_t pulse_hz;     // Frequency in herz 1-255; 0 -> OFF
     uint32_t pulse_limit; // 0 -> unlimited pulses
     uint32_t delay_us;    // delay until first pulse
+    uint8_t flags;        // booleans see setup_flags
 };
 typedef struct setup_message_t setup_message;
 #define LENGTH_SETUP_MESSAGE sizeof(setup_message)

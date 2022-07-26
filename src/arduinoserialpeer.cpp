@@ -127,12 +127,12 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg_buffer, size_t size) {
         handleInput(reinterpret_cast<input_state_message *>(msg_buffer));
         break;
     case TYPE_ACK:
-        std::cout << "Got ack" << std::endl;
+        // std::cout << "Got ack" << std::endl;
         if (checkAck()) {
             error_flags |= SERIAL_PEER_ERROR_ACK_TIMEOUT;
             break;
         }
-        emit statusUpdated(Ready, QString::fromStdString("Got ACK"));
+        // emit statusUpdated(Ready, QString::fromStdString("Got ACK"));
 
         break;
     case TYPE_ERROR:
@@ -238,6 +238,7 @@ void SerialPeer::sendSetup(SetupStruct *setup) {
     msg.pulse_hz = setup->pulse_hz;
     msg.delay_us = htonl(setup->delay_us);
     msg.pulse_limit = htonl(setup->pulse_limit);
+    msg.flags = setup->flags;
 
     msg.header.type = TYPE_SETUP;
     msg.header.length = LENGTH_SETUP_MESSAGE - LENGTH_MSG_HEADER;
@@ -256,8 +257,6 @@ void SerialPeer::sendMessage(message *buffer, size_t size) {
 
     m_serialInterface->writeBuffer((const char *)(cobs_buffer),
                                    cobs_buffer_len);
-
-    std::cout << "Serial send" << std::endl;
 }
 
 void SerialPeer::sendAck() {

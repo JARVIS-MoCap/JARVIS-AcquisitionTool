@@ -18,13 +18,13 @@ QList<QString> SerialInterface::getAvailableDevices() {
     return deviceNames;
 }
 
-SerialInterface::SerialInterface(const QString &deviceName) {
+SerialInterface::SerialInterface(const QString &deviceName, QObject *parent) {
     QList<QSerialPortInfo> serialPortInfos = QSerialPortInfo::availablePorts();
     for (int i = 0; i < serialPortInfos.count(); i++) {
         if (serialPortInfos[i].description() == deviceName) {
             serialPortName = serialPortInfos[i].portName();
             std::cout << serialPortName.toStdString() << std::endl;
-            serialPort = new QSerialPort();
+            serialPort = new QSerialPort(parent);
             serialPort->setPortName(serialPortName);
             if (serialPort->open(QIODevice::ReadWrite)) {
                 serial_conn = true;
