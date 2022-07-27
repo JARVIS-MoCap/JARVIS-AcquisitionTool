@@ -236,6 +236,9 @@ void ControlBar::startClickedSlot(bool toggled) {
 }
 
 void ControlBar::pauseClickedSlot(bool toggled) {
+    if (!pauseAction->isEnabled()) {
+        return;
+    }
     if (toggled) {
         recordingTimer->stop();
         if (TriggerInterface::triggerInstance != nullptr) {
@@ -254,13 +257,13 @@ void ControlBar::stopClickedSlot() {
         TriggerInterface::triggerInstance->disable();
     }
     emit stopAcquisition();
-    recordAction->setChecked(false);
-    startAction->setChecked(false);
-    pauseAction->setChecked(false);
     recordAction->setEnabled(true);
     startAction->setEnabled(true);
     pauseAction->setEnabled(false);
     stopAction->setEnabled(false);
+    recordAction->setChecked(false);
+    startAction->setChecked(false);
+    pauseAction->setChecked(false);
     recordingTimer->stop();
     recordingTime->setHMS(0, 0, 0);
     recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
