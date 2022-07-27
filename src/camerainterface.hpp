@@ -35,7 +35,7 @@ class AcquisitionWorker : public QObject {
         else if (m_acquisitionSpecs.recorderType == CudaRecorderType) {
             m_recordingInterface =
                 new CudaRecorder(cameraName, acquisitionSpecs);
-            std::cout << "Cuda support" << std::endl;
+            qDebug() << "Cuda support";
         }
 #endif
     }
@@ -53,9 +53,7 @@ class AcquisitionWorker : public QObject {
     void streamImage(const QImage &img);
     void latencyAndFrameNumberUpdate(int latency, unsigned long frameNumber);
     void statusUpdated(statusType status, const QString &statusMessage);
-    void provideMetadata(QString frame_camera_uid, QString frame_camera_name,
-                         int frame_id, uint64_t frame_timestamp,
-                         int frame_image_uid);
+    void provideMetadata(QVariantList args);
 };
 
 class CameraInterface : public QObject {

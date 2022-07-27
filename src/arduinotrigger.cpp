@@ -32,6 +32,9 @@ ArduinoTriggerWorker::ArduinoTriggerWorker(const QString &deviceName)
     connect(serialPeer, &SerialPeer::statusUpdated, this,
             &ArduinoTriggerWorker::statusUpdated);
 
+    connect(serialPeer, &SerialPeer::provideTriggerdata, this,
+            &ArduinoTriggerWorker::provideTriggerdata);
+
     QTimer *initSetupTimer = new QTimer(this);
     initSetupTimer->setSingleShot(true);
     connect(initSetupTimer, &QTimer::timeout, [=]() {
@@ -98,6 +101,9 @@ ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
     connect(workerClass, &ArduinoTriggerWorker::statusUpdated, this,
             &ArduinoTrigger::statusUpdated);
 
+    connect(workerClass, &ArduinoTriggerWorker::provideTriggerdata, this,
+            &ArduinoTrigger::provideTriggerdata);
+
     connect(this, &ArduinoTrigger::sendSetupSignal, workerClass,
             &ArduinoTriggerWorker::sendSetupSlot);
 }
@@ -120,7 +126,7 @@ void ArduinoTrigger::disable() { emit sendSetupSignal(0, 0, 0, false); }
 
 ArduinoTrigger::~ArduinoTrigger() {
 
-    std::cout << "Trying to stop TriggerCOM" << std::endl;
+    qDebug() << "Trying to stop TriggerCOM";
     workerThread.requestInterruption();
     workerThread.quit();
     workerThread.wait();
@@ -187,8 +193,7 @@ void ArduinoTrigger::settingChangedSlot(const QString &name,
 
 void ArduinoTrigger::changeSimpleSetting(const QString &setting,
                                          const QString &value) {
-    std::cout << setting.toStdString() << ", " << value.toStdString()
-              << std::endl;
+    qDebug() << setting << ", " << value;
     if (setting == "FrameRate") {
         m_frameRate = value.toInt();
         static_cast<IntNode *>(m_triggerSettings->findNode("FrameRate"))

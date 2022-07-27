@@ -19,7 +19,7 @@
 #include <QLineEdit>
 #include <QToolBar>
 
-#include "metadatawriter.hpp"
+#include "csvdatawriter.hpp"
 
 class ControlBar : public QToolBar {
     Q_OBJECT
@@ -74,7 +74,10 @@ class ControlBar : public QToolBar {
     QAction *fourBigAction;
     QAction *fourBigVisAction;
 
-    MetaDataWriter *metawriter;
+    QList<QMetaObject::Connection> metawriterConnects;
+    CSVDataWriter *metawriter;
+    QMetaObject::Connection triggerwriterConnect;
+    CSVDataWriter *triggerwriter;
 
   private slots:
     void recordClickedSlot(bool toggled);

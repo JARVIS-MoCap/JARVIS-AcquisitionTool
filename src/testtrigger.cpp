@@ -19,7 +19,7 @@
 
 TestTrigger::TestTrigger(const QString &, const QString &)
     : TriggerInterface{testTrigger} {
-    std::cout << "Creating Trigger" << std::endl;
+    qDebug() << "Creating Trigger";
     createSettings();
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(testStatusReadySlot()));
@@ -33,7 +33,7 @@ TestTrigger::TestTrigger(const QString &, const QString &)
 
 TestTrigger::~TestTrigger() {
     delete (m_triggerSettings);
-    std::cout << "Deleting Trigger" << std::endl;
+    qDebug() << "Deleting Trigger";
 }
 
 void TestTrigger::createSettings() {

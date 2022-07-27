@@ -124,9 +124,6 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
     oneBigVisAction->setVisible(false);
     twoBigVisAction->setVisible(false);
     fourBigVisAction->setVisible(false);
-
-    // create instance of Metadata writer
-    metawriter = new MetaDataWriter();
 }
 
 void ControlBar::recordClickedSlot(bool toggled) {
@@ -174,17 +171,22 @@ void ControlBar::recordClickedSlot(bool toggled) {
 
         // create Metadata file
         if (globalSettings.metadataEnabled) {
-            metawriter->newFile(recordingDir.path() + "/metadata.csv");
+            // create instance of Metadata writer
+            metawriter = new CSVDataWriter(
+                recordingDir.path() + "/metadata.csv",
+                {"frame_camera_uid", "frame_camera_name", "frame_id",
+                 "frame_timestamp", "frame_image_uid"});
 
             // connect cameras
             for (const auto &cam : CameraInterface::cameraList) {
                 // m_acquisitionWorker is instantiated with "emit
                 // startAcquisition".
                 qRegisterMetaType<uint64_t>("uint64_t");
-                connect(cam->m_acquisitionWorker,
-                        &AcquisitionWorker::provideMetadata, metawriter,
-                        &MetaDataWriter::writeMetadataSlot);
-                std::cout << "cam connected" << std::endl;
+                this->metawriterConnects.append(connect(
+                    cam->m_acquisitionWorker,
+                    &AcquisitionWorker::provideMetadata, metawriter,
+                    SELECT<QVariantList>::OVERLOAD_OF(&CSVDataWriter::write)));
+                qDebug() << "cam connected";
             }
         }
 
@@ -198,6 +200,15 @@ void ControlBar::recordClickedSlot(bool toggled) {
         }
         emit acquisitionStarted();
         if (TriggerInterface::triggerInstance != nullptr) {
+            triggerwriter = new CSVDataWriter(
+                recordingDir.path() + "/triggerdata.csv",
+                {"flag_0", "flag_1", "flag_2", "flag_3", "flag_4", "flag_5",
+                 "flag_6", "flag_7", "pulse_id", "uptime_us"});
+            this->triggerwriterConnect = connect(
+                TriggerInterface::triggerInstance,
+                &TriggerInterface::provideTriggerdata, triggerwriter,
+                SELECT<QVariantList>::OVERLOAD_OF(&CSVDataWriter::write));
+
             TriggerInterface::triggerInstance->enable();
         }
     }
@@ -219,9 +230,9 @@ void ControlBar::startClickedSlot(bool toggled) {
         }
         acquisitionSpecs.streamingSamplingRatio =
             globalSettings.streamingSubsamplingRatio;
-        std::cout << globalSettings.streamingSubsamplingRatio << std::endl;
-        std::cout << "acquisitionSpecs"
-                  << acquisitionSpecs.streamingSamplingRatio << std::endl;
+        qDebug() << globalSettings.streamingSubsamplingRatio;
+        qDebug() << "acquisitionSpecs"
+                 << acquisitionSpecs.streamingSamplingRatio;
         emit startAcquisition(acquisitionSpecs);
         startAction->setEnabled(false);
         recordAction->setEnabled(false);
@@ -269,7 +280,15 @@ void ControlBar::stopClickedSlot() {
     recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
 }
 
-void ControlBar::AquisitionStoppedSlot() { metawriter->closeFile(); }
+void ControlBar::AquisitionStoppedSlot() {
+    foreach (QMetaObject::Connection connection, this->metawriterConnects) {
+        disconnect(connection);
+    }
+    this->metawriterConnects.clear();
+    metawriter->close();
+    disconnect(this->triggerwriterConnect);
+    triggerwriter->close();
+}
 
 void ControlBar::recordingTimerSlot() {
     *recordingTime = recordingTime->addMSecs(100);

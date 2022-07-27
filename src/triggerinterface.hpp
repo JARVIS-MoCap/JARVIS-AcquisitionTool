@@ -42,6 +42,7 @@ class TriggerInterface : public QObject {
 
   signals:
     void statusUpdated(statusType status, const QString &statusMessage);
+    void provideTriggerdata(QVariantList args);
 
   protected:
     QSettings *settings = new QSettings();

@@ -67,6 +67,7 @@ class SerialPeer : public QObject {
 
   signals:
     void statusUpdated(statusType status, const QString &statusMessage);
+    void provideTriggerdata(QVariantList args);
 
   private:
     uint8_t calculateCrc(uint8_t *payload, size_t len);

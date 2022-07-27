@@ -23,7 +23,7 @@ SerialInterface::SerialInterface(const QString &deviceName, QObject *parent) {
     for (int i = 0; i < serialPortInfos.count(); i++) {
         if (serialPortInfos[i].description() == deviceName) {
             serialPortName = serialPortInfos[i].portName();
-            std::cout << serialPortName.toStdString() << std::endl;
+            qDebug() << serialPortName;
             serialPort = new QSerialPort(parent);
             serialPort->setPortName(serialPortName);
             if (serialPort->open(QIODevice::ReadWrite)) {
@@ -127,7 +127,7 @@ int SerialInterface::get_answer(int answer[]) {
     }
     int nread = serialPort->read((char *)temp, 5);
     if (nread != 5) {
-        std::cout << "Error Reading Answer" << std::endl;
+        qDebug() << "Error Reading Answer";
         return 0;
     }
     answer[0] = ((int8_t)temp[1] << 8) + temp[2];
@@ -143,7 +143,7 @@ int SerialInterface::get_answer() {
     }
     int nread = serialPort->read((char *)temp, 5);
     if (nread != 5) {
-        std::cout << "Error Reading Answer" << std::endl;
+        qDebug() << "Error Reading Answer";
         return 0;
     }
     return (int)(temp[0]);

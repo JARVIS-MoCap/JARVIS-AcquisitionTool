@@ -23,8 +23,7 @@ if(USE_CUDA)
     flirconfigbackend.cpp
     arduinoconfigbackend.hpp
     arduinoconfigbackend.cpp
-    metadatawriter.cpp
-    metadatawriter.hpp
+    csvdatawriter.hpp
     arduinoserialmessages.hpp
     arduinoserialpeer.cpp
     arduinoserialpeer.hpp
@@ -53,8 +52,7 @@ else()
     flirconfigbackend.cpp
     arduinoconfigbackend.hpp
     arduinoconfigbackend.cpp
-    metadatawriter.cpp
-    metadatawriter.hpp
+    csvdatawriter.hpp
     arduinoserialmessages.hpp
     arduinoserialpeer.cpp
     arduinoserialpeer.hpp

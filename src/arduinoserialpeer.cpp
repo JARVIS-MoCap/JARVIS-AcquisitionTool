@@ -1,5 +1,5 @@
 /*******************************************************************************
- * File:        main.cpp
+ * File:        arduinoserialpeer.cpp
  * Created:     18. July 2022
  * Author:      Louis Frank
  * Contact:     singulosta@gmail.com
@@ -18,6 +18,8 @@
 #include <iostream>
 
 #define ACK_TIMEOUT_MS 200
+
+#define BOOLFLAG(num, bit) (num & 1 << bit) != 0
 
 SerialPeer::SerialPeer(SerialInterface *serialInterface)
     : QObject(), m_serialInterface{serialInterface} {
@@ -90,7 +92,7 @@ uint8_t SerialPeer::handleCobsMessage(uint8_t *cobs_buffer, size_t size) {
         cobsToMsg(reinterpret_cast<message *>(&msg_buffer), cobs_buffer, size);
 
     if (msg_buffer_size != size - 2) {
-        std::cout << "cobsToMsg Error" << std::endl;
+        qDebug() << "cobsToMsg Error";
     }
     return handleMessage(msg_buffer, msg_buffer_size);
 }
@@ -127,7 +129,7 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg_buffer, size_t size) {
         handleInput(reinterpret_cast<input_state_message *>(msg_buffer));
         break;
     case TYPE_ACK:
-        // std::cout << "Got ack" << std::endl;
+        // qDebug() << "Got ack";
         if (checkAck()) {
             error_flags |= SERIAL_PEER_ERROR_ACK_TIMEOUT;
             break;
@@ -190,7 +192,7 @@ uint8_t SerialPeer::handleMessage(uint8_t *msg_buffer, size_t size) {
                                   " # ERROR MCU ERROR");
         }
 
-        std::cout << "Error: " << ((char *)error_str) << std::endl;
+        qCritical() << ((char *)error_str);
         emit statusUpdated(Error, QString::fromStdString(((char *)error_str)));
     }
 
@@ -225,10 +227,18 @@ bool SerialPeer::checkAck() {
 }
 
 void SerialPeer::handleInput(input_state_message *msg) {
+    quint8 inputs_state = msg->inputs_state;
+    quint32 uptime_us = msg->uptime_us;
+    quint32 pulse_id = msg->pulse_id;
 
-    std::bitset<8> inputs_state_bits(msg->inputs_state);
-    std::cout << "Got inputs: " << inputs_state_bits << " - " << msg->pulse_id
-              << " - " << msg->uptime_us << std::endl;
+    qDebug() << "Got inputs: " << QString::number(inputs_state, 2) << " - "
+             << pulse_id << " - " << uptime_us;
+    emit provideTriggerdata(
+        {BOOLFLAG(inputs_state, 0), BOOLFLAG(inputs_state, 1),
+         BOOLFLAG(inputs_state, 2), BOOLFLAG(inputs_state, 3),
+         BOOLFLAG(inputs_state, 4), BOOLFLAG(inputs_state, 5),
+         BOOLFLAG(inputs_state, 6), BOOLFLAG(inputs_state, 7), pulse_id,
+         uptime_us});
     sendAck();
 }
 

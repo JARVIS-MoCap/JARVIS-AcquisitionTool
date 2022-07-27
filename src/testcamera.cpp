@@ -59,7 +59,7 @@ TestCamera::~TestCamera() { delete (m_cameraSettings); }
 void TestCamera::settingChangedSlot(const QString &name, QList<QString>,
                                     SettingsNode::nodeType, const QString &val,
                                     bool) {
-    std::cout << name.toStdString() << " " << val.toStdString() << std::endl;
+    qDebug() << name << " " << val;
 }
 
 void TestCamera::startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs) {

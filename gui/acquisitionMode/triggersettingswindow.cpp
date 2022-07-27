@@ -113,9 +113,6 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent,
                              std::numeric_limits<uint32_t>::max());
     frameLimitEdit->setDecimals(0);
 
-    std::cout << std::numeric_limits<uint32_t>::min() << std::endl;
-    std::cout << std::numeric_limits<uint32_t>::max() << std::endl;
-
     LabelWithToolTip *cmdDelayLabel =
         new LabelWithToolTip("CmdDelay (\u00B5s)");
     cmdDelayEdit = new QDoubleSpinBox(this);
@@ -341,17 +338,17 @@ void TriggerSettingsWindow::loadPresetSlot(const QString &preset) {
 }
 
 void TriggerSettingsWindow::frameRateEditChangedSlot(int val) {
-    std::cout << "FrameRate Edit: " << val << std::endl;
+    qDebug() << "FrameRate Edit: " << val;
     TriggerInterface::triggerInstance->changeSimpleSetting(
         "FrameRate", QString::number(val));
 }
 void TriggerSettingsWindow::frameLimitEditChangedSlot(double val) {
-    std::cout << "FrameLimit Edit: " << val << std::endl;
+    qDebug() << "FrameLimit Edit: " << val;
     TriggerInterface::triggerInstance->changeSimpleSetting(
         "FrameLimit", QString::number(val, 'd'));
 }
 void TriggerSettingsWindow::cmdDelayEditChangedSlot(double val) {
-    std::cout << "CmdDelay Edit: " << val << std::endl;
+    qDebug() << "CmdDelay Edit: " << val;
     TriggerInterface::triggerInstance->changeSimpleSetting(
         "CmdDelay", QString::number(val, 'd'));
 }

@@ -38,6 +38,7 @@ class ArduinoTriggerWorker : public QObject {
 
   signals:
     void statusUpdated(statusType status, const QString &statusMessage);
+    void provideTriggerdata(QVariantList args);
 };
 
 class ArduinoTrigger : public TriggerInterface {
