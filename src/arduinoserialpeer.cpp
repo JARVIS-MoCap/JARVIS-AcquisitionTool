@@ -231,8 +231,9 @@ void SerialPeer::handleInput(input_state_message *msg) {
     quint32 uptime_us = msg->uptime_us;
     quint32 pulse_id = msg->pulse_id;
 
-    qDebug() << "Got inputs: " << QString::number(inputs_state, 2) << " - "
-             << pulse_id << " - " << uptime_us;
+    qDebug() << "Got inputs: inputs_state:"
+             << QStringLiteral("%1").arg(inputs_state, 8, 2, QLatin1Char('0'))
+             << " - pulse_id: " << pulse_id << " - uptime_us: " << uptime_us;
     emit provideTriggerdata(
         {BOOLFLAG(inputs_state, 0), BOOLFLAG(inputs_state, 1),
          BOOLFLAG(inputs_state, 2), BOOLFLAG(inputs_state, 3),

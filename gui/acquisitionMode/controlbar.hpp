@@ -75,9 +75,9 @@ class ControlBar : public QToolBar {
     QAction *fourBigVisAction;
 
     QList<QMetaObject::Connection> metawriterConnects;
-    CSVDataWriter *metawriter;
+    CSVDataWriter *metawriter = nullptr;
     QMetaObject::Connection triggerwriterConnect;
-    CSVDataWriter *triggerwriter;
+    CSVDataWriter *triggerwriter = nullptr;
 
   private slots:
     void recordClickedSlot(bool toggled);

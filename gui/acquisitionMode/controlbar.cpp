@@ -172,6 +172,10 @@ void ControlBar::recordClickedSlot(bool toggled) {
         // create Metadata file
         if (globalSettings.metadataEnabled) {
             // create instance of Metadata writer
+            if (metawriter != nullptr) {
+                qFatal("metawriter was not deleted before a new one would be "
+                       "created!");
+            }
             metawriter = new CSVDataWriter(
                 recordingDir.path() + "/metadata.csv",
                 {"frame_camera_uid", "frame_camera_name", "frame_id",
@@ -200,6 +204,10 @@ void ControlBar::recordClickedSlot(bool toggled) {
         }
         emit acquisitionStarted();
         if (TriggerInterface::triggerInstance != nullptr) {
+            if (triggerwriter != nullptr) {
+                qFatal("triggerwriter was not deleted before a new one would "
+                       "be created!");
+            }
             triggerwriter = new CSVDataWriter(
                 recordingDir.path() + "/triggerdata.csv",
                 {"flag_0", "flag_1", "flag_2", "flag_3", "flag_4", "flag_5",
@@ -285,9 +293,15 @@ void ControlBar::AquisitionStoppedSlot() {
         disconnect(connection);
     }
     this->metawriterConnects.clear();
-    metawriter->close();
+    if (metawriter != nullptr) {
+        metawriter->close();
+        metawriter = nullptr;
+    }
     disconnect(this->triggerwriterConnect);
-    triggerwriter->close();
+    if (triggerwriter != nullptr) {
+        triggerwriter->close();
+        triggerwriter = nullptr;
+    }
 }
 
 void ControlBar::recordingTimerSlot() {
