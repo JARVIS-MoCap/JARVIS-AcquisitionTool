@@ -29,7 +29,7 @@ target_include_directories(gui
 )
 
 target_link_libraries(gui
-  Qt5::Widgets
+  Qt::Widgets
   acquisitionMode
   connectionMode
 )

@@ -46,58 +46,33 @@ endif()
 add_definitions("-DVERSION_STRING=\"${VERSION_STRING}\"")
 message(STATUS "VERSION_STRING " ${VERSION_STRING})
 
-if(APPLE)
-  set(OS_LIB_DIR "MacOS")
-elseif(WIN32)
-  set(OS_LIB_DIR "Windows")
-elseif(UNIX)
-  if(${UBUNTU_VERSION} STREQUAL "2004")
-    set(OS_LIB_DIR "Ubuntu_2004")
-  else()
-    set(OS_LIB_DIR "Ubuntu_1804")
-  endif()
-endif()
 
-if (NOT UNIX)
-  set(Qt5_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5")
-  set(Qt5Core_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5Core")
-  set(Qt5Widgets_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5Widgets")
-  set(Qt5Charts_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5Charts")
-  set(Qt5SerialPort_DIR "libs/Qt_5.15.2/${OS_LIB_DIR}/lib/cmake/Qt5SerialPort")
-endif()
-
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Charts REQUIRED)
-find_package(Qt5SerialPort REQUIRED)
-
-message (STATUS "QT DIRECTORY ${Qt5Core_DIR}")
+set (CMAKE_PREFIX_PATH "libs/Qt/qt_install/lib/cmake/")
+find_package(Qt6 PATHS "libs/Qt/qt_install/lib/cmake/" REQUIRED COMPONENTS Core Widgets Charts SerialPort)
+qt_standard_project_setup()
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-if(NOT WIN32)
-	set(OpenCV_DIR "libs/OpenCV_4.5.1/${OS_LIB_DIR}/lib/cmake/opencv4")
+if (NOT (WIN32 OR APPLE))
   find_package(Eigen3 REQUIRED)
+endif()
+
+if(NOT WIN32)
+	set(OpenCV_DIR "libs/OpenCV/opencv_install/lib/cmake/opencv4")
+	set(OpenCV_STATIC ON)
 else()
-	set(OpenCV_DIR "libs/OpenCV_4.5.1/${OS_LIB_DIR}")
+	set(OpenCV_DIR "libs/OpenCV/opencv_install")
 endif()
 
 find_package(OpenCV REQUIRED)
 
 message(STATUS "OPENCV_DIR ${OpenCV_DIR}")
 
-# detect operating system and host processor
-message(STATUS "CMAKE_SYSTEM_INFO_FILE: ${CMAKE_SYSTEM_INFO_FILE}")
-message(STATUS "CMAKE_SYSTEM_NAME:      ${CMAKE_SYSTEM_NAME}")
-message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
-message(STATUS "CMAKE_SYSTEM:           ${CMAKE_SYSTEM}")
-
 
 add_subdirectory(gui)
 add_subdirectory(src)
-
 
 set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/nvjpeg;/usr/local/lib/JARVIS-AcquisitionTool/spinnaker)
 add_executable(${PROJECT_NAME}
@@ -133,8 +108,8 @@ target_include_directories( ${PROJECT_NAME}
 
 
 target_link_libraries(${PROJECT_NAME}
-  Qt5::Widgets
-  Qt5::Charts
+  Qt::Widgets
+  Qt::Charts
   gui
   src
   darkstyle
