@@ -419,7 +419,10 @@ void FLIRChameleon::stopAcquisitionSlot() {
     qDebug() << "Trying to stop Acquisition";
     workerThread.requestInterruption();
     workerThread.quit();
-    workerThread.wait();
+    while (!workerThread.wait(5000)) {
+        qDebug() << "still waiting for workerThread";
+        // TODO: Wait is not blocking for 5s
+    }
     qDebug() << "stopped Worker";
     try {
         m_pCam->EndAcquisition();
