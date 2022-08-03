@@ -180,6 +180,10 @@ void ControlBar::recordClickedSlot(bool toggled) {
                 recordingDir.path() + "/metadata.csv",
                 {"frame_camera_uid", "frame_camera_name", "frame_id",
                  "frame_timestamp", "frame_image_uid"});
+            metawriter->moveToThread(&(this->metawriter_thread));
+
+            connect(this, &ControlBar::metawriter_close, metawriter,
+                    &CSVDataWriter::close);
 
             // connect cameras
             for (const auto &cam : CameraInterface::cameraList) {
@@ -192,6 +196,8 @@ void ControlBar::recordClickedSlot(bool toggled) {
                     SELECT<QVariantList>::OVERLOAD_OF(&CSVDataWriter::write)));
                 qDebug() << "cam connected";
             }
+
+            this->metawriter_thread.start();
         }
 
         bool trigger = false;
@@ -212,12 +218,19 @@ void ControlBar::recordClickedSlot(bool toggled) {
                 recordingDir.path() + "/triggerdata.csv",
                 {"flag_0", "flag_1", "flag_2", "flag_3", "flag_4", "flag_5",
                  "flag_6", "flag_7", "pulse_id", "uptime_us"});
+            triggerwriter->moveToThread(&(this->triggerwriter_thread));
+
+            connect(this, &ControlBar::triggerwriter_close, triggerwriter,
+                    &CSVDataWriter::close);
+
             this->triggerwriterConnect = connect(
                 TriggerInterface::triggerInstance,
                 &TriggerInterface::provideTriggerdata, triggerwriter,
                 SELECT<QVariantList>::OVERLOAD_OF(&CSVDataWriter::write));
 
             TriggerInterface::triggerInstance->enable();
+
+            this->triggerwriter_thread.start();
         }
     }
 }
@@ -294,12 +307,21 @@ void ControlBar::AquisitionStoppedSlot() {
     }
     this->metawriterConnects.clear();
     if (metawriter != nullptr) {
-        metawriter->close();
+        // metawriter->close();
+        emit metawriter_close();
+        metawriter_thread.requestInterruption();
+        metawriter_thread.quit();
+        metawriter_thread.wait();
         metawriter = nullptr;
     }
     disconnect(this->triggerwriterConnect);
     if (triggerwriter != nullptr) {
-        triggerwriter->close();
+        // triggerwriter->close();
+        emit triggerwriter_close();
+        triggerwriter_thread.requestInterruption();
+        triggerwriter_thread.quit();
+        triggerwriter_thread.wait();
+
         triggerwriter = nullptr;
     }
 }

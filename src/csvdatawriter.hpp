@@ -32,13 +32,13 @@ class CSVDataWriter : public QObject {
         delete file_stream;
     }
 
+  public slots:
     void close() {
         this->open = false;
         this->file_stream->flush();
         this->file->close();
     }
 
-  public slots:
     void write(QStringList args) {
         if (!this->open) {
             qCritical() << "CSVWriter not open: " << this->file_path;

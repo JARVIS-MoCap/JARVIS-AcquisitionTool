@@ -33,6 +33,8 @@ class ControlBar : public QToolBar {
     void AquisitionStoppedSlot();
 
   signals:
+    void metawriter_close();
+    void triggerwriter_close();
     void startAcquisition(AcquisitionSpecs);
     void stopAcquisition();
     void updateStreamingPanels(StreamingWidget::layoutType);
@@ -76,8 +78,10 @@ class ControlBar : public QToolBar {
 
     QList<QMetaObject::Connection> metawriterConnects;
     CSVDataWriter *metawriter = nullptr;
+    QThread metawriter_thread;
     QMetaObject::Connection triggerwriterConnect;
     CSVDataWriter *triggerwriter = nullptr;
+    QThread triggerwriter_thread;
 
   private slots:
     void recordClickedSlot(bool toggled);
