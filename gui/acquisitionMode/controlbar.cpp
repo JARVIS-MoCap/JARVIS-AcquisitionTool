@@ -178,7 +178,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
             }
             metawriter = new CSVDataWriter(
                 recordingDir.path() + "/metadata.csv",
-                {"frame_camera_uid", "frame_camera_name", "frame_id",
+                {"frame_camera_serial", "frame_camera_name", "frame_id",
                  "frame_timestamp", "frame_image_uid"});
             metawriter->moveToThread(&(this->metawriter_thread));
 

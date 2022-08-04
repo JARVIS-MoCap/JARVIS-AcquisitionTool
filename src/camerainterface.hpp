@@ -25,8 +25,10 @@ class AcquisitionWorker : public QObject {
     Q_OBJECT
   public:
     explicit AcquisitionWorker(const QString &cameraName,
+                               const QString &serialNumber,
                                const AcquisitionSpecs &acquisitionSpecs)
-        : m_cameraName{cameraName}, m_acquisitionSpecs{acquisitionSpecs} {
+        : m_cameraName{cameraName}, m_serialNumber{serialNumber},
+          m_acquisitionSpecs{acquisitionSpecs} {
         if (m_acquisitionSpecs.recorderType == BaseRecorderType) {
             m_recordingInterface =
                 new BaseRecoder(cameraName, acquisitionSpecs);
@@ -45,6 +47,7 @@ class AcquisitionWorker : public QObject {
 
   protected:
     const QString m_cameraName;
+    const QString m_serialNumber;
     const AcquisitionSpecs m_acquisitionSpecs;
     RecordingInterface *m_recordingInterface;
 
