@@ -92,12 +92,5 @@ void createToolBarButton(QToolButton *button, QAction *action, QIcon icon,
                          bool enabled = true, bool checkable = false,
                          QSize minSize = QSize(20, 20));
 
-// QT connect overload selector
-template <typename... Args> struct SELECT {
-    template <typename C, typename R>
-    static constexpr auto OVERLOAD_OF(R (C::*pmf)(Args...)) -> decltype(pmf) {
-        return pmf;
-    }
-};
 
 #endif

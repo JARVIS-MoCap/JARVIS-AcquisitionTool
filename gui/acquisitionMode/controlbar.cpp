@@ -172,32 +172,29 @@ void ControlBar::recordClickedSlot(bool toggled) {
         // create Metadata file
         if (globalSettings.metadataEnabled) {
             // create instance of Metadata writer
-            if (metawriter != nullptr) {
+            if (metaWriter != nullptr) {
                 qFatal("metawriter was not deleted before a new one would be "
                        "created!");
             }
-            metawriter = new CSVDataWriter(
+            metaWriter = new CSVDataWriter(
                 recordingDir.path() + "/metadata.csv",
                 {"frame_camera_serial", "frame_camera_name", "frame_id",
                  "frame_timestamp", "frame_image_uid"});
-            metawriter->moveToThread(&(this->metawriter_thread));
-
-            connect(this, &ControlBar::metawriter_close, metawriter,
-                    &CSVDataWriter::close);
+            metaWriter->moveToThread(&(this->metawriterThread));
 
             // connect cameras
             for (const auto &cam : CameraInterface::cameraList) {
                 // m_acquisitionWorker is instantiated with "emit
                 // startAcquisition".
                 qRegisterMetaType<uint64_t>("uint64_t");
-                this->metawriterConnects.append(connect(
+                metawriterConnects.append(connect(
                     cam->m_acquisitionWorker,
-                    &AcquisitionWorker::provideMetadata, metawriter,
-                    SELECT<QVariantList>::OVERLOAD_OF(&CSVDataWriter::write)));
+                    &AcquisitionWorker::provideMetadata, metaWriter,
+                    QOverload<QVariantList>::of(&CSVDataWriter::write)));
                 qDebug() << "cam connected";
             }
 
-            this->metawriter_thread.start();
+            metawriterThread.start();
         }
 
         bool trigger = false;
@@ -210,27 +207,24 @@ void ControlBar::recordClickedSlot(bool toggled) {
         }
         emit acquisitionStarted();
         if (TriggerInterface::triggerInstance != nullptr) {
-            if (triggerwriter != nullptr) {
-                qFatal("triggerwriter was not deleted before a new one would "
+            if (triggerWriter != nullptr) {
+                qFatal("triggerWriter was not deleted before a new one would "
                        "be created!");
             }
-            triggerwriter = new CSVDataWriter(
+            triggerWriter = new CSVDataWriter(
                 recordingDir.path() + "/triggerdata.csv",
                 {"flag_0", "flag_1", "flag_2", "flag_3", "flag_4", "flag_5",
                  "flag_6", "flag_7", "pulse_id", "uptime_us"});
-            triggerwriter->moveToThread(&(this->triggerwriter_thread));
-
-            connect(this, &ControlBar::triggerwriter_close, triggerwriter,
-                    &CSVDataWriter::close);
+            triggerWriter->moveToThread(&(this->triggerwriterThread));
 
             this->triggerwriterConnect = connect(
                 TriggerInterface::triggerInstance,
-                &TriggerInterface::provideTriggerdata, triggerwriter,
-                SELECT<QVariantList>::OVERLOAD_OF(&CSVDataWriter::write));
+                &TriggerInterface::provideTriggerdata, triggerWriter,
+                QOverload<QVariantList>::of(&CSVDataWriter::write));
 
             TriggerInterface::triggerInstance->enable();
 
-            this->triggerwriter_thread.start();
+            this->triggerwriterThread.start();
         }
     }
 }
@@ -306,23 +300,21 @@ void ControlBar::AquisitionStoppedSlot() {
         disconnect(connection);
     }
     this->metawriterConnects.clear();
-    if (metawriter != nullptr) {
-        // metawriter->close();
-        emit metawriter_close();
-        metawriter_thread.requestInterruption();
-        metawriter_thread.quit();
-        metawriter_thread.wait();
-        metawriter = nullptr;
+    if (metaWriter != nullptr) {
+        metawriterThread.requestInterruption();
+        metawriterThread.quit();
+        metawriterThread.wait();
+        delete metaWriter;
+        metaWriter = nullptr;
     }
     disconnect(this->triggerwriterConnect);
-    if (triggerwriter != nullptr) {
-        // triggerwriter->close();
-        emit triggerwriter_close();
-        triggerwriter_thread.requestInterruption();
-        triggerwriter_thread.quit();
-        triggerwriter_thread.wait();
+    if (triggerWriter != nullptr) {
+        triggerwriterThread.requestInterruption();
+        triggerwriterThread.quit();
+        triggerwriterThread.wait();
+        delete triggerWriter;
 
-        triggerwriter = nullptr;
+        triggerWriter = nullptr;
     }
 }
 

@@ -19,7 +19,7 @@
 #define RECEIVEWORKER_TERMINATE_TIMEOUT 2000
 #define GET_COBS_PACKET_BUFFER_SIZE 255
 #define CHECK_CONNECTED_DELAY_MSEC 100
-#define INIT_SETUP_DELAY_MSEC 4000
+#define INIT_SETUP_DELAY_MSEC 1500
 
 ArduinoTriggerWorker::ArduinoTriggerWorker(const QString &deviceName)
     : QObject{} {
