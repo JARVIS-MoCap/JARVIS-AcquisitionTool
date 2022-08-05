@@ -4,7 +4,7 @@
 <img src="docs/JARVIS_AcquisitionTool.png" alt="banner" width="70%"/>
 </p>
 
-This is the official Github Repository for the **JARVIS Annotation Tool**. To find out more about our 3D markerless motion capture toolbox have a look at 
+This  is the official Github Repository for the **JARVIS Annotation Tool**. To find out more about our 3D markerless motion capture toolbox have a look at 
 **[our website](https://jarvis-mocap.github.io/jarvis-docs/)**.
 
 All you need to get started is a set of supported cameras (currently only FLIR machine vision cameras are supported) and an Arduino Uno (or similar).
