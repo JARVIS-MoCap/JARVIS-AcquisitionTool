@@ -132,7 +132,7 @@ ArduinoTrigger::~ArduinoTrigger() {
     workerThread.wait();
 
     // TODO: call super class destructor
-
+    delete workerClass;
     delete m_triggerSettings;
 }
 
