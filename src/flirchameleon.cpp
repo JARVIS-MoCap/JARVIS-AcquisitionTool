@@ -26,8 +26,10 @@ using namespace Spinnaker;
 using namespace Spinnaker::GenICam;
 
 FlirWorker::FlirWorker(Spinnaker::CameraPtr pCam, const QString &cameraName,
+                       const QString &serialNumber,
                        const AcquisitionSpecs &acquisitionSpecs)
-    : AcquisitionWorker{cameraName, acquisitionSpecs}, m_pCam{pCam} {}
+    : AcquisitionWorker{cameraName, serialNumber, acquisitionSpecs},
+      m_pCam{pCam} {}
 
 FlirWorker::~FlirWorker() { delete m_recordingInterface; }
 
@@ -55,10 +57,10 @@ void FlirWorker::acquireImages() {
                 quint64 frame_timestamp = pResultImage->GetTimeStamp();
                 quint64 frame_id = pResultImage->GetFrameID();
                 quint64 frame_image_uid = pResultImage->GetID();
-                QString frame_camera_uid = (m_pCam->GetUniqueID()).c_str();
+                QString frame_camera_serial = this->m_serialNumber;
                 QString frame_camera_name = this->m_cameraName;
 
-                emit provideMetadata({frame_camera_uid, frame_camera_name,
+                emit provideMetadata({frame_camera_serial, frame_camera_name,
                                       frame_id, frame_timestamp,
                                       frame_image_uid});
                 // MetaDataWriter
@@ -365,8 +367,8 @@ void FLIRChameleon::startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs) {
             }
             acquisitionSpecs.frameSize = m_frameSize;
             acquisitionSpecs.pixelFormat = m_pixelFormat;
-            m_acquisitionWorker =
-                new FlirWorker(m_pCam, m_cameraName, acquisitionSpecs);
+            m_acquisitionWorker = new FlirWorker(
+                m_pCam, m_cameraName, m_serialNumber, acquisitionSpecs);
             m_acquisitionWorker->moveToThread(&workerThread);
             connect(this, &FLIRChameleon::startAcquisition, m_acquisitionWorker,
                     &AcquisitionWorker::acquireImages);
