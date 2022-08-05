@@ -92,5 +92,4 @@ void createToolBarButton(QToolButton *button, QAction *action, QIcon icon,
                          bool enabled = true, bool checkable = false,
                          QSize minSize = QSize(20, 20));
 
-
 #endif

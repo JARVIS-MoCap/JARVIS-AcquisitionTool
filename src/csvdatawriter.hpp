@@ -26,7 +26,7 @@ class CSVDataWriter : public QObject {
 
     ~CSVDataWriter() {
         if (this->open) {
-         
+
             close();
         }
         delete file;

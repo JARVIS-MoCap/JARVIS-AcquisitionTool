@@ -217,10 +217,10 @@ void ControlBar::recordClickedSlot(bool toggled) {
                  "flag_6", "flag_7", "pulse_id", "uptime_us"});
             triggerWriter->moveToThread(&(this->triggerwriterThread));
 
-            this->triggerwriterConnect = connect(
-                TriggerInterface::triggerInstance,
-                &TriggerInterface::provideTriggerdata, triggerWriter,
-                QOverload<QVariantList>::of(&CSVDataWriter::write));
+            this->triggerwriterConnect =
+                connect(TriggerInterface::triggerInstance,
+                        &TriggerInterface::provideTriggerdata, triggerWriter,
+                        QOverload<QVariantList>::of(&CSVDataWriter::write));
 
             TriggerInterface::triggerInstance->enable();
 
