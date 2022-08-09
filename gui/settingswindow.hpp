@@ -21,6 +21,8 @@
 #include <QSettings>
 #include <QSlider>
 #include <QSpinBox>
+#include <QTabWidget>
+
 
 class SettingsWindow : public QWidget {
     Q_OBJECT
@@ -39,6 +41,12 @@ class SettingsWindow : public QWidget {
     QSettings *settings;
     QPushButton *closeButton;
 
+    QTabWidget *tabWidget;
+
+    QWidget *mainWidget;
+    QWidget *advancedWidget;
+    QWidget *infoWidget;
+
     // recorderSettings
     QComboBox *recorderTypeBox;
     QComboBox *imageOrVideoSelectorBox;
@@ -49,6 +57,7 @@ class SettingsWindow : public QWidget {
     QComboBox *streamingSubsamplingRatioBox;
     ToggleSwitch *streamingEnabledSwitch;
     QComboBox *recordingSubsamplingRatioBox;
+
 
   private slots:
     void recorderTypeChangedSlot(const QString &type);

@@ -23,6 +23,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Settings");
     QGridLayout *layout = new QGridLayout(this);
 
+    mainWidget = new QWidget(tabWidget);
+    QGridLayout *mainlayout = new QGridLayout(mainWidget);
     QGroupBox *recorderSettingsBox = new QGroupBox("Recorder Settings");
     recorderSettingsBox->setStyleSheet(
         "QGroupBox{background-color:rgb(34, 36, 40)}");
@@ -33,14 +35,40 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
         "QGroupBox{background-color:rgb(34, 36, 40)}");
     QGridLayout *streamingsettingslayout =
         new QGridLayout(streamingSettingsBox);
+    mainlayout->addWidget(recorderSettingsBox, 0, 0);
+    mainlayout->addWidget(streamingSettingsBox, 1, 0);
+
+    advancedWidget = new QWidget(tabWidget);
+    QGridLayout *advancedlayout = new QGridLayout(advancedWidget);
+
+    infoWidget = new QWidget(tabWidget);
+    QLabel *versionLabel = new QLabel("Version:");
+    QLabel *versionText = new QLabel(this);
+    versionText->setFont(QFont("Sans Serif", 12, QFont::Bold));
+    versionText->setText(VERSION_STRING);
+    versionText->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    versionText->setCursor(QCursor(Qt::IBeamCursor));
+	QGridLayout *infolayout = new QGridLayout(infoWidget);
+	QLabel *licenceText = new QLabel("Published under the LGPL v2.1 (2022)");
+		QWidget *infoSpacer = new QWidget();
+	infoSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	infolayout->addWidget(versionLabel,0,0);
+	infolayout->addWidget(versionText,0,1);
+	infolayout->addWidget(infoSpacer,1,0,1,2);
+	infolayout->addWidget(licenceText,2,0,1,2);
+
+    tabWidget = new QTabWidget();
+	tabWidget->addTab(mainWidget, "Main");
+	tabWidget->addTab(advancedWidget, "Advanced");
+	tabWidget->addTab(infoWidget, "Info");
+
 
     closeButton = new QPushButton("Close");
     closeButton->setMinimumSize(30, 30);
     connect(closeButton, &QPushButton::clicked, this, &SettingsWindow::hide);
 
-    layout->addWidget(recorderSettingsBox, 0, 0);
-    layout->addWidget(streamingSettingsBox, 1, 0);
-    layout->addWidget(closeButton, 2, 0, Qt::AlignRight);
+    layout->addWidget(tabWidget,0,0);
+    layout->addWidget(closeButton, 1, 0, Qt::AlignRight);
 
     // recorderSettings
     LabelWithToolTip *recorderTypeLabel = new LabelWithToolTip(

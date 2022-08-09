@@ -31,12 +31,6 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
     nameLabel->setText("<font color=#2664a3>Camera</font>"
                        "<font color=#64a420>Controller</font>");
 
-    QLabel *versionLabel = new QLabel(this);
-    versionLabel->setFont(QFont("Sans Serif", 10, QFont::Bold));
-    versionLabel->setText(VERSION_STRING);
-    versionLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    versionLabel->setCursor(QCursor(Qt::IBeamCursor));
-
     QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     settingsButton = new QToolButton(this);
@@ -50,7 +44,6 @@ MainBar::MainBar(QWidget *parent) : QToolBar(parent) {
     this->addWidget(nameSpacer);
     this->addWidget(nameLabel);
     this->addWidget(spacer);
-    this->addWidget(versionLabel);
     this->addWidget(settingsButton);
     this->addSeparator();
 }
