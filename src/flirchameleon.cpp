@@ -108,12 +108,12 @@ FLIRChameleon::FLIRChameleon(const QString &cameraName,
                              const QString &serialNumber)
     : CameraInterface(flirChameleon, cameraName), m_serialNumber{serialNumber},
       m_camSystem{System::GetInstance()} {
-    const LibraryVersion spinnakerLibraryVersion =
-        m_camSystem->GetLibraryVersion();
-    qDebug() << "Spinnaker library version: " << spinnakerLibraryVersion.major
-             << "." << spinnakerLibraryVersion.minor << "."
-             << spinnakerLibraryVersion.type << "."
-             << spinnakerLibraryVersion.build;
+    // const LibraryVersion spinnakerLibraryVersion =
+    //     m_camSystem->GetLibraryVersion();
+    // qDebug() << "Spinnaker library version: " << spinnakerLibraryVersion.major
+    //          << "." << spinnakerLibraryVersion.minor << "."
+    //          << spinnakerLibraryVersion.type << "."
+    //          << spinnakerLibraryVersion.build;
     CameraList cameraList = m_camSystem->GetCameras();
     m_pCam = cameraList.GetBySerial(m_serialNumber.toStdString());
     createSettings();
@@ -295,7 +295,6 @@ void FLIRChameleon::settingChangedSlot(const QString &name,
         }
 
         else if (type == SettingsNode::Enumeration) {
-            qDebug() << "VALUE: " << val;
             GenApi::CEnumerationPtr ptrEnum =
                 static_cast<GenApi::CEnumerationPtr>(ptrNode);
             if (IsAvailable(ptrEnum) && IsWritable(ptrEnum)) {
@@ -418,13 +417,11 @@ void FLIRChameleon::startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs) {
 }
 
 void FLIRChameleon::stopAcquisitionSlot() {
-    qDebug() << "Trying to stop Acquisition";
     workerThread.requestInterruption();
     workerThread.quit();
     if (!workerThread.wait(5000)) {
         workerThread.terminate();
     }
-    qDebug() << "stopped Worker";
     try {
         m_pCam->EndAcquisition();
         GenApi::INodeMap &appLayerNodeMap = m_pCam->GetNodeMap();

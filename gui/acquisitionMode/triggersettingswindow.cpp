@@ -338,17 +338,14 @@ void TriggerSettingsWindow::loadPresetSlot(const QString &preset) {
 }
 
 void TriggerSettingsWindow::frameRateEditChangedSlot(int val) {
-    qDebug() << "FrameRate Edit: " << val;
     TriggerInterface::triggerInstance->changeSimpleSetting(
         "FrameRate", QString::number(val));
 }
 void TriggerSettingsWindow::frameLimitEditChangedSlot(double val) {
-    qDebug() << "FrameLimit Edit: " << val;
     TriggerInterface::triggerInstance->changeSimpleSetting(
         "FrameLimit", QString::number(val, 'd'));
 }
 void TriggerSettingsWindow::cmdDelayEditChangedSlot(double val) {
-    qDebug() << "CmdDelay Edit: " << val;
     TriggerInterface::triggerInstance->changeSimpleSetting(
         "CmdDelay", QString::number(val, 'd'));
 }

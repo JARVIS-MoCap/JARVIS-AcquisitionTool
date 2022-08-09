@@ -37,7 +37,6 @@ class AcquisitionWorker : public QObject {
         else if (m_acquisitionSpecs.recorderType == CudaRecorderType) {
             m_recordingInterface =
                 new CudaRecorder(cameraName, acquisitionSpecs);
-            qDebug() << "Cuda support";
         }
 #endif
     }

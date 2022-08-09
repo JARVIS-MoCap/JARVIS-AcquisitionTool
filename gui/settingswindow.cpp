@@ -210,7 +210,6 @@ void SettingsWindow::loadSettings() {
         streamingSubsamplingRatioBox->currentText().toInt();
 
     if (settings->contains("StreamingEnabled")) {
-        qDebug() << "Toggled. " << settings->value("StreamingEnabled").toBool();
         streamingEnabledSwitch->setToggled(
             settings->value("StreamingEnabled").toBool());
     } else {

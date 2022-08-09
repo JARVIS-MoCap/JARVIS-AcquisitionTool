@@ -191,7 +191,6 @@ void ControlBar::recordClickedSlot(bool toggled) {
                     cam->m_acquisitionWorker,
                     &AcquisitionWorker::provideMetadata, metaWriter,
                     QOverload<QVariantList>::of(&CSVDataWriter::write)));
-                qDebug() << "cam connected";
             }
 
             metawriterThread.start();
@@ -245,9 +244,6 @@ void ControlBar::startClickedSlot(bool toggled) {
         }
         acquisitionSpecs.streamingSamplingRatio =
             globalSettings.streamingSubsamplingRatio;
-        qDebug() << globalSettings.streamingSubsamplingRatio;
-        qDebug() << "acquisitionSpecs"
-                 << acquisitionSpecs.streamingSamplingRatio;
         emit startAcquisition(acquisitionSpecs);
         startAction->setEnabled(false);
         recordAction->setEnabled(false);

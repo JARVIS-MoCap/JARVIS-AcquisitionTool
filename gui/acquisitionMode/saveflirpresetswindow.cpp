@@ -102,7 +102,6 @@ void SaveFlirPresetsWindow::saveUserSetToFileSlot(const QString &userSet) {
                                           cameraName + "_" + userSet + ".bin",
                                           tr("BIN Files (*.bin)"));
     fd.setAcceptMode(QFileDialog::AcceptSave);
-    qDebug() << fileName;
     if (fileName != "") {
         m_cam->saveUserSetToFile(userSet, fileName);
     }
