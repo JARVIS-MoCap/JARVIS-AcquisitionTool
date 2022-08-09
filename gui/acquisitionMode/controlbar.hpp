@@ -56,7 +56,7 @@ class ControlBar : public QToolBar {
     QLabel *recordingTimeLabel;
     QTimer *recordingTimer;
     QTime *recordingTime;
-    QTime *startTime;
+    QTime startTime;
     QLineEdit *recordingNameEdit;
     QToolButton *saveFolderButton;
     QAction *saveFolderAction;

@@ -84,7 +84,7 @@ struct CameraSettings {
 
 typedef struct statusLog {
     statusType type;
-    QTime *time;
+    QTime time;
     QString message;
 } statusLog;
 

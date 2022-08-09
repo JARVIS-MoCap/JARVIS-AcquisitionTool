@@ -109,7 +109,7 @@ ConnectionWidget::ConnectionWidget(QWidget *parent)
     triggerWidget->setSizePolicy(QSizePolicy::Expanding,
                                  QSizePolicy::Expanding);
     QGridLayout *triggerlayout = new QGridLayout(triggerWidget);
-    triggerlayout->setMargin(0);
+    triggerlayout->setContentsMargins(0,0,0,0);
     triggerPanelWidget = new QWidget(triggerWidget);
     triggerpanellayout = new QGridLayout(triggerPanelWidget);
     triggerpanellayout->setContentsMargins(0, 11, 0, 11);
@@ -208,8 +208,7 @@ void ConnectionWidget::camLoadPresetSlot(QString preset) {
 
             statusLog statusLog;
             statusLog.type = Connecting;
-            statusLog.time = new QTime(0, 0);
-            statusLog.time->restart();
+            statusLog.time = QTime::currentTime();
             statusLog.message = "";
             camPanel->statusLogWindow->statusLogList.push_back(statusLog);
             camPanel->stackWidget->setCurrentIndex(2);
@@ -256,8 +255,7 @@ void ConnectionWidget::triggerLoadPresetSlot(QString preset) {
     if (settings->value("isConfigured").toBool()) {
         statusLog statusLog;
         statusLog.type = Connecting;
-        statusLog.time = new QTime(0, 0);
-        statusLog.time->restart();
+        statusLog.time = QTime::currentTime();
         statusLog.message = "";
         triggerPanel->statusLogWindow->statusLogList.push_back(statusLog);
         triggerPanel->stackWidget->setCurrentIndex(2);
@@ -319,8 +317,7 @@ void ConnectionWidget::autoDetectCamerasClicked() {
 
             statusLog statusLog;
             statusLog.type = Connecting;
-            statusLog.time = new QTime(0, 0);
-            statusLog.time->restart();
+            statusLog.time = QTime::currentTime();
             statusLog.message = "";
             camPanel->statusLogWindow->statusLogList.push_back(statusLog);
             camPanel->stackWidget->setCurrentIndex(2);

@@ -29,6 +29,9 @@ Imgs/
 Savefiles/
 CalibParams/
 build/
+opencv_install/
+qt_install/
+
 
 # Editors
 .vscode/

@@ -63,7 +63,7 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent)
     configToolBar->addWidget(exitButton);
     camConfigureWidget = new QWidget(camConfigureContainer);
     QPalette pal = palette();
-    pal.setColor(QPalette::Background, QColor(22, 24, 26));
+    pal.setColor(QPalette::Window, QColor(22, 24, 26));
     camConfigureWidget->setAutoFillBackground(true);
     camConfigureWidget->setPalette(pal);
     camconfigurelayout = new QGridLayout(camConfigureWidget);
@@ -134,7 +134,7 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent)
     camconfigurecontainerlayout->addWidget(configToolBar, 0, 0);
     camconfigurecontainerlayout->addWidget(camConfigureWidget, 1, 0);
     camconfigurecontainerlayout->setSpacing(0);
-    camconfigurecontainerlayout->setMargin(0);
+    camconfigurecontainerlayout->setContentsMargins(0,0,0,0);
 
     i = 0;
     caminfolayout->addWidget(camConfigInterface->configInfoBox, i++, 0, 1, 5);
@@ -147,7 +147,7 @@ CamConnectionPanel::CamConnectionPanel(QWidget *parent)
     caminfocontainerlayout->addWidget(infoToolBar, 0, 0);
     caminfocontainerlayout->addWidget(camInfoWidget, 1, 0);
     caminfocontainerlayout->setSpacing(0);
-    caminfocontainerlayout->setMargin(0);
+    caminfocontainerlayout->setContentsMargins(0,0,0,0);
 
     stackWidget->addWidget(addButton);
     stackWidget->addWidget(camConfigureContainer);
@@ -191,8 +191,7 @@ void CamConnectionPanel::confirmConfigClickedSlot() {
 
             statusLog statusLog;
             statusLog.type = Connecting;
-            statusLog.time = new QTime(0, 0);
-            statusLog.time->restart();
+            statusLog.time = QTime::currentTime();
             statusLog.message = "";
             statusLogWindow->statusLogList.push_back(statusLog);
             stackWidget->setCurrentIndex(2);
@@ -258,8 +257,7 @@ void CamConnectionPanel::statusUpdatedSlot(statusType status,
     camStatusInfo->setText(statusTexts[status]);
     statusLog statusLog;
     statusLog.type = status;
-    statusLog.time = new QTime(0, 0);
-    statusLog.time->restart();
+    statusLog.time = QTime::currentTime();
     statusLog.message = statusMessage;
     statusLogWindow->statusLogList.push_back(statusLog);
     statusLogWindow->updateListSlot();

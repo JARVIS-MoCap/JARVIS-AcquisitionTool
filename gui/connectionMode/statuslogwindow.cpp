@@ -56,7 +56,7 @@ void StatusLogWindow::updateListSlot() {
         typeItem->setFlags(typeItem->flags() ^ Qt::ItemIsEditable);
         statusLogsTable->setItem(row, 0, typeItem);
         QTableWidgetItem *timeItem = new QTableWidgetItem();
-        timeItem->setText(status.time->toString());
+        timeItem->setText(status.time.toString());
         timeItem->setFlags(timeItem->flags() ^ Qt::ItemIsEditable);
         statusLogsTable->setItem(row, 1, timeItem);
         QTableWidgetItem *messageItem = new QTableWidgetItem();

@@ -22,7 +22,7 @@ StreamingWidget::StreamingWidget(QWidget *parent) : QWidget(parent) {
     biglayout = new QGridLayout(bigWidget);
     layout->setSpacing(8);
     biglayout->setSpacing(8);
-    biglayout->setMargin(0);
+    biglayout->setContentsMargins(0,0,0,0);
 }
 
 void StreamingWidget::acquisitionStartedSlot() {
@@ -53,7 +53,7 @@ void StreamingWidget::updateStreamingPanelsSlot(layoutType panelLayout) {
 }
 
 void StreamingWidget::setPanels(bool onlySizes) {
-    int margin = layout->margin();
+    int margin = layout->contentsMargins().left();
     int totalWidth = this->size().width() - 2 * margin;
     int totalHeight = this->size().height() - 2 * margin;
     int minWidths[] = {200, 200, 200, 200, 200, 250,
@@ -109,8 +109,8 @@ void StreamingWidget::setSinglePanel(StreamingPanel *panel, int row, int col,
 void StreamingWidget::configurePanels(int numPanels, int numBigPanels,
                                       float ratio, int minWidth,
                                       bool onlySizes) {
-    int totalWidth = this->size().width() - 2 * layout->margin();
-    int totalHeight = this->size().height() - 2 * layout->margin();
+    int totalWidth = this->size().width() - 2 * layout->contentsMargins().left();
+    int totalHeight = this->size().height() - 2 * layout->contentsMargins().left();
     int spacing = layout->spacing();
     int bigWidth, bigHeight;
     int maxBigWidth = totalWidth * ratio;
@@ -276,7 +276,8 @@ void StreamingWidget::dragEnterEvent(QDragEnterEvent *event) {
 void StreamingWidget::dropEvent(QDropEvent *event) {
     QByteArray byteArray = event->mimeData()->data("Panel");
     QWidget *widget = *reinterpret_cast<QWidget **>(byteArray.data());
-    QWidget *current_child = childAt(event->pos());
+    QPointF pos = event->position();
+    QWidget *current_child = childAt(pos.x(), pos.y());
     QWidget *parent = nullptr;
     if (qobject_cast<QToolBar *>(current_child) ||
         qobject_cast<ImageViewer *>(current_child))

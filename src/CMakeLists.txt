@@ -103,18 +103,18 @@ target_include_directories(src
 if(USE_CUDA)
   target_compile_definitions(src PUBLIC USE_CUDA=1)
 target_link_libraries(src
-  Qt5::Widgets
-  Qt5::Core
-  Qt5::SerialPort
+  Qt::Widgets
+  Qt::Core
+  Qt::SerialPort
   Flir_Spinnaker
   ${OpenCV_LIBS}
   cudajpegencoder
 )
 else()
   target_link_libraries(src
-    Qt5::Widgets
-    Qt5::Core
-    Qt5::SerialPort
+    Qt::Widgets
+    Qt::Core
+    Qt::SerialPort
     Flir_Spinnaker
     ${OpenCV_LIBS}
   )

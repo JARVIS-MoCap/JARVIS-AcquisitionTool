@@ -41,8 +41,8 @@ int main(int argc, char **argv) {
     QCoreApplication::setOrganizationName("Test");
     QCoreApplication::setOrganizationDomain("test");
     QCoreApplication::setApplicationName("Camera Controller");
-    qRegisterMetaTypeStreamOperators<QList<QString>>("QList<QString>");
-    qRegisterMetaTypeStreamOperators<QVector<QPoint>>("QVector<QPoint>");
+    // qRegisterMetaTypeStreamOperators<QList<QString>>("QList<QString>");
+    // qRegisterMetaTypeStreamOperators<QVector<QPoint>>("QVector<QPoint>");
     qRegisterMetaType<statusType>();
     QApplication app(argc, argv);
     app.setStyle(new DarkStyle);

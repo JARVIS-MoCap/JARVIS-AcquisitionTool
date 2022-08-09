@@ -46,7 +46,7 @@ LoadFlirPresetsWindow::LoadFlirPresetsWindow(FLIRChameleon *cam,
 
     QGroupBox *userSetGroup = new QGroupBox("User Sets");
     QGridLayout *usersetgrouplayout = new QGridLayout(userSetGroup);
-    usersetgrouplayout->setMargin(2);
+    usersetgrouplayout->setContentsMargins(2,2,2,2);
 
     userSetList = new QListWidget(this);
     QListWidgetItem *defaultItem = new QListWidgetItem();

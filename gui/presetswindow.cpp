@@ -78,7 +78,7 @@ PresetsWindow::PresetsWindow(QList<QString> *presets, const QString &type,
 
     QGroupBox *presetsGroup = new QGroupBox("Presets", this);
     QGridLayout *presetslayout = new QGridLayout(presetsGroup);
-    presetslayout->setMargin(3);
+    presetslayout->setContentsMargins(3,3,3,3);
     presetsList = new QListWidget(this);
     presetslayout->addWidget(presetsList);
     presetsList->setAlternatingRowColors(true);

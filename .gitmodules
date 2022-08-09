@@ -1,0 +1,9 @@
+[submodule "libs/Qt/qt"]
+	path = libs/Qt/qt
+	url = https://github.com/qt/qt5.git
+[submodule "libs/OpenCV/opencv"]
+	path = libs/OpenCV/opencv
+	url = https://github.com/opencv/opencv.git
+[submodule "libs/OpenCV/opencv_contrib"]
+	path = libs/OpenCV/opencv_contrib
+	url = https://github.com/opencv/opencv_contrib

@@ -52,7 +52,7 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
     recordingTimeLabel = new QLabel(this);
     recordingTimer = new QTimer(this);
     recordingTime = new QTime(0, 0);
-    startTime = new QTime(0, 0);
+    //startTime = new QTime(0, 0);
     recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
     connect(recordingTimer, &QTimer::timeout, this,
             &ControlBar::recordingTimerSlot);
@@ -167,7 +167,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
         pauseAction->setEnabled(true);
         stopAction->setEnabled(true);
         recordingTimer->start(100);
-        startTime->restart();
+        startTime = QTime::currentTime();
 
         // create Metadata file
         if (globalSettings.metadataEnabled) {

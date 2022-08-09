@@ -32,6 +32,6 @@ target_include_directories(connectionMode
 )
 
 target_link_libraries(connectionMode
-  Qt5::Widgets
+  Qt::Widgets
   src
 )

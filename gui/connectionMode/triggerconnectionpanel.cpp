@@ -63,7 +63,7 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent)
     configToolBar->addWidget(exitButton);
     triggerConfigureWidget = new QWidget(triggerConfigureContainer);
     QPalette pal = palette();
-    pal.setColor(QPalette::Background, QColor(22, 24, 26));
+    pal.setColor(QPalette::Window, QColor(22, 24, 26));
     triggerConfigureWidget->setAutoFillBackground(true);
     triggerConfigureWidget->setPalette(pal);
     triggerconfigurelayout = new QGridLayout(triggerConfigureWidget);
@@ -82,7 +82,7 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent)
     triggerconfigurecontainerlayout->addWidget(configToolBar, 0, 0);
     triggerconfigurecontainerlayout->addWidget(triggerConfigureWidget, 1, 0);
     triggerconfigurecontainerlayout->setSpacing(0);
-    triggerconfigurecontainerlayout->setMargin(0);
+    triggerconfigurecontainerlayout->setContentsMargins(0,0,0,0);
 
     triggerInfoContainer = new QWidget(stackWidget);
     QGridLayout *triggerinfocontainerlayout =
@@ -146,7 +146,7 @@ TriggerConnectionPanel::TriggerConnectionPanel(QWidget *parent)
     triggerinfocontainerlayout->addWidget(infoToolBar, 0, 0);
     triggerinfocontainerlayout->addWidget(triggerInfoWidget, 1, 0);
     triggerinfocontainerlayout->setSpacing(0);
-    triggerinfocontainerlayout->setMargin(0);
+    triggerinfocontainerlayout->setContentsMargins(0,0,0,0);
 
     stackWidget->addWidget(addButton);
     stackWidget->addWidget(triggerConfigureContainer);
@@ -187,8 +187,7 @@ void TriggerConnectionPanel::confirmConfigClickedSlot() {
 
     statusLog statusLog;
     statusLog.type = Connecting;
-    statusLog.time = new QTime(0, 0);
-    statusLog.time->restart();
+    statusLog.time = QTime::currentTime();
     statusLog.message = "";
     statusLogWindow->statusLogList.push_back(statusLog);
     stackWidget->setCurrentIndex(2);
@@ -236,8 +235,7 @@ void TriggerConnectionPanel::statusUpdatedSlot(statusType status,
     triggerStatusInfo->setText(statusTexts[status]);
     statusLog statusLog;
     statusLog.type = status;
-    statusLog.time = new QTime(0, 0);
-    statusLog.time->restart();
+    statusLog.time = QTime::currentTime();
     statusLog.message = statusMessage;
     statusLogWindow->statusLogList.push_back(statusLog);
     statusLogWindow->updateListSlot();

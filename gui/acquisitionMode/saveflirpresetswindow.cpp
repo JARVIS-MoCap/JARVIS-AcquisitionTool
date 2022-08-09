@@ -43,7 +43,7 @@ SaveFlirPresetsWindow::SaveFlirPresetsWindow(FLIRChameleon *cam,
 
     QGroupBox *userSetGroup = new QGroupBox("User Sets");
     QGridLayout *usersetgrouplayout = new QGridLayout(userSetGroup);
-    usersetgrouplayout->setMargin(2);
+    usersetgrouplayout->setContentsMargins(2,2,2,2);
 
     userSetList = new UserSetListWidget(this);
     QListWidgetItem *userSet0Item = new QListWidgetItem();

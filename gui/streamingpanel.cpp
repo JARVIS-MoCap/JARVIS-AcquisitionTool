@@ -39,7 +39,7 @@ StreamingPanel::StreamingPanel(CameraInterface *camera, QWidget *parent)
     layout->addWidget(toolBar, 0, 0);
     layout->addWidget(imgViewer, 1, 0);
     layout->setSpacing(0);
-    layout->setMargin(0);
+    layout->setContentsMargins(0,0,0,0);
 
     if (m_camera != nullptr) {
         connect(m_camera, &CameraInterface::streamImage, imgViewer,

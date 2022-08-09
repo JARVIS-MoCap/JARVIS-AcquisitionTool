@@ -51,7 +51,7 @@ class CSVDataWriter : public QObject {
                         << " File: " << this->file_path;
             return;
         }
-        *file_stream << args.join(seperator) << endl;
+        *file_stream << args.join(seperator) << Qt::endl;
     }
     void write(QVariantList args) {
         QStringList stringArgs;

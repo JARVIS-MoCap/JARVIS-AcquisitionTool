@@ -33,8 +33,8 @@ target_include_directories(acquisitionMode
 )
 
 target_link_libraries(acquisitionMode
-  Qt5::Widgets
-  Qt5::Charts
+  Qt::Widgets
+  Qt::Charts
   src
   gui
 )

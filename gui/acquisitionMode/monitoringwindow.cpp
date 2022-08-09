@@ -58,7 +58,7 @@ MonitoringWindow::MonitoringWindow(QWidget *parent)
 
     mainlayout = new QGridLayout(mainInnerWidget);
     QGridLayout *mainouterlayout = new QGridLayout(mainBox);
-    mainouterlayout->setMargin(0);
+    mainouterlayout->setContentsMargins(0,0,0,0);
     mainouterlayout->addWidget(mainScrollArea, 0, 0);
     mainScrollArea->setWidget(mainInnerWidget);
     layout->addWidget(mainBox, 0, 0);

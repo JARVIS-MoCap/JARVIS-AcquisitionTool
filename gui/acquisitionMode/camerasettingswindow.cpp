@@ -108,7 +108,7 @@ CameraSettingsWindow::CameraSettingsWindow(QWidget *parent,
 
     QGridLayout *simplelayout = new QGridLayout(simpleInnerWidget);
     QGridLayout *simpleouterlayout = new QGridLayout(simpleBox);
-    simpleouterlayout->setMargin(0);
+    simpleouterlayout->setContentsMargins(0,0,0,0);
     simpleouterlayout->addWidget(simpleScrollArea, 0, 0);
     simpleScrollArea->setWidget(simpleInnerWidget);
     QLabel *exposureLabel = new QLabel("Exposure Control");
