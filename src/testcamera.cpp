@@ -18,9 +18,10 @@
 #include <QTreeWidget>
 
 TestAcquisitionWorker::TestAcquisitionWorker(
-    const QString &cameraName, const AcquisitionSpecs &acquisitionSpecs,
-    QImage **testimgs)
-    : AcquisitionWorker{cameraName, acquisitionSpecs}, m_testimgs{testimgs} {}
+    const QString &cameraName, const QString &serialNumber,
+    const AcquisitionSpecs &acquisitionSpecs, QImage **testimgs)
+    : AcquisitionWorker{cameraName, serialNumber, acquisitionSpecs},
+      m_testimgs{testimgs} {}
 
 void TestAcquisitionWorker::acquireImages() {
     forever {
@@ -59,15 +60,15 @@ TestCamera::~TestCamera() { delete (m_cameraSettings); }
 void TestCamera::settingChangedSlot(const QString &name, QList<QString>,
                                     SettingsNode::nodeType, const QString &val,
                                     bool) {
-    std::cout << name.toStdString() << " " << val.toStdString() << std::endl;
+    qDebug() << name << " " << val;
 }
 
 void TestCamera::startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs) {
     if (!m_isStreaming) {
         acquisitionSpecs.frameSize.width = 1280;
         acquisitionSpecs.frameSize.height = 1024;
-        m_acquisitionWorker =
-            new TestAcquisitionWorker(m_cameraName, acquisitionSpecs, testimgs);
+        m_acquisitionWorker = new TestAcquisitionWorker(
+            m_cameraName, "NoN", acquisitionSpecs, testimgs);
         m_acquisitionWorker->moveToThread(&workerThread);
         connect(this, &TestCamera::startAcquisition, m_acquisitionWorker,
                 &AcquisitionWorker::acquireImages);

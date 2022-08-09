@@ -21,19 +21,19 @@
 #include <QStyleFactory>
 
 class DarkStyle : public QProxyStyle {
-  Q_OBJECT
+    Q_OBJECT
 
- public:
-  DarkStyle();
-  explicit DarkStyle(QStyle *style);
+  public:
+    DarkStyle();
+    explicit DarkStyle(QStyle *style);
 
-  QStyle *baseStyle() const;
+    QStyle *baseStyle() const;
 
-  void polish(QPalette &palette) override;
-  void polish(QApplication *app) override;
+    void polish(QPalette &palette) override;
+    void polish(QApplication *app) override;
 
- private:
-  QStyle *styleBase(QStyle *style = Q_NULLPTR) const;
+  private:
+    QStyle *styleBase(QStyle *style = Q_NULLPTR) const;
 };
 
-#endif  // DARKSTYLE_HPP
+#endif // DARKSTYLE_HPP

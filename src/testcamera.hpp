@@ -21,6 +21,7 @@ class TestAcquisitionWorker : public AcquisitionWorker {
 
   public:
     explicit TestAcquisitionWorker(const QString &cameraName,
+                                   const QString &serialNumber,
                                    const AcquisitionSpecs &acquisitionSpecs,
                                    QImage **testimgs);
 

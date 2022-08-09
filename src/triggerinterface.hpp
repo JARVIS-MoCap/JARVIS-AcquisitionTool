@@ -32,13 +32,17 @@ class TriggerInterface : public QObject {
     }
     statusType triggerStatus() const { return m_triggerStatus; }
     int getFrameRate() const { return m_frameRate; }
+    int getFrameLimit() const { return m_frameLimit; }
+    int getCmdDelay() const { return m_cmdDelay; }
     virtual void enable() = 0;
     virtual void disable() = 0;
+    virtual void pause(bool state) = 0;
     virtual void changeSimpleSetting(const QString &setting,
                                      const QString &value) = 0;
 
   signals:
     void statusUpdated(statusType status, const QString &statusMessage);
+    void provideTriggerdata(QVariantList args);
 
   protected:
     QSettings *settings = new QSettings();
@@ -46,7 +50,9 @@ class TriggerInterface : public QObject {
     RootNode *m_triggerSettingsRootNode;
     SettingsObject *m_triggerSettings;
     statusType m_triggerStatus = Connecting;
-    int m_frameRate = 100;
+    uint8_t m_frameRate = 100;
+    uint32_t m_frameLimit = 0;
+    uint32_t m_cmdDelay = 0;
 
   private slots:
     void statusInitReady() { emit statusUpdated(Ready, ""); };

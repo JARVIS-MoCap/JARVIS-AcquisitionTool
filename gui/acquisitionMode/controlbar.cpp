@@ -124,9 +124,6 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
     oneBigVisAction->setVisible(false);
     twoBigVisAction->setVisible(false);
     fourBigVisAction->setVisible(false);
-
-    // create instance of Metadata writer
-    metawriter = new MetaDataWriter();
 }
 
 void ControlBar::recordClickedSlot(bool toggled) {
@@ -174,18 +171,30 @@ void ControlBar::recordClickedSlot(bool toggled) {
 
         // create Metadata file
         if (globalSettings.metadataEnabled) {
-            metawriter->newFile(recordingDir.path() + "/metadata.csv");
+            // create instance of Metadata writer
+            if (metaWriter != nullptr) {
+                qFatal("metawriter was not deleted before a new one would be "
+                       "created!");
+            }
+            metaWriter = new CSVDataWriter(
+                recordingDir.path() + "/metadata.csv",
+                {"frame_camera_serial", "frame_camera_name", "frame_id",
+                 "frame_timestamp", "frame_image_uid"});
+            metaWriter->moveToThread(&(this->metawriterThread));
 
             // connect cameras
             for (const auto &cam : CameraInterface::cameraList) {
                 // m_acquisitionWorker is instantiated with "emit
                 // startAcquisition".
                 qRegisterMetaType<uint64_t>("uint64_t");
-                connect(cam->m_acquisitionWorker,
-                        &AcquisitionWorker::provideMetadata, metawriter,
-                        &MetaDataWriter::writeMetadataSlot);
-                std::cout << "cam connected" << std::endl;
+                metawriterConnects.append(connect(
+                    cam->m_acquisitionWorker,
+                    &AcquisitionWorker::provideMetadata, metaWriter,
+                    QOverload<QVariantList>::of(&CSVDataWriter::write)));
+                qDebug() << "cam connected";
             }
+
+            metawriterThread.start();
         }
 
         bool trigger = false;
@@ -198,7 +207,24 @@ void ControlBar::recordClickedSlot(bool toggled) {
         }
         emit acquisitionStarted();
         if (TriggerInterface::triggerInstance != nullptr) {
+            if (triggerWriter != nullptr) {
+                qFatal("triggerWriter was not deleted before a new one would "
+                       "be created!");
+            }
+            triggerWriter = new CSVDataWriter(
+                recordingDir.path() + "/triggerdata.csv",
+                {"flag_0", "flag_1", "flag_2", "flag_3", "flag_4", "flag_5",
+                 "flag_6", "flag_7", "pulse_id", "uptime_us"});
+            triggerWriter->moveToThread(&(this->triggerwriterThread));
+
+            this->triggerwriterConnect =
+                connect(TriggerInterface::triggerInstance,
+                        &TriggerInterface::provideTriggerdata, triggerWriter,
+                        QOverload<QVariantList>::of(&CSVDataWriter::write));
+
             TriggerInterface::triggerInstance->enable();
+
+            this->triggerwriterThread.start();
         }
     }
 }
@@ -219,9 +245,9 @@ void ControlBar::startClickedSlot(bool toggled) {
         }
         acquisitionSpecs.streamingSamplingRatio =
             globalSettings.streamingSubsamplingRatio;
-        std::cout << globalSettings.streamingSubsamplingRatio << std::endl;
-        std::cout << "acquisitionSpecs"
-                  << acquisitionSpecs.streamingSamplingRatio << std::endl;
+        qDebug() << globalSettings.streamingSubsamplingRatio;
+        qDebug() << "acquisitionSpecs"
+                 << acquisitionSpecs.streamingSamplingRatio;
         emit startAcquisition(acquisitionSpecs);
         startAction->setEnabled(false);
         recordAction->setEnabled(false);
@@ -236,15 +262,18 @@ void ControlBar::startClickedSlot(bool toggled) {
 }
 
 void ControlBar::pauseClickedSlot(bool toggled) {
+    if (!pauseAction->isEnabled()) {
+        return;
+    }
     if (toggled) {
         recordingTimer->stop();
         if (TriggerInterface::triggerInstance != nullptr) {
-            TriggerInterface::triggerInstance->disable();
+            TriggerInterface::triggerInstance->pause(true);
         }
     } else {
         recordingTimer->start(100);
         if (TriggerInterface::triggerInstance != nullptr) {
-            TriggerInterface::triggerInstance->enable();
+            TriggerInterface::triggerInstance->pause(false);
         }
     }
 }
@@ -254,19 +283,40 @@ void ControlBar::stopClickedSlot() {
         TriggerInterface::triggerInstance->disable();
     }
     emit stopAcquisition();
-    recordAction->setChecked(false);
-    startAction->setChecked(false);
-    pauseAction->setChecked(false);
     recordAction->setEnabled(true);
     startAction->setEnabled(true);
     pauseAction->setEnabled(false);
     stopAction->setEnabled(false);
+    recordAction->setChecked(false);
+    startAction->setChecked(false);
+    pauseAction->setChecked(false);
     recordingTimer->stop();
     recordingTime->setHMS(0, 0, 0);
     recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
 }
 
-void ControlBar::AquisitionStoppedSlot() { metawriter->closeFile(); }
+void ControlBar::AquisitionStoppedSlot() {
+    foreach (QMetaObject::Connection connection, this->metawriterConnects) {
+        disconnect(connection);
+    }
+    this->metawriterConnects.clear();
+    if (metaWriter != nullptr) {
+        metawriterThread.requestInterruption();
+        metawriterThread.quit();
+        metawriterThread.wait();
+        delete metaWriter;
+        metaWriter = nullptr;
+    }
+    disconnect(this->triggerwriterConnect);
+    if (triggerWriter != nullptr) {
+        triggerwriterThread.requestInterruption();
+        triggerwriterThread.quit();
+        triggerwriterThread.wait();
+        delete triggerWriter;
+
+        triggerWriter = nullptr;
+    }
+}
 
 void ControlBar::recordingTimerSlot() {
     *recordingTime = recordingTime->addMSecs(100);

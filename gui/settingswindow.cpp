@@ -182,8 +182,7 @@ void SettingsWindow::loadSettings() {
         streamingSubsamplingRatioBox->currentText().toInt();
 
     if (settings->contains("StreamingEnabled")) {
-        std::cout << "Toggled. " << settings->value("StreamingEnabled").toBool()
-                  << std::endl;
+        qDebug() << "Toggled. " << settings->value("StreamingEnabled").toBool();
         streamingEnabledSwitch->setToggled(
             settings->value("StreamingEnabled").toBool());
     } else {

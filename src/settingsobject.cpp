@@ -12,10 +12,10 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QHeaderView>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTreeWidget>
-#include <QHeaderView>
 
 SettingsObject::SettingsObject(QObject *parent, const QString &name,
                                RootNode *rootNode)
@@ -31,7 +31,7 @@ void SettingsObject::constructTree() {
     ColumnNames << ""
                 << "";
     m_settingsTree->header()->setSectionResizeMode(QHeaderView::Interactive);
-    m_settingsTree->header()->resizeSection(0,200);
+    m_settingsTree->header()->resizeSection(0, 200);
     m_settingsTree->setHeaderLabels(ColumnNames);
     if (m_rootNode != nullptr) {
         for (const auto &child : m_rootNode->children()) {

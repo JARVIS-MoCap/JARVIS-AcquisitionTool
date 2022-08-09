@@ -23,6 +23,7 @@ class FlirWorker : public AcquisitionWorker {
     Q_OBJECT
   public:
     FlirWorker(Spinnaker::CameraPtr pCam, const QString &cameraName,
+               const QString &serialNumber,
                const AcquisitionSpecs &acquisitionSpecs);
     ~FlirWorker();
 

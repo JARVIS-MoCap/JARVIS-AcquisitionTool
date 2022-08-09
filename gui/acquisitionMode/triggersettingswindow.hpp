@@ -65,6 +65,8 @@ class TriggerSettingsWindow : public QDockWidget {
 
     QStackedWidget *advancedSimpleStackWidget;
     QSpinBox *frameRateEdit;
+    QDoubleSpinBox *frameLimitEdit;
+    QDoubleSpinBox *cmdDelayEdit;
 
     SettingsObject *m_activeSettings = nullptr;
 
@@ -84,6 +86,8 @@ class TriggerSettingsWindow : public QDockWidget {
     void savePresetSlot(const QString &preset);
     void loadPresetSlot(const QString &preset);
     void frameRateEditChangedSlot(int val);
+    void frameLimitEditChangedSlot(double val);
+    void cmdDelayEditChangedSlot(double val);
 };
 
 #endif

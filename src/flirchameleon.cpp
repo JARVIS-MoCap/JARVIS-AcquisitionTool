@@ -26,8 +26,10 @@ using namespace Spinnaker;
 using namespace Spinnaker::GenICam;
 
 FlirWorker::FlirWorker(Spinnaker::CameraPtr pCam, const QString &cameraName,
+                       const QString &serialNumber,
                        const AcquisitionSpecs &acquisitionSpecs)
-    : AcquisitionWorker{cameraName, acquisitionSpecs}, m_pCam{pCam} {}
+    : AcquisitionWorker{cameraName, serialNumber, acquisitionSpecs},
+      m_pCam{pCam} {}
 
 FlirWorker::~FlirWorker() { delete m_recordingInterface; }
 
@@ -52,15 +54,15 @@ void FlirWorker::acquireImages() {
                     static_cast<uchar *>(pResultImage->GetData()));
 
                 // MetaDataWriter
-                uint64_t frame_timestamp = pResultImage->GetTimeStamp();
-                int frame_id = pResultImage->GetFrameID();
-                int frame_image_uid = pResultImage->GetID();
-                QString frame_camera_uid = (m_pCam->GetUniqueID()).c_str();
+                quint64 frame_timestamp = pResultImage->GetTimeStamp();
+                quint64 frame_id = pResultImage->GetFrameID();
+                quint64 frame_image_uid = pResultImage->GetID();
+                QString frame_camera_serial = this->m_serialNumber;
                 QString frame_camera_name = this->m_cameraName;
 
-                emit provideMetadata(frame_camera_uid, frame_camera_name,
-                                     frame_id, frame_timestamp,
-                                     frame_image_uid);
+                emit provideMetadata({frame_camera_serial, frame_camera_name,
+                                      frame_id, frame_timestamp,
+                                      frame_image_uid});
                 // MetaDataWriter
 
                 pResultImage->Release();
@@ -108,11 +110,10 @@ FLIRChameleon::FLIRChameleon(const QString &cameraName,
       m_camSystem{System::GetInstance()} {
     const LibraryVersion spinnakerLibraryVersion =
         m_camSystem->GetLibraryVersion();
-    std::cout << "Spinnaker library version: " << spinnakerLibraryVersion.major
-              << "." << spinnakerLibraryVersion.minor << "."
-              << spinnakerLibraryVersion.type << "."
-              << spinnakerLibraryVersion.build << std::endl
-              << std::endl;
+    qDebug() << "Spinnaker library version: " << spinnakerLibraryVersion.major
+             << "." << spinnakerLibraryVersion.minor << "."
+             << spinnakerLibraryVersion.type << "."
+             << spinnakerLibraryVersion.build;
     CameraList cameraList = m_camSystem->GetCameras();
     m_pCam = cameraList.GetBySerial(m_serialNumber.toStdString());
     createSettings();
@@ -151,7 +152,7 @@ void FLIRChameleon::reloadUserSet() {
             m_pCam->DeInit();
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
     }
 }
@@ -168,18 +169,16 @@ bool FLIRChameleon::savePreset(const QString &preset) {
             nodeMap.GetNode("UserSetSelector");
         if (!IsAvailable(ptrUserSetSelector) ||
             !IsWritable(ptrUserSetSelector)) {
-            std::cout << "Unable to access User Set Selector "
-                         "(enum retrieval). Aborting..."
-                      << std::endl;
+            qCritical() << "Unable to access User Set Selector "
+                           "(enum retrieval). Aborting...";
             return false;
         }
 
         GenApi::CEnumEntryPtr ptrUserSet =
             ptrUserSetSelector->GetEntryByName(preset.toStdString().c_str());
         if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
-            std::cout << "Unable to access User Set (entry retrieval). "
-                         "Aborting..."
-                      << std::endl;
+            qCritical() << "Unable to access User Set (entry retrieval). "
+                           "Aborting...";
             return false;
         }
         ptrUserSetSelector->SetIntValue(ptrUserSet->GetValue());
@@ -187,14 +186,14 @@ bool FLIRChameleon::savePreset(const QString &preset) {
         GenApi::CCommandPtr ptrUserSetSave =
             m_pCam->GetNodeMap().GetNode("UserSetSave");
         if (!IsAvailable(ptrUserSetSave) || !IsWritable(ptrUserSetSave)) {
-            std::cout << "Unable to save to User Set. Aborting..." << std::endl;
+            qCritical() << "Unable to save to User Set. Aborting...";
         }
         ptrUserSetSave->Execute();
         if (deinit) {
             m_pCam->DeInit();
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         return false;
     }
@@ -213,18 +212,17 @@ bool FLIRChameleon::loadPreset(const QString &preset) {
             nodeMap.GetNode("UserSetSelector");
         if (!IsAvailable(ptrUserSetSelector) ||
             !IsWritable(ptrUserSetSelector)) {
-            std::cout << "Unable to access User Set Selector (enum retrieval). "
-                         "Aborting..."
-                      << std::endl;
+            qCritical()
+                << "Unable to access User Set Selector (enum retrieval). "
+                   "Aborting...";
             return false;
         }
 
         GenApi::CEnumEntryPtr ptrUserSet =
             ptrUserSetSelector->GetEntryByName(preset.toStdString().c_str());
         if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
-            std::cout << "Unable to access User Set (entry retrieval). "
-                         "Aborting..."
-                      << std::endl;
+            qCritical() << "Unable to access User Set (entry retrieval). "
+                           "Aborting...";
             return false;
         }
         ptrUserSetSelector->SetIntValue(ptrUserSet->GetValue());
@@ -232,7 +230,7 @@ bool FLIRChameleon::loadPreset(const QString &preset) {
         GenApi::CCommandPtr ptrUserSetLoad =
             m_pCam->GetNodeMap().GetNode("UserSetLoad");
         if (!IsAvailable(ptrUserSetLoad) || !IsWritable(ptrUserSetLoad)) {
-            std::cout << "Unable to load to User Set. Aborting..." << std::endl;
+            qDebug() << "Unable to load to User Set. Aborting...";
         }
         ptrUserSetLoad->Execute();
         updateSettings(nodeMap, m_cameraSettings->getRootNode()->children()[0]);
@@ -247,7 +245,7 @@ bool FLIRChameleon::loadPreset(const QString &preset) {
                        m_cameraSettings->getRootNode()->children()[2]);
         return true;
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         return false;
     }
@@ -297,7 +295,7 @@ void FLIRChameleon::settingChangedSlot(const QString &name,
         }
 
         else if (type == SettingsNode::Enumeration) {
-            std::cout << "VALUE: " << val.toStdString() << std::endl;
+            qDebug() << "VALUE: " << val;
             GenApi::CEnumerationPtr ptrEnum =
                 static_cast<GenApi::CEnumerationPtr>(ptrNode);
             if (IsAvailable(ptrEnum) && IsWritable(ptrEnum)) {
@@ -342,7 +340,7 @@ void FLIRChameleon::settingChangedSlot(const QString &name,
         if (subMenus.last() == "FLIR Chameleon" && update && !m_isStreaming)
             m_pCam->DeInit();
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
     }
 }
@@ -369,8 +367,8 @@ void FLIRChameleon::startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs) {
             }
             acquisitionSpecs.frameSize = m_frameSize;
             acquisitionSpecs.pixelFormat = m_pixelFormat;
-            m_acquisitionWorker =
-                new FlirWorker(m_pCam, m_cameraName, acquisitionSpecs);
+            m_acquisitionWorker = new FlirWorker(
+                m_pCam, m_cameraName, m_serialNumber, acquisitionSpecs);
             m_acquisitionWorker->moveToThread(&workerThread);
             connect(this, &FLIRChameleon::startAcquisition, m_acquisitionWorker,
                     &AcquisitionWorker::acquireImages);
@@ -413,18 +411,20 @@ void FLIRChameleon::startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs) {
             emit statusUpdated(Streaming, "Started Streaming");
             m_isStreaming = true;
         } catch (Spinnaker::Exception &e) {
-            std::cout << "Error: " << e.what() << std::endl;
+            qCritical() << "Error: " << e.what();
             emit statusUpdated(statusType::Error, e.what());
         }
     }
 }
 
 void FLIRChameleon::stopAcquisitionSlot() {
-    std::cout << "Trying to stop Acquisition" << std::endl;
+    qDebug() << "Trying to stop Acquisition";
     workerThread.requestInterruption();
     workerThread.quit();
-    workerThread.wait();
-    std::cout << "stopped Worker" << std::endl;
+    if (!workerThread.wait(5000)) {
+        workerThread.terminate();
+    }
+    qDebug() << "stopped Worker";
     try {
         m_pCam->EndAcquisition();
         GenApi::INodeMap &appLayerNodeMap = m_pCam->GetNodeMap();
@@ -433,7 +433,7 @@ void FLIRChameleon::stopAcquisitionSlot() {
         m_pCam->DeInit();
         emit statusUpdated(Ready, "Stopped Streaming");
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Error, e.what());
     }
     m_isStreaming = false;
@@ -458,7 +458,7 @@ void FLIRChameleon::createSettings() {
     } catch (Spinnaker::Exception &e) {
         // if this error occurs try sudo sh -c 'echo 1
         // >/proc/sys/vm/drop_caches' and rerun
-        std::cout << "Error: " << e.what() << std::endl;
+        qWarning() << e.what();
         emit statusUpdated(statusType::Warning, e.what());
     }
     CategoryNode *streamLayerNode =
@@ -609,7 +609,7 @@ int FLIRChameleon::createSettingsTreeFromCam(GenApi::CNodePtr node,
             }
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         result = -1;
     }
@@ -766,7 +766,7 @@ void FLIRChameleon::updateSettings(GenApi::INodeMap &nodeMap,
                 }
             }
         } catch (Spinnaker::Exception &e) {
-            std::cout << "Error: " << e.what() << std::endl;
+            qCritical() << "Error: " << e.what();
             emit statusUpdated(statusType::Warning, e.what());
         }
     }
@@ -786,7 +786,7 @@ void FLIRChameleon::getSimpleSettingsValues() {
             m_pCam->DeInit();
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
     }
 }
@@ -855,7 +855,7 @@ bool FLIRChameleon::setupCamera(const CameraSettings &cameraSettings) {
         }
         return true;
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         return false;
     }
@@ -873,7 +873,7 @@ int FLIRChameleon::getBufferUsage() {
         if (IsAvailable(ptrNode))
             bufferState = ptrNode->GetValue();
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
     }
     return bufferState;
@@ -888,7 +888,7 @@ int FLIRChameleon::getBufferSize() {
         if (IsAvailable(ptrNode))
             bufferSize = ptrNode->GetValue();
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
     }
     return bufferSize;
@@ -905,9 +905,8 @@ QString FLIRChameleon::getDefaultUserSet() {
         GenApi::CEnumerationPtr ptrUserSetDefault =
             nodeMap.GetNode("UserSetDefault");
         if (!IsAvailable(ptrUserSetDefault) || !IsReadable(ptrUserSetDefault)) {
-            std::cout << "Unable to access User Set Default(enum retrieval). "
-                         "Aborting..."
-                      << std::endl;
+            qCritical() << "Unable to access User Set Default(enum retrieval). "
+                           "Aborting...";
         }
         QString userSet = QString::fromStdString(
             ptrUserSetDefault->GetCurrentEntry()->GetSymbolic().c_str());
@@ -916,7 +915,7 @@ QString FLIRChameleon::getDefaultUserSet() {
         }
         return userSet;
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         return "Default";
     }
@@ -934,24 +933,22 @@ bool FLIRChameleon::setDefaultUserSet(const QString &userSet) {
             nodeMap.GetNode("UserSetSelector");
         if (!IsAvailable(ptrUserSetSelector) ||
             !IsWritable(ptrUserSetSelector)) {
-            std::cout << "Unable to access User Set Selector (enum retrieval). "
-                         "Aborting..."
-                      << std::endl;
+            qCritical()
+                << "Unable to access User Set Selector (enum retrieval). "
+                   "Aborting...";
         }
         GenApi::CEnumEntryPtr ptrUserSet =
             ptrUserSetSelector->GetEntryByName(userSet.toStdString().c_str());
         if (!IsAvailable(ptrUserSet) || !IsReadable(ptrUserSet)) {
-            std::cout << "Unable to access User Set (entry retrieval). "
-                         "Aborting..."
-                      << std::endl;
+            qCritical() << "Unable to access User Set (entry retrieval). "
+                           "Aborting...";
             return false;
         }
         GenApi::CEnumerationPtr ptrUserSetDefault =
             nodeMap.GetNode("UserSetDefault");
         if (!IsAvailable(ptrUserSetDefault) || !IsWritable(ptrUserSetDefault)) {
-            std::cout << "Unable to access User Set Default(enum retrieval). "
-                         "Aborting..."
-                      << std::endl;
+            qCritical() << "Unable to access User Set Default(enum retrieval). "
+                           "Aborting...";
             return false;
         }
         ptrUserSetDefault->SetIntValue(ptrUserSet->GetValue());
@@ -960,7 +957,7 @@ bool FLIRChameleon::setDefaultUserSet(const QString &userSet) {
         }
         return true;
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Error: " << e.what() << std::endl;
+        qCritical() << "Error: " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         return false;
     }
@@ -971,7 +968,7 @@ bool FLIRChameleon::saveUserSetToFile(const QString &userSet,
     GenApi::INodeMap &nodeMapTLDevice = m_pCam->GetTLDeviceNodeMap();
     m_pCam->Init();
     if (&m_pCam->FileSelector == NULL) {
-        std::cout << "File selector not supported on device!";
+        qCritical() << "File selector not supported on device!";
         return false;
     }
 
@@ -981,7 +978,7 @@ bool FLIRChameleon::saveUserSetToFile(const QString &userSet,
     for (unsigned int i = 0; i < selectorList.size(); i++) {
         GenApi::CEnumEntryPtr node = selectorList.at(i);
         if (!node || !IsReadable(node)) {
-            std::cout << node->GetSymbolic() << " not supported!" << std::endl;
+            qDebug() << node->GetSymbolic() << " not supported!";
             continue;
         }
 
@@ -989,12 +986,12 @@ bool FLIRChameleon::saveUserSetToFile(const QString &userSet,
             m_pCam->FileSelector.SetIntValue((int64_t)node->GetNumericValue());
             int64_t bytesToRead = m_pCam->FileSize.GetValue();
             if (bytesToRead == 0) {
-                std::cout << "No data available to read!" << std::endl;
+                qDebug() << "No data available to read!";
                 continue;
             }
 
             if (openFileToRead() != true) {
-                std::cout << "Failed to open file!" << std::endl;
+                qDebug() << "Failed to open file!";
                 continue;
             }
 
@@ -1004,9 +1001,9 @@ bool FLIRChameleon::saveUserSetToFile(const QString &userSet,
                     m_pCam->FileAccessLength.SetValue(
                         m_pCam->FileAccessBuffer.GetLength());
                 } catch (Spinnaker::Exception &e) {
-                    std::cout << "Unable to set FileAccessLength to "
-                                 "FileAccessBuffer length : "
-                              << e.what() << std::endl;
+                    qCritical() << "Unable to set FileAccessLength to "
+                                   "FileAccessBuffer length : "
+                                << e.what();
                 }
             }
             m_pCam->FileAccessOffset.SetValue(0);
@@ -1025,7 +1022,7 @@ bool FLIRChameleon::saveUserSetToFile(const QString &userSet,
 
             for (unsigned int i = 0; i < iterations; i++) {
                 if (!executeReadCommand()) {
-                    std::cout << "Reading stream failed!" << std::endl;
+                    qDebug() << "Reading stream failed!";
                     break;
                 }
                 int64_t sizeRead = m_pCam->FileOperationResult.GetValue();
@@ -1036,7 +1033,7 @@ bool FLIRChameleon::saveUserSetToFile(const QString &userSet,
             }
 
             if (!closeFile()) {
-                std::cout << "Failed to close file!" << std::endl;
+                qDebug() << "Failed to close file!";
             }
 
             std::ofstream myfile;
@@ -1057,7 +1054,7 @@ bool FLIRChameleon::loadUserSetFromFile(const QString &userSet,
     GenApi::INodeMap &nodeMap = m_pCam->GetNodeMap();
 
     if (&m_pCam->FileSelector == NULL) {
-        std::cout << "File selector not supported on device!" << std::endl;
+        qDebug() << "File selector not supported on device!";
         return false;
     }
 
@@ -1068,7 +1065,7 @@ bool FLIRChameleon::loadUserSetFromFile(const QString &userSet,
         GenApi::CEnumEntryPtr node = selectorList.at(i);
 
         if (!node || !IsReadable(node)) {
-            std::cout << node->GetSymbolic() << " not supported!" << std::endl;
+            qDebug() << node->GetSymbolic() << " not supported!";
             continue;
         }
 
@@ -1076,19 +1073,19 @@ bool FLIRChameleon::loadUserSetFromFile(const QString &userSet,
             m_pCam->FileSelector.SetIntValue((int64_t)node->GetNumericValue());
             if (m_pCam->FileSize.GetValue() > 0) {
                 if (executeDeleteCommand() != true) {
-                    std::cout << "Failed to delete file!" << std::endl;
+                    qDebug() << "Failed to delete file!";
                     continue;
                 }
             }
 
             if (openFileToWrite() != true) {
-                std::cout << "Failed to open file!" << std::endl;
+                qDebug() << "Failed to open file!";
                 if (!closeFile()) {
-                    std::cout << "Problem opening file node." << std::endl;
+                    qDebug() << "Problem opening file node.";
                     return false;
                 }
                 if (!openFileToWrite()) {
-                    std::cout << "Problem opening file node." << std::endl;
+                    qDebug() << "Problem opening file node.";
                     return false;
                 }
             }
@@ -1099,9 +1096,9 @@ bool FLIRChameleon::loadUserSetFromFile(const QString &userSet,
                     m_pCam->FileAccessLength.SetValue(
                         m_pCam->FileAccessBuffer.GetLength());
                 } catch (Spinnaker::Exception &e) {
-                    std::cout << "Unable to set FileAccessLength to "
-                                 "FileAccessBuffer length : "
-                              << e.what() << std::endl;
+                    qCritical() << "Unable to set FileAccessLength to "
+                                   "FileAccessBuffer length : "
+                                << e.what();
                 }
             }
             m_pCam->FileAccessOffset.SetValue(0);
@@ -1124,8 +1121,8 @@ bool FLIRChameleon::loadUserSetFromFile(const QString &userSet,
                 (totalBytesToWrite % intermediateBufferSize == 0 ? 0 : 1);
 
             if (totalBytesToWrite == 0) {
-                std::cout << "Empty Image. No data will be written to camera."
-                          << std::endl;
+                qCritical()
+                    << "Empty Image. No data will be written to camera.";
                 return false;
             }
 
@@ -1180,7 +1177,7 @@ bool FLIRChameleon::loadUserSetFromFile(const QString &userSet,
 
                 // Perform Write command
                 if (!executeWriteCommand()) {
-                    std::cout << "Writing to stream failed!" << std::endl;
+                    qDebug() << "Writing to stream failed!";
                     break;
                 }
 
@@ -1190,7 +1187,7 @@ bool FLIRChameleon::loadUserSetFromFile(const QString &userSet,
                 bytesLeftToWrite = totalBytesToWrite - totalBytesWritten;
             }
             if (!closeFile()) {
-                std::cout << "Failed to close file!" << std::endl;
+                qDebug() << "Failed to close file!";
             }
         }
     }
@@ -1200,18 +1197,18 @@ bool FLIRChameleon::loadUserSetFromFile(const QString &userSet,
 
 bool FLIRChameleon::openFileToRead() {
     bool result = true;
-    std::cout << "Opening file for reading..." << std::endl;
+    qDebug() << "Opening file for reading...";
     try {
         m_pCam->FileOperationSelector.SetValue(FileOperationSelector_Open);
         m_pCam->FileOpenMode.SetValue(FileOpenMode_Read);
         m_pCam->FileOperationExecute.Execute();
         if (m_pCam->FileOperationStatus.GetValue() !=
             FileOperationStatus_Success) {
-            std::cout << "Failed to open file for reading!" << std::endl;
+            qDebug() << "Failed to open file for reading!";
             return false;
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Unexpected exception : " << e.what() << std::endl;
+        qDebug() << "Unexpected exception : " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         result = false;
     }
@@ -1227,11 +1224,11 @@ bool FLIRChameleon::openFileToWrite() {
 
         if (m_pCam->FileOperationStatus.GetValue() !=
             FileOperationStatus_Success) {
-            std::cout << "Failed to open file for writing!" << std::endl;
+            qDebug() << "Failed to open file for writing!";
             return false;
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Unexpected exception : " << e.what() << std::endl;
+        qDebug() << "Unexpected exception : " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         result = false;
     }
@@ -1246,11 +1243,11 @@ bool FLIRChameleon::closeFile() {
 
         if (m_pCam->FileOperationStatus.GetValue() !=
             FileOperationStatus_Success) {
-            std::cout << "Failed to close file!" << std::endl;
+            qDebug() << "Failed to close file!";
             return false;
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Unexpected exception : " << e.what() << std::endl;
+        qDebug() << "Unexpected exception : " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         result = false;
     }
@@ -1264,11 +1261,11 @@ bool FLIRChameleon::executeReadCommand() {
         m_pCam->FileOperationExecute.Execute();
         if (m_pCam->FileOperationStatus.GetValue() !=
             FileOperationStatus_Success) {
-            std::cout << "Failed to read file!" << std::endl;
+            qDebug() << "Failed to read file!";
             return false;
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Unexpected exception : " << e.what() << std::endl;
+        qDebug() << "Unexpected exception : " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         result = false;
     }
@@ -1282,11 +1279,11 @@ bool FLIRChameleon::executeWriteCommand() {
         m_pCam->FileOperationExecute.Execute();
         if (m_pCam->FileOperationStatus.GetValue() !=
             FileOperationStatus_Success) {
-            std::cout << "Failed to write to file!" << std::endl;
+            qDebug() << "Failed to write to file!";
             return false;
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Unexpected exception : " << e.what() << std::endl;
+        qDebug() << "Unexpected exception : " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         result = false;
     }
@@ -1301,11 +1298,11 @@ bool FLIRChameleon::executeDeleteCommand() {
 
         if (m_pCam->FileOperationStatus.GetValue() !=
             FileOperationStatus_Success) {
-            std::cout << "Failed to delete file!" << std::endl;
+            qDebug() << "Failed to delete file!";
             return false;
         }
     } catch (Spinnaker::Exception &e) {
-        std::cout << "Unexpected exception : " << e.what() << std::endl;
+        qDebug() << "Unexpected exception : " << e.what();
         emit statusUpdated(statusType::Warning, e.what());
         result = false;
     }

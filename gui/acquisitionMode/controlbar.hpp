@@ -19,7 +19,7 @@
 #include <QLineEdit>
 #include <QToolBar>
 
-#include "metadatawriter.hpp"
+#include "csvdatawriter.hpp"
 
 class ControlBar : public QToolBar {
     Q_OBJECT
@@ -33,6 +33,8 @@ class ControlBar : public QToolBar {
     void AquisitionStoppedSlot();
 
   signals:
+    void metawriter_close();
+    void triggerwriter_close();
     void startAcquisition(AcquisitionSpecs);
     void stopAcquisition();
     void updateStreamingPanels(StreamingWidget::layoutType);
@@ -74,7 +76,12 @@ class ControlBar : public QToolBar {
     QAction *fourBigAction;
     QAction *fourBigVisAction;
 
-    MetaDataWriter *metawriter;
+    QList<QMetaObject::Connection> metawriterConnects;
+    CSVDataWriter *metaWriter = nullptr;
+    QThread metawriterThread;
+    QMetaObject::Connection triggerwriterConnect;
+    CSVDataWriter *triggerWriter = nullptr;
+    QThread triggerwriterThread;
 
   private slots:
     void recordClickedSlot(bool toggled);

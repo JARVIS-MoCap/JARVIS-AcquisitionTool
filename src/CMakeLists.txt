@@ -23,8 +23,11 @@ if(USE_CUDA)
     flirconfigbackend.cpp
     arduinoconfigbackend.hpp
     arduinoconfigbackend.cpp
-    metadatawriter.cpp
-    metadatawriter.hpp
+    csvdatawriter.hpp
+    arduinoserialmessages.hpp
+    arduinoserialpeer.cpp
+    arduinoserialpeer.hpp
+    cobs.hpp
   )
 else()
   add_library(src
@@ -49,8 +52,11 @@ else()
     flirconfigbackend.cpp
     arduinoconfigbackend.hpp
     arduinoconfigbackend.cpp
-    metadatawriter.cpp
-    metadatawriter.hpp
+    csvdatawriter.hpp
+    arduinoserialmessages.hpp
+    arduinoserialpeer.cpp
+    arduinoserialpeer.hpp
+    cobs.hpp
   )
 endif()
 

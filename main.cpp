@@ -23,33 +23,47 @@
 Q_DECLARE_METATYPE(QList<int>)
 Q_DECLARE_METATYPE(statusType)
 
-int main(int argc, char **argv)
-{
-	QCoreApplication::setOrganizationName("Test");
-	QCoreApplication::setOrganizationDomain("test");
-	QCoreApplication::setApplicationName("Camera Controller");
-	qRegisterMetaTypeStreamOperators<QList<QString> >("QList<QString>");
-	qRegisterMetaTypeStreamOperators<QVector<QPoint> >("QVector<QPoint>");
-	qRegisterMetaType<statusType>();
-	QApplication app (argc, argv);
-	app.setStyle(new DarkStyle);
+int main(int argc, char **argv) {
+    qSetMessagePattern(QStringLiteral("%{time}"
+                                      //"%{appname}"
+                                      ": ["
+                                      "%{if-debug}D%{endif}"
+                                      "%{if-info}I%{endif}"
+                                      "%{if-warning}W%{endif}"
+                                      "%{if-critical}C%{endif}"
+                                      "%{if-fatal}F%{endif}"
+                                      "] "
+                                      "%{message}"
+                                      " ("
+                                      "%{function} - %{file}:%{line}"
+                                      ")"));
 
-	QStringList themeSearchPaths =
-				{"/home/trackingsetup/Documents/AnnotationToolbox/IconThemes",
-				"IconThemes", "../IconThemes", "/usr/local/share/JARVIS-AcquisitionTool/icons"};
-	QIcon::setThemeSearchPaths(themeSearchPaths);
-	QIcon::setThemeName("DarkIconTheme");
+    QCoreApplication::setOrganizationName("Test");
+    QCoreApplication::setOrganizationDomain("test");
+    QCoreApplication::setApplicationName("Camera Controller");
+    qRegisterMetaTypeStreamOperators<QList<QString>>("QList<QString>");
+    qRegisterMetaTypeStreamOperators<QVector<QPoint>>("QVector<QPoint>");
+    qRegisterMetaType<statusType>();
+    QApplication app(argc, argv);
+    app.setStyle(new DarkStyle);
 
-	//QPixmap pixmap("/home/trackingsetup/Pictures/Screenshot from 2021-04-21 15-58-12.png");
-  //QSplashScreen splash(pixmap);
-  //splash.show();
-  app.processEvents();
-	//delayl(100);
-	FlirConfigBackend::getInstance();
+    QStringList themeSearchPaths = {
+        "/home/trackingsetup/Documents/AnnotationToolbox/IconThemes",
+        "IconThemes", "../IconThemes",
+        "/usr/local/share/JARVIS-AcquisitionTool/icons"};
+    QIcon::setThemeSearchPaths(themeSearchPaths);
+    QIcon::setThemeName("DarkIconTheme");
 
+    // QPixmap pixmap("/home/trackingsetup/Pictures/Screenshot from 2021-04-21
+    // 15-58-12.png");
+    // QSplashScreen splash(pixmap);
+    // splash.show();
+    app.processEvents();
+    // delayl(100);
+    FlirConfigBackend::getInstance();
 
-	MainWindow m_window;
-	m_window.show();
-	//splash.finish(&m_window);
-	return app.exec();
+    MainWindow m_window;
+    m_window.show();
+    // splash.finish(&m_window);
+    return app.exec();
 }

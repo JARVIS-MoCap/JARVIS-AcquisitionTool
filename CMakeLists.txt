@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 11)
 set (UBUNTU_VERSION 2004)
 set (USE_CUDA True)
 
+add_definitions("-DQT_DEBUG")
 
 if(USE_CUDA)
   if (WIN32)

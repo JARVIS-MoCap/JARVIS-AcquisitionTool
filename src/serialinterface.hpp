@@ -15,22 +15,28 @@
 #include <QSerialPortInfo>
 #include <QtSerialPort/QSerialPort>
 
-class SerialInterface {
-
+class SerialInterface : public QObject {
+    Q_OBJECT
   public:
     static QList<QString> getAvailableDevices();
-    SerialInterface(const QString &deviceName);
+    SerialInterface(const QString &deviceName, QObject *parent = nullptr);
     ~SerialInterface();
     int write(int val);
+    int writeBuffer(const char *buffer, unsigned int len);
     int send_instruction(int mode, int readwrite, int val1, int val2);
     int get_answer(int answer[]);
     int get_answer();
+    unsigned int get_cobs_packet(char *buffer, unsigned int len,
+                                 int msec = 30000);
     bool isConnected() { return serial_conn; }
 
   private:
     bool serial_conn = false;
     QString serialPortName;
     QSerialPort *serialPort;
+
+  signals:
+    void serialReadReadySignal();
 };
 
 #endif
