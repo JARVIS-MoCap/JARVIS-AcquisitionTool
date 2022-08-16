@@ -59,6 +59,10 @@ if (NOT (WIN32 OR APPLE))
   find_package(Eigen3 REQUIRED)
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/libs/cmake_modules/")
+find_package(LibUSB REQUIRED)
+
+
 if(NOT WIN32)
 	set(OpenCV_DIR "libs/OpenCV/opencv_install/lib/cmake/opencv4")
 	set(OpenCV_STATIC ON)
@@ -71,6 +75,7 @@ message(STATUS "OPENCV_DIR ${OpenCV_DIR}")
 
 add_subdirectory(gui)
 add_subdirectory(src)
+
 
 set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/nvjpeg;/usr/local/lib/JARVIS-AcquisitionTool/spinnaker)
 add_executable(${PROJECT_NAME}
@@ -101,9 +106,8 @@ endif()
 target_include_directories( ${PROJECT_NAME}
     PUBLIC
     ${PROJECT_SOURCE_DIR}
+    ${LIBUSB_1_INCLUDE_DIRS}
 )
-
-
 
 target_link_libraries(${PROJECT_NAME}
   Qt::Widgets
@@ -111,4 +115,5 @@ target_link_libraries(${PROJECT_NAME}
   gui
   src
   darkstyle
+  ${LIBUSB_1_LIBRARIES}
 )
