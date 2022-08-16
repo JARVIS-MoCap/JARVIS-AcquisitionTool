@@ -59,8 +59,10 @@ if (NOT (WIN32 OR APPLE))
   find_package(Eigen3 REQUIRED)
 endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/libs/cmake_modules/")
-find_package(LibUSB REQUIRED)
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/libs/cmake_modules/")
+#find_package(LibUSB REQUIRED)
+set (LIBUSB_1_LIBRARIES D:/Users/timoh/Downloads/libusb-1.0.24/VS2019/MS64/static/libusb-1.0.lib)
+set (LIBUSB_1_INCLUDE_DIRS D:/Users/timoh/Downloads/libusb-1.0.24/include/)
 
 
 if(NOT WIN32)

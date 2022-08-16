@@ -62,6 +62,7 @@ QList<QList<HardwareCheck::USBDevice>> HardwareCheck::createDeviceList() {
     cnt = libusb_get_device_list(NULL, &devs);
     if (cnt < 0) {
         libusb_exit(NULL);
+        qDebug() << "SAAAAD";
     }
     libusb_device *dev;
     int i = 0, j = 0;
@@ -73,9 +74,12 @@ QList<QList<HardwareCheck::USBDevice>> HardwareCheck::createDeviceList() {
         libusb_get_device_descriptor(dev, &desc);
         libusb_device_handle *dev_handle;
         int err = libusb_open(dev, &dev_handle);
+        qDebug() << libusb_get_bus_number(dev) << libusb_get_port_number(dev)
+                 << m_speeds[libusb_get_device_speed(dev)];
+
         if (!err) {
             unsigned char manufacturer_c[200];
-            libusb_get_string_descriptor_ascii(dev_handle, desc.iManufacturer,
+            libusb_get_string_descriptor_ascii(dev_handle, desc.iProduct,
                                                manufacturer_c, 200);
 
             QString manufacturer =
