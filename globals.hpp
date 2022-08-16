@@ -10,6 +10,11 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#ifdef _WIN32
+    #define NOMINMAX
+    #define _WINSOCKAPI_
+#endif
+
 #include <QAction>
 #include <QCoreApplication>
 #include <QDebug>

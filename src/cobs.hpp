@@ -46,8 +46,7 @@ namespace cobs {
  * bytes, because one byte is the overhead byte
  * @return The ecoded size of the data
  */
-static size_t encode(uint8_t *buffer, const size_t size)
-    __attribute__((unused));
+static size_t encode(uint8_t *buffer, const size_t size);
 static size_t encode(uint8_t *buffer, const size_t size) {
     // Error out if the message is larger than the maximum block size of
     // the COBS algorithm (254). This code does not handle multiple blocks.
@@ -99,8 +98,7 @@ static size_t encode(uint8_t *buffer, const size_t size) {
  * @param size The size of the buffer
  *@return The block size, which is size - 1
  */
-static size_t decode(uint8_t *buffer, const size_t size)
-    __attribute__((unused));
+static size_t decode(uint8_t *buffer, const size_t size);
 static size_t decode(uint8_t *buffer, const size_t size) {
     // All COBS encoded blocks contain at least the header, even encoded empty
     // packets (size == 1). The maximum size of a message is limieted to
