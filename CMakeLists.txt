@@ -76,7 +76,6 @@ message(STATUS "OPENCV_DIR ${OpenCV_DIR}")
 add_subdirectory(gui)
 add_subdirectory(src)
 
-
 set(CMAKE_INSTALL_RPATH /usr/local/lib/JARVIS-AcquisitionTool;/usr/local/lib/JARVIS-AcquisitionTool/nvjpeg;/usr/local/lib/JARVIS-AcquisitionTool/spinnaker)
 add_executable(${PROJECT_NAME}
     main.cpp
