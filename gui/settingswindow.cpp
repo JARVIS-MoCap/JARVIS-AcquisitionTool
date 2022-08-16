@@ -41,6 +41,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
     advancedWidget = new QWidget(this);
     QGridLayout *advancedlayout = new QGridLayout(advancedWidget);
 
+    hardwareCheckWidget = new HardwareCheck();
+
     infoWidget = new QWidget(this);
     QLabel *versionLabel = new QLabel("Version:");
     QLabel *versionText = new QLabel(this);
@@ -60,7 +62,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
     tabWidget = new QTabWidget();
 	tabWidget->addTab(mainWidget, "Main");
 	tabWidget->addTab(advancedWidget, "Advanced");
-	tabWidget->addTab(infoWidget, "Info");
+    tabWidget->addTab(hardwareCheckWidget, "Hadware Check");
+    tabWidget->addTab(infoWidget, "Info");
 
 
     closeButton = new QPushButton("Close");

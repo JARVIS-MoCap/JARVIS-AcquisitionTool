@@ -11,6 +11,7 @@
 #define SETTINGSWINDOW_H
 
 #include "globals.hpp"
+#include "hardwarecheck.hpp"
 #include "toggleswitch.hpp"
 
 #include <QCheckBox>
@@ -45,6 +46,7 @@ class SettingsWindow : public QWidget {
 
     QWidget *mainWidget;
     QWidget *advancedWidget;
+    HardwareCheck *hardwareCheckWidget;
     QWidget *infoWidget;
 
     // recorderSettings

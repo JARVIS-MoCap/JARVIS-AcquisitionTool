@@ -17,6 +17,8 @@ add_library(gui
     labelwithtooltip.cpp
     toggleswitch.cpp
     toggleswitch.hpp
+    hardwarecheck.hpp
+    hardwarecheck.cpp
     settingswindow.hpp
     settingswindow.cpp
 )
