@@ -60,13 +60,11 @@ void HardwareCheck::runCheckSlot() {
 QList<QList<HardwareCheck::USBDevice>> HardwareCheck::createDeviceList() {
     libusb_device **devs;
     ssize_t cnt;
-    libusb_context * ctx = NULL;
+    libusb_context *ctx = NULL;
     libusb_init(&ctx);
-    //libusb_set_option(ctx, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_DEBUG);
-    cnt = libusb_get_device_list(NULL, &devs);
+    cnt = libusb_get_device_list(ctx, &devs);
     if (cnt < 0) {
-        libusb_exit(NULL);
-        qDebug() << "SAAAAD";
+        libusb_exit(ctx);
     }
     libusb_device *dev;
     int i = 0, j = 0;
@@ -117,7 +115,7 @@ QList<QList<HardwareCheck::USBDevice>> HardwareCheck::createDeviceList() {
         }
     }
     libusb_free_device_list(devs, 1);
-    libusb_exit(NULL);
+    libusb_exit(ctx);
     return allDevices;
 }
 

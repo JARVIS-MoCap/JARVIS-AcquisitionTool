@@ -29,15 +29,15 @@ target_include_directories(gui
     ${PROJECT_SOURCE_DIR}
     acquisitionMode
     connectionMode
-    ${LIBUSB_1_INCLUDE_DIRS}
+    ${LIBUSB_INCLUDE_DIR}
 
 )
 
-message("AAAA"${LIBUSB_1_LIBRARIES} )
+message("AAAA"${LIBUSB_LIBRARY} )
 
 target_link_libraries(gui
   Qt::Widgets
   acquisitionMode
   connectionMode
-  ${LIBUSB_1_LIBRARIES}
+  ${LIBUSB_LIBRARY}
 )

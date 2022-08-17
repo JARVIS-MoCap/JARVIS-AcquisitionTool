@@ -1,99 +1,147 @@
-# - Try to find libusb-1.0
+# Findlibusb.cmake
+# Find and install external libusb library
+
 # Once done this will define
 #
-#  LIBUSB_1_FOUND - system has libusb
-#  LIBUSB_1_INCLUDE_DIRS - the libusb include directory
-#  LIBUSB_1_LIBRARIES - Link these to use libusb
-#  LIBUSB_1_DEFINITIONS - Compiler switches required for using libusb
-#
-#  Adapted from cmake-modules Google Code project
-#
-#  Copyright (c) 2006 Andreas Schneider <mail@cynapses.org>
-#
-#  (Changes for libusb) Copyright (c) 2008 Kyle Machulis <kyle@nonpolynomial.com>
-#
-# Redistribution and use is allowed according to the terms of the New BSD license.
-#
-# CMake-Modules Project New BSD License
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-#
-# * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the
-#   documentation and/or other materials provided with the distribution.
-#
-# * Neither the name of the CMake-Modules Project nor the names of its
-#   contributors may be used to endorse or promote products derived from this
-#   software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+#  LIBUSB_FOUND         libusb present on system
+#  LIBUSB_INCLUDE_DIR   the libusb include directory
+#  LIBUSB_LIBRARY       the libraries needed to use libusb
+#  LIBUSB_DEFINITIONS   compiler switches required for using libusb
 
 
-if (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
-  # in cache already
-  set(LIBUSB_FOUND TRUE)
-else (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
-  find_path(LIBUSB_1_INCLUDE_DIR
-    NAMES
-	libusb.h
-    PATHS
-      /usr/include
-      /usr/local/include
-      /opt/local/include
-      /sw/include
-	PATH_SUFFIXES
-	  libusb-1.0
-  )
+if (APPLE)                                                 # macOS
+    FIND_PATH(
+        LIBUSB_INCLUDE_DIR NAMES libusb.h
+        HINTS /usr /usr/local /opt
+        PATH_SUFFIXES libusb-1.0
+        )
+    set(LIBUSB_NAME libusb-1.0.a)
+    find_library(
+        LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
+        HINTS /usr /usr/local /opt
+        )
+    mark_as_advanced(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
+    if (NOT LIBUSB_FOUND)
+        message(FATAL_ERROR "No libusb library found on your system! Install libusb-1.0 from Homebrew or MacPorts")
+    endif ()
 
-  find_library(LIBUSB_1_LIBRARY
-    NAMES
-      usb-1.0 usb
-    PATHS
-      /usr/lib
-      /usr/local/lib
-      /opt/local/lib
-      /sw/lib
-  )
+elseif (CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")              # FreeBSD; libusb is integrated into the system
+    FIND_PATH(
+        LIBUSB_INCLUDE_DIR NAMES libusb.h
+        HINTS /usr/include
+        )
+    set(LIBUSB_NAME usb)
+    find_library(
+        LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
+        HINTS /usr /usr/local /opt
+        )
+    mark_as_advanced(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
+    if (NOT LIBUSB_FOUND)
+        message(FATAL_ERROR "Expected libusb library not found on your system! Verify your system integrity.")
+    endif ()
 
-  set(LIBUSB_1_INCLUDE_DIRS
-    ${LIBUSB_1_INCLUDE_DIR}
-  )
-  set(LIBUSB_1_LIBRARIES
-    ${LIBUSB_1_LIBRARY}
-)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "OpenBSD")              # OpenBSD; libusb-1.0 is available from ports
+    FIND_PATH(
+        LIBUSB_INCLUDE_DIR NAMES libusb.h
+        HINTS /usr/local/include
+        PATH_SUFFIXES libusb-1.0
+        )
+    set(LIBUSB_NAME usb-1.0)
+    find_library(
+        LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
+        HINTS /usr/local
+        )
+    mark_as_advanced(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
+    if (NOT LIBUSB_FOUND)
+        message(FATAL_ERROR "No libusb-1.0 library found on your system! Install libusb-1.0 from ports or packages.")
+    endif ()
 
-  if (LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
-     set(LIBUSB_1_FOUND TRUE)
-  endif (LIBUSB_1_INCLUDE_DIRS AND LIBUSB_1_LIBRARIES)
+elseif (WIN32 OR (EXISTS "/etc/debian_version" AND MINGW)) # Windows or MinGW-toolchain on Debian
+    # MinGW/MSYS/MSVC: 64-bit or 32-bit?
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+        message(STATUS "=== Building for Windows (x86-64) ===")
+        set(ARCH 64)
+    else ()
+        message(STATUS "=== Building for Windows (i686) ===")
+        set(ARCH 32)
+    endif ()
 
-  if (LIBUSB_1_FOUND)
-    if (NOT libusb_1_FIND_QUIETLY)
-      message(STATUS "Found libusb-1.0:")
-	  message(STATUS " - Includes: ${LIBUSB_1_INCLUDE_DIRS}")
-	  message(STATUS " - Libraries: ${LIBUSB_1_LIBRARIES}")
-    endif (NOT libusb_1_FIND_QUIETLY)
-  else (LIBUSB_1_FOUND)
-    if (libusb_1_FIND_REQUIRED)
-      message(FATAL_ERROR "Could not find libusb")
-    endif (libusb_1_FIND_REQUIRED)
-  endif (LIBUSB_1_FOUND)
+    if (WIN32 AND NOT EXISTS "/etc/debian_version") # Skip this for Debian...
+        # Preparations for installing libusb library
+        set(LIBUSB_WIN_VERSION 1.0.25)                  # set libusb version
+        set(LIBUSB_WIN_ARCHIVE libusb-${LIBUSB_WIN_VERSION}.7z)
+        if (WIN32 AND NOT EXISTS "/etc/debian_version") # ... on native Windows systems
+            set(LIBUSB_WIN_ARCHIVE_PATH ${CMAKE_BINARY_DIR}/${LIBUSB_WIN_ARCHIVE})
+            set(LIBUSB_WIN_OUTPUT_FOLDER ${CMAKE_BINARY_DIR}/3rdparty/libusb-${LIBUSB_WIN_VERSION})
+        else (EXISTS "/etc/debian_version" AND MINGW)   # ... only for cross-building on Debian
+            set(LIBUSB_WIN_ARCHIVE_PATH ${CMAKE_SOURCE_DIR}/build-mingw-${ARCH}/${LIBUSB_WIN_ARCHIVE})
+            set(LIBUSB_WIN_OUTPUT_FOLDER ${CMAKE_SOURCE_DIR}/build-mingw-${ARCH}/3rdparty/libusb-${LIBUSB_WIN_VERSION})
+        endif ()
 
-  # show the LIBUSB_1_INCLUDE_DIRS and LIBUSB_1_LIBRARIES variables only in the advanced view
-  mark_as_advanced(LIBUSB_1_INCLUDE_DIRS LIBUSB_1_LIBRARIES)
+        # Get libusb package
+        if (EXISTS ${LIBUSB_WIN_ARCHIVE_PATH})  # ... should the package be already there (for whatever reason)
+            message(STATUS "libusb archive already in build folder")
+        else ()                                 # ... download the package
+            message(STATUS "downloading libusb ${LIBUSB_WIN_VERSION}")
+            file(DOWNLOAD
+                https://sourceforge.net/projects/libusb/files/libusb-1.0/libusb-${LIBUSB_WIN_VERSION}/libusb-${LIBUSB_WIN_VERSION}.7z/download
+                ${LIBUSB_WIN_ARCHIVE_PATH} EXPECTED_MD5 aabe177bde869bfad34278335eaf8955
+                )
+        endif ()
 
-endif (LIBUSB_1_LIBRARIES AND LIBUSB_1_INCLUDE_DIRS)
+        file(MAKE_DIRECTORY ${LIBUSB_WIN_OUTPUT_FOLDER})
 
+        # Extract libusb package with cmake
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E tar xv ${LIBUSB_WIN_ARCHIVE_PATH}
+            WORKING_DIRECTORY ${LIBUSB_WIN_OUTPUT_FOLDER}
+            )
+
+        # Find path to libusb library
+        FIND_PATH(
+            LIBUSB_INCLUDE_DIR NAMES libusb.h
+            HINTS ${LIBUSB_WIN_OUTPUT_FOLDER}/include
+            PATH_SUFFIXES libusb-1.0
+            NO_DEFAULT_PATH
+            NO_CMAKE_FIND_ROOT_PATH
+            )
+
+        if (MINGW OR MSYS)
+            set(LIBUSB_NAME usb-1.0)
+            find_library(
+                LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
+                HINTS ${LIBUSB_WIN_OUTPUT_FOLDER}/MinGW${ARCH}/static
+                NO_DEFAULT_PATH
+                NO_CMAKE_FIND_ROOT_PATH
+                )
+        else (MSVC)
+        message ("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+            set(LIBUSB_NAME libusb-1.0.lib)
+            find_library(
+                LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
+                HINTS ${LIBUSB_WIN_OUTPUT_FOLDER}/VS2019/MS64/Release/lib
+                NO_DEFAULT_PATH
+                NO_CMAKE_FIND_ROOT_PATH
+                )
+        endif ()
+        message(STATUS "Missing libusb library has been installed")
+    endif ()
+    mark_as_advanced(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
+
+else ()                                                                         # all other OS (unix-based)
+    FIND_PATH(
+        LIBUSB_INCLUDE_DIR NAMES libusb.h
+        HINTS /usr /usr/local /opt
+        PATH_SUFFIXES libusb-1.0
+        )
+    set(LIBUSB_NAME usb-1.0)
+    find_library(
+        LIBUSB_LIBRARY NAMES ${LIBUSB_NAME}
+        HINTS /usr /usr/local /opt
+        )
+    mark_as_advanced(LIBUSB_INCLUDE_DIR LIBUSB_LIBRARY)
+
+    if (NOT LIBUSB_FOUND)
+        message(FATAL_ERROR "libusb library not found on your system! Install libusb 1.0.x from your package repository.")
+    endif ()
+endif ()
