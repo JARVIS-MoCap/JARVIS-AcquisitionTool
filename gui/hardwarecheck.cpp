@@ -83,38 +83,37 @@ QList<QList<HardwareCheck::USBDevice>> HardwareCheck::createDeviceList() {
         qDebug() << libusb_get_bus_number(dev) << libusb_get_port_number(dev)
                  << m_speeds[libusb_get_device_speed(dev)];
 
-        if (!err) {
+        if (m_validManufacturers.contains(desc.idVendor)) {
             unsigned char manufacturer_c[200];
-            libusb_get_string_descriptor_ascii(dev_handle, desc.idProduct,
-                                               manufacturer_c, 200);
+            unsigned char name_c[200];
+            if (!err) {
+                libusb_get_string_descriptor_ascii(dev_handle, desc.idProduct,
+                                                   manufacturer_c, 200);
 
+                libusb_get_string_descriptor_ascii(dev_handle, desc.iProduct,
+                                                   name_c, 200);
+            }
             QString manufacturer =
                 QString::fromUtf8((char *)manufacturer_c, -1);
+            USBDevice camera;
+                
+            camera.deviceName = QString::fromUtf8((char *)name_c, -1);
+            camera.manufacturer = manufacturer;
+            camera.speed = libusb_get_device_speed(dev);
+            camera.busID = libusb_get_bus_number(dev);
+            camera.deviceID = libusb_get_device_address(dev);
+            QList<USBDevice> deviceList = {camera};
 
-            if (m_validManufacturers.contains(manufacturer)) {
-                USBDevice camera;
-                unsigned char name_c[200];
-                libusb_get_string_descriptor_ascii(dev_handle, desc.iProduct,
-                                                name_c, 200);
-                    
-                camera.deviceName = QString::fromUtf8((char *)name_c, -1);
-                camera.manufacturer = manufacturer;
-                camera.speed = libusb_get_device_speed(dev);
-                camera.busID = libusb_get_bus_number(dev);
-                camera.deviceID = libusb_get_device_address(dev);
-                QList<USBDevice> deviceList = {camera};
-
-                libusb_device *parent = dev;
-                while (libusb_get_parent(parent) != NULL) {
-                    parent = libusb_get_parent(parent);
-                    USBDevice hub;
-                    hub.speed = libusb_get_device_speed(parent);
-                    hub.busID = libusb_get_bus_number(parent);
-                    hub.deviceID = libusb_get_device_address(parent);
-                    deviceList.prepend(hub);
-                }
-                allDevices.append(deviceList);
+            libusb_device *parent = dev;
+            while (libusb_get_parent(parent) != NULL) {
+                parent = libusb_get_parent(parent);
+                USBDevice hub;
+                hub.speed = libusb_get_device_speed(parent);
+                hub.busID = libusb_get_bus_number(parent);
+                hub.deviceID = libusb_get_device_address(parent);
+                deviceList.prepend(hub);
             }
+            allDevices.append(deviceList);
         }
     }
     libusb_free_device_list(devs, 1);

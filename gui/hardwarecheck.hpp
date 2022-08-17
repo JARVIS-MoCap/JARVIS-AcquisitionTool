@@ -42,7 +42,7 @@ class HardwareCheck : public QWidget {
     QStandardItemModel *usbBusModel;
     QPushButton *runCheckButton;
 
-    QList<QString> m_validManufacturers = {"FLIR"};
+    QList<int> m_validManufacturers = {7696};
     QList<QString> m_speeds = {"Unknown",   "1.5MBit/s",  "12MBit/s",
                                "480MBit/s", "5000MBit/s", "10000MBit/s"};
 
