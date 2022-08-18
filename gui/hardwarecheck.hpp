@@ -33,8 +33,7 @@ class HardwareCheck : public QWidget {
     typedef struct USBDevice {
         int busID;
         int deviceID;
-        QString manufacturer;
-        QString deviceName;
+        int vendorID;
         int speed;
     } USBDevice;
 
@@ -42,15 +41,19 @@ class HardwareCheck : public QWidget {
     QStandardItemModel *usbBusModel;
     QPushButton *runCheckButton;
 
-    QList<int> m_validManufacturers = {7696};
-    QList<QString> m_speeds = {"Unknown",   "1.5MBit/s",  "12MBit/s",
-                               "480MBit/s", "5000MBit/s", "10000MBit/s"};
+    QList<int> m_validVendorIDs = {7696};
+    QList<QString> m_vendorNames = {"Flir"};
+    QList<double> m_speeds = {0,   1.5,  12,
+                               480, 5000, 10000};
 
     QList<QList<USBDevice>> createDeviceList();
     void updateUSBBusModel(QList<QList<USBDevice>> deviceList);
+    void changeNamesRecursive(QStandardItem *parent);
+    int traverseChildren(QStandardItem *parent);
+    void updateSpeeds(QStandardItem *parent);
 
-  private slots:
-    void runCheckSlot();
+    private slots : 
+      void runCheckSlot();
 };
 
 #endif
