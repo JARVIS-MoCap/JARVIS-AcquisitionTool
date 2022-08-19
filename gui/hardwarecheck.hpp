@@ -41,7 +41,12 @@ class HardwareCheck : public QWidget {
     QStandardItemModel *usbBusModel;
     QPushButton *runCheckButton;
 
-    QList<int> m_validVendorIDs = {7696};
+    QLabel *iconLabel;
+    QLabel *infoLabel;
+    int m_hardwareStatus = 0;
+
+    QList<int>
+        m_validVendorIDs = {7696};
     QList<QString> m_vendorNames = {"Flir"};
     QList<double> m_speeds = {0,   1.5,  12,
                                480, 5000, 10000};
@@ -51,8 +56,9 @@ class HardwareCheck : public QWidget {
     void changeNamesRecursive(QStandardItem *parent);
     int traverseChildren(QStandardItem *parent);
     void updateSpeeds(QStandardItem *parent);
+    void setInfoLabel();
 
-    private slots : 
+    private slots: 
       void runCheckSlot();
 };
 

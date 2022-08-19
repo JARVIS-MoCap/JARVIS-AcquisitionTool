@@ -17,7 +17,7 @@
 GlobalSettings globalSettings;
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
-    this->resize(500, 400);
+    this->resize(550, 400);
     this->setMinimumSize(500, 400);
     settings = new QSettings();
     setWindowTitle("Settings");
