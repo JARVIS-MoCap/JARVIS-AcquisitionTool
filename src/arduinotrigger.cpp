@@ -71,6 +71,9 @@ void ArduinoTriggerWorker::sendSetupSlot(int m_cmdDelay, int m_frameRate,
     setup.pulse_hz = m_frameRate;
     setup.pulse_limit = m_frameLimit;
     setup.flags = RESET_COUNTER ? resetCounter : 0;
+    setup.flags |= RESET_WAVE ? true : 0;
+    setup.flags |= SYNC_RISING_EDGE ? true : 0;
+
     serialPeer->sendSetup(&setup);
 }
 
