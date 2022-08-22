@@ -18,8 +18,7 @@ enum message_type {
 
 enum setup_flags {
     RESET_COUNTER = 1 << 0,
-    RESET_WAVE = 1 << 1,
-    SYNC_RISING_EDGE = 1 << 2,
+    SYNC_RISING_EDGE = 1 << 1,
 };
 
 // +-------+-------+-------+-------+
