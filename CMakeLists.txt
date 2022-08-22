@@ -6,7 +6,7 @@ set (USE_CUDA True)
 
 if(USE_CUDA)
   if (WIN32)
-    set (CMAKE_CUDA_COMPILER "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.2/bin/nvcc.exe")
+    set (CMAKE_CUDA_COMPILER "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v11.7/bin/nvcc.exe")
   endif()
   project(AcquisitionTool VERSION 1.1.0  LANGUAGES CXX CUDA)
   message(STATUS "Using CUDA")

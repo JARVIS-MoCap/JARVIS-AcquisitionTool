@@ -23,7 +23,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
     setWindowTitle("Settings");
     QGridLayout *layout = new QGridLayout(this);
 
-    mainWidget = new QWidget(tabWidget);
+    mainWidget = new QWidget(this);
     QGridLayout *mainlayout = new QGridLayout(mainWidget);
     QGroupBox *recorderSettingsBox = new QGroupBox("Recorder Settings");
     recorderSettingsBox->setStyleSheet(
@@ -38,10 +38,10 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QWidget(parent, Qt::Window) {
     mainlayout->addWidget(recorderSettingsBox, 0, 0);
     mainlayout->addWidget(streamingSettingsBox, 1, 0);
 
-    advancedWidget = new QWidget(tabWidget);
+    advancedWidget = new QWidget(this);
     QGridLayout *advancedlayout = new QGridLayout(advancedWidget);
 
-    infoWidget = new QWidget(tabWidget);
+    infoWidget = new QWidget(this);
     QLabel *versionLabel = new QLabel("Version:");
     QLabel *versionText = new QLabel(this);
     versionText->setFont(QFont("Sans Serif", 12, QFont::Bold));
