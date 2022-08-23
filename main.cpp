@@ -33,10 +33,7 @@ int main(int argc, char **argv) {
                                       "%{if-critical}C%{endif}"
                                       "%{if-fatal}F%{endif}"
                                       "] "
-                                      "%{message}"
-                                      " ("
-                                      "%{function} - %{file}:%{line}"
-                                      ")"));
+                                      "%{message}"));
 
     QCoreApplication::setOrganizationName("Test");
     QCoreApplication::setOrganizationDomain("test");
