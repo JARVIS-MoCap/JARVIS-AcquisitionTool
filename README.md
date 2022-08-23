@@ -35,11 +35,11 @@ If you want to use CUDA based GPU acceleration you also need to install the cuda
 **Important:** If you're using Ubuntu 18.04 or 20.04 updating CMake is required. See the [FAQ](https://github.com/JARVIS-MoCap/JARVIS-AcquisitionTool#faq) section for instructions.<br>
 <br>
       
-On **Arch** based systems (e.g. Manjaro) run the following command (Currently there is a problem with building Qt6 on Arch based systems):
+On **Arch** based systems (e.g. Manjaro) run the following command:
 
       sudo pacman -S base-devel git cmake double-conversion gst-libav gst-plugins-good gst-plugins-base ffmpeg eigen zlib libjpeg fontconfig harfbuzz
 
-
+\
 Install the Spinnaker SDK from [here](https://www.flir.com/products/spinnaker-sdk/). **IMPORTANT:** There is a bug in version 2.7.0 that makes the AcquisitionTool unstable. Please use version 2.6.0 or earlier.
       
 #### Cloning the repository
