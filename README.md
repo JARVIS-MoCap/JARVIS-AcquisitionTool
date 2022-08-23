@@ -38,6 +38,9 @@ If you want to use CUDA based GPU acceleration you also need to install the cuda
 On **Arch** based systems (e.g. Manjaro) run the following command (Currently there is a problem with building Qt6 on Arch based systems):
 
       sudo pacman -S base-devel git cmake double-conversion gst-libav gst-plugins-good gst-plugins-base ffmpeg eigen zlib libjpeg fontconfig harfbuzz
+
+
+Install the Spinnaker SDK from [here](https://www.flir.com/products/spinnaker-sdk/). **IMPORTANT:** There is a bug in version 2.7.0 that makes the AcquisitionTool unstable. Please use version 2.6.0 or earlier.
       
 #### Cloning the repository
 Next clone our repository with 
@@ -79,6 +82,7 @@ If you want to remove it run
 - Install a version of Visual Studio (tested on 2015 or newer). The latest versioon can be found [here](https://visualstudio.microsoft.com/)
 - Install Git for Windows from [here](https://gitforwindows.org/)
 - Install Strawberry Perl from [here](https://strawberryperl.com/)
+- Install the Spinnaker SDK from [here](https://www.flir.com/products/spinnaker-sdk/). **IMPORTANT:** There is a bug in version 2.7.0 that makes the AcquisitionTool unstable. Please use version 2.6.0 or earlier.
 
 #### Cloning the repository
 Next clone our repository with 
