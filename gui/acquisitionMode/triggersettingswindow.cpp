@@ -120,6 +120,11 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent,
                            std::numeric_limits<uint32_t>::max());
     cmdDelayEdit->setDecimals(0);
 
+    LabelWithToolTip *syncRisingEdgeLabel =
+        new LabelWithToolTip("Sync rising edge");
+    syncRisingEdgeToggle = new ToggleSwitch(this);
+    syncRisingEdgeToggle->setToggled(false);
+
     frameRateEdit->setEnabled(false);
     frameLimitEdit->setEnabled(false);
     cmdDelayEdit->setEnabled(false);
@@ -130,6 +135,8 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent,
             &TriggerSettingsWindow::frameLimitEditChangedSlot);
     connect(cmdDelayEdit, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
             this, &TriggerSettingsWindow::cmdDelayEditChangedSlot);
+    connect(syncRisingEdgeToggle, QOverload<bool>::of(&ToggleSwitch::toggled),
+            this, &TriggerSettingsWindow::syncRisingEdgeToggleChangedSlot);
 
     QWidget *bottomSpacer = new QWidget(simpleBox);
     bottomSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -139,7 +146,9 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent,
     simplelayout->addWidget(frameLimitEdit, 1, 1);
     simplelayout->addWidget(cmdDelayLabel, 2, 0);
     simplelayout->addWidget(cmdDelayEdit, 2, 1);
-    simplelayout->addWidget(bottomSpacer, 3, 0, 1, 2);
+    simplelayout->addWidget(syncRisingEdgeLabel, 3, 0);
+    simplelayout->addWidget(syncRisingEdgeToggle, 3, 1);
+    simplelayout->addWidget(bottomSpacer, 4, 0, 1, 2);
 
     advancedSimpleStackWidget = new QStackedWidget(this);
     advancedSimpleStackWidget->addWidget(simpleBox);
@@ -348,4 +357,9 @@ void TriggerSettingsWindow::frameLimitEditChangedSlot(double val) {
 void TriggerSettingsWindow::cmdDelayEditChangedSlot(double val) {
     TriggerInterface::triggerInstance->changeSimpleSetting(
         "CmdDelay", QString::number(val, 'd'));
+}
+
+void TriggerSettingsWindow::syncRisingEdgeToggleChangedSlot(bool val) {
+    TriggerInterface::triggerInstance->changeSimpleSetting(
+        "SyncRisingEdge", QString::number(val));
 }

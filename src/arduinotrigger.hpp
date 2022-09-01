@@ -31,7 +31,7 @@ class ArduinoTriggerWorker : public QObject {
 
   public slots:
     void sendSetupSlot(int cmdDelay, int frameRate, int frameLimit,
-                       bool resetCounter = true);
+                       bool syncRisingEdge = true, bool resetCounter = true);
 
   private slots:
     void recvSlot();
@@ -64,7 +64,7 @@ class ArduinoTrigger : public TriggerInterface {
 
   signals:
     void sendSetupSignal(int cmdDelay, int frameRate, int frameLimit,
-                         bool resetCounter = true);
+                         bool syncRisingEdge = true, bool resetCounter = true);
 };
 
 #endif

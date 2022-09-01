@@ -67,6 +67,7 @@ class TriggerSettingsWindow : public QDockWidget {
     QSpinBox *frameRateEdit;
     QDoubleSpinBox *frameLimitEdit;
     QDoubleSpinBox *cmdDelayEdit;
+    ToggleSwitch *syncRisingEdgeToggle;
 
     SettingsObject *m_activeSettings = nullptr;
 
@@ -88,6 +89,7 @@ class TriggerSettingsWindow : public QDockWidget {
     void frameRateEditChangedSlot(int val);
     void frameLimitEditChangedSlot(double val);
     void cmdDelayEditChangedSlot(double val);
+    void syncRisingEdgeToggleChangedSlot(bool val);
 };
 
 #endif
