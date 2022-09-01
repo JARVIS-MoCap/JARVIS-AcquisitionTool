@@ -173,6 +173,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
     // create Metadata file
     if (globalSettings.metadataEnabled) {
         // create instance of Metadata writer
+        // TODO should be above "setup acquisition" see next todo
         if (metaWriter != nullptr) {
             qFatal("metawriter was not deleted before a new one would be "
                    "created!");
@@ -183,11 +184,15 @@ void ControlBar::recordClickedSlot(bool toggled) {
                                         "frame_timestamp", "frame_image_uid"});
         metaWriter->moveToThread(&(this->metawriterThread));
 
+        qRegisterMetaType<uint64_t>("uint64_t");
         // connect cameras
         for (const auto &cam : CameraInterface::cameraList) {
-            // m_acquisitionWorker is instantiated with "emit
-            // startAcquisition".
-            qRegisterMetaType<uint64_t>("uint64_t");
+            // This loop can only be executed after "emit
+            // startAcquisition(acquisitionSpecs);" for now!
+            // TODO m_acquisitionWorker is instantiated with "emit
+            // startAcquisition". For this reason, the connections are made only
+            // after the start of the acquisition, which means that some of the
+            // early events are lost.
             metawriterConnects.append(
                 connect(cam->m_acquisitionWorker,
                         &AcquisitionWorker::provideMetadata, metaWriter,
@@ -205,7 +210,6 @@ void ControlBar::recordClickedSlot(bool toggled) {
                 trigger = false;
         }
     }
-    emit acquisitionStarted();
     if (TriggerInterface::triggerInstance != nullptr) {
         if (triggerWriter != nullptr) {
             qFatal("triggerWriter was not deleted before a new one would "
@@ -226,6 +230,7 @@ void ControlBar::recordClickedSlot(bool toggled) {
 
         this->triggerwriterThread.start();
     }
+    emit acquisitionStarted();
 }
 
 void ControlBar::startClickedSlot(bool toggled) {
