@@ -34,6 +34,8 @@ class TriggerInterface : public QObject {
     int getFrameRate() const { return m_frameRate; }
     int getFrameLimit() const { return m_frameLimit; }
     int getCmdDelay() const { return m_cmdDelay; }
+    bool getSyncRisingEdge() const { return m_syncRisingEdge; }
+
     virtual void enable() = 0;
     virtual void disable() = 0;
     virtual void pause(bool state) = 0;

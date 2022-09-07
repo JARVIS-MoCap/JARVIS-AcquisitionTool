@@ -110,7 +110,8 @@ FLIRChameleon::FLIRChameleon(const QString &cameraName,
       m_camSystem{System::GetInstance()} {
     // const LibraryVersion spinnakerLibraryVersion =
     //     m_camSystem->GetLibraryVersion();
-    // qDebug() << "Spinnaker library version: " << spinnakerLibraryVersion.major
+    // qDebug() << "Spinnaker library version: " <<
+    // spinnakerLibraryVersion.major
     //          << "." << spinnakerLibraryVersion.minor << "."
     //          << spinnakerLibraryVersion.type << "."
     //          << spinnakerLibraryVersion.build;
@@ -368,6 +369,8 @@ void FLIRChameleon::startAcquisitionSlot(AcquisitionSpecs acquisitionSpecs) {
             acquisitionSpecs.pixelFormat = m_pixelFormat;
             m_acquisitionWorker = new FlirWorker(
                 m_pCam, m_cameraName, m_serialNumber, acquisitionSpecs);
+            connect(m_acquisitionWorker, &AcquisitionWorker::provideMetadata,
+                    this, &CameraInterface::provideMetadata);
             m_acquisitionWorker->moveToThread(&workerThread);
             connect(this, &FLIRChameleon::startAcquisition, m_acquisitionWorker,
                     &AcquisitionWorker::acquireImages);

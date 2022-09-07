@@ -146,29 +146,6 @@ void ControlBar::recordClickedSlot(bool toggled) {
     }
     QDir recordingDir = saveFileDir;
     recordingDir.cd(recordingName);
-    AcquisitionSpecs acquisitionSpecs;
-    acquisitionSpecs.record = true;
-    acquisitionSpecs.recordingDir = recordingDir;
-    if (globalSettings.recorderType == "Cuda Recorder") {
-        acquisitionSpecs.recorderType = CudaRecorderType;
-    } else {
-        acquisitionSpecs.recorderType = BaseRecorderType;
-    }
-    if (TriggerInterface::triggerInstance != nullptr) {
-        acquisitionSpecs.frameRate =
-            TriggerInterface::triggerInstance->getFrameRate();
-    } else {
-        acquisitionSpecs.frameRate = 100;
-    }
-    acquisitionSpecs.streamingSamplingRatio =
-        globalSettings.recordingSubsamplingRatio;
-    emit startAcquisition(acquisitionSpecs);
-    startAction->setEnabled(false);
-    recordAction->setEnabled(false);
-    pauseAction->setEnabled(true);
-    stopAction->setEnabled(true);
-    recordingTimer->start(100);
-    startTime = QTime::currentTime();
 
     // create Metadata file
     if (globalSettings.metadataEnabled) {
@@ -194,13 +171,37 @@ void ControlBar::recordClickedSlot(bool toggled) {
             // after the start of the acquisition, which means that some of the
             // early events are lost.
             metawriterConnects.append(
-                connect(cam->m_acquisitionWorker,
-                        &AcquisitionWorker::provideMetadata, metaWriter,
+                connect(cam, &CameraInterface::provideMetadata, metaWriter,
                         QOverload<QVariantList>::of(&CSVDataWriter::write)));
         }
 
         metawriterThread.start();
     }
+
+    AcquisitionSpecs acquisitionSpecs;
+    acquisitionSpecs.record = true;
+    acquisitionSpecs.recordingDir = recordingDir;
+    if (globalSettings.recorderType == "Cuda Recorder") {
+        acquisitionSpecs.recorderType = CudaRecorderType;
+    } else {
+        acquisitionSpecs.recorderType = BaseRecorderType;
+    }
+    if (TriggerInterface::triggerInstance != nullptr) {
+        acquisitionSpecs.frameRate =
+            TriggerInterface::triggerInstance->getFrameRate();
+    } else {
+        acquisitionSpecs.frameRate = 100;
+    }
+    acquisitionSpecs.streamingSamplingRatio =
+        globalSettings.recordingSubsamplingRatio;
+
+    emit startAcquisition(acquisitionSpecs);
+    startAction->setEnabled(false);
+    recordAction->setEnabled(false);
+    pauseAction->setEnabled(true);
+    stopAction->setEnabled(true);
+    recordingTimer->start(100);
+    startTime = QTime::currentTime();
 
     bool trigger = false;
     while (!trigger) {

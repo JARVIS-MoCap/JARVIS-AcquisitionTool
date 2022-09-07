@@ -102,6 +102,7 @@ class CameraInterface : public QObject {
     void simpleSettingChanged(const QString &settingName, const QString &value,
                               bool enabled, double min, double max);
     void AquisitionStopped();
+    void provideMetadata(QVariantList args);
 
   protected:
     QSettings *settings = new QSettings();

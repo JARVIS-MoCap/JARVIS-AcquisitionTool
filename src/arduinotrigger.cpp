@@ -171,10 +171,17 @@ void ArduinoTrigger::createSettings() {
     cmdDelayNode->setMinValue(std::numeric_limits<uint32_t>::min());
     cmdDelayNode->setMaxValue(std::numeric_limits<uint32_t>::max());
 
+    BoolNode *syncRisingEdgeNode =
+        new BoolNode(arduinoTriggerNode, "SyncRisingEdge");
+    syncRisingEdgeNode->setDescription(
+        "Selects wether to sync to the rising or the falling edge.");
+    syncRisingEdgeNode->setValue(false);
+
     m_triggerSettingsRootNode->addChild(arduinoTriggerNode);
     arduinoTriggerNode->addChild(frameRateNode);
     arduinoTriggerNode->addChild(frameLimitNode);
     arduinoTriggerNode->addChild(cmdDelayNode);
+    arduinoTriggerNode->addChild(syncRisingEdgeNode);
 
     m_triggerSettings =
         new SettingsObject(this, "Trigger Settings", m_triggerSettingsRootNode);
@@ -221,7 +228,7 @@ void ArduinoTrigger::changeSimpleSetting(const QString &setting,
     }
     if (setting == "SyncRisingEdge") {
         m_syncRisingEdge = value.toInt() ? true : false;
-        static_cast<IntNode *>(m_triggerSettings->findNode("CmdDelay"))
-            ->setValue(m_cmdDelay);
+        static_cast<BoolNode *>(m_triggerSettings->findNode("SyncRisingEdge"))
+            ->setValue(m_syncRisingEdge);
     }
 }

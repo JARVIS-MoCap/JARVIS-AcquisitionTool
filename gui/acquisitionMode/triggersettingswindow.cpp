@@ -124,6 +124,7 @@ TriggerSettingsWindow::TriggerSettingsWindow(QWidget *parent,
         new LabelWithToolTip("Sync rising edge");
     syncRisingEdgeToggle = new ToggleSwitch(this);
     syncRisingEdgeToggle->setToggled(false);
+    syncRisingEdgeToggle->setEnabled(false);
 
     frameRateEdit->setEnabled(false);
     frameLimitEdit->setEnabled(false);
@@ -188,6 +189,7 @@ void TriggerSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
         frameRateEdit->setEnabled(false);
         frameLimitEdit->setEnabled(false);
         cmdDelayEdit->setEnabled(false);
+        syncRisingEdgeToggle->setEnabled(false);
     } else {
         m_activeSettings = newSettings;
         m_activeSettings->setSettingsTree(newSettings->settingsTree());
@@ -204,6 +206,9 @@ void TriggerSettingsWindow::setSettingsObjectSlot(SettingsObject *newSettings) {
         cmdDelayEdit->setEnabled(true);
         cmdDelayEdit->setValue(
             TriggerInterface::triggerInstance->getCmdDelay());
+        syncRisingEdgeToggle->setEnabled(true);
+        syncRisingEdgeToggle->setToggled(
+            TriggerInterface::triggerInstance->getSyncRisingEdge());
     }
     advancedSimpleStackWidget->addWidget(m_activeSettings->settingsTree());
 }
