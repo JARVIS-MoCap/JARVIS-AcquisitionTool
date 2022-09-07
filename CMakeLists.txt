@@ -85,9 +85,9 @@ add_executable(${PROJECT_NAME}
 
 if (${UBUNTU_VERSION})
   if(${UBUNTU_VERSION} AND ${UBUNTU_VERSION} STREQUAL "2004")
-    install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.0-1_amd64_2004/usr/local/bin)
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.1-1_amd64_2004/usr/local/bin)
   elseif(${UBUNTU_VERSION})
-    install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.0-1_amd64_1804/usr/local/bin)
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.1-1_amd64_1804/usr/local/bin)
   endif()
 endif()
 

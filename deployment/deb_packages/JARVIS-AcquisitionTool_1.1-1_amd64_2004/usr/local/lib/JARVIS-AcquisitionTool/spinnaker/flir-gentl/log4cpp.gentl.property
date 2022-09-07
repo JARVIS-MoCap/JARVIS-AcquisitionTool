@@ -1,0 +1,17 @@
+# Property Configurator for FLIR GenTL producer
+
+log4cpp.rootCategory=ERROR, rootAppender
+log4cpp.category.GenTLConsole=ERROR, rootAppender
+log4cpp.category.GenTL=ERROR, GenTL
+
+log4cpp.appender.rootAppender=ConsoleAppender
+log4cpp.appender.rootAppender.layout=PatternLayout
+log4cpp.appender.rootAppender.layout.ConversionPattern=[%p] %d [%t] %m%n 
+
+log4cpp.appender.GenTL=RollingFileAppender
+log4cpp.appender.GenTL.fileName=${HOME}/.config/spinnaker/logs/GenTL.log
+log4cpp.appender.GenTL.append=true
+log4cpp.appender.GenTL.maxFileSize=1000000
+log4cpp.appender.GenTL.maxBackupIndex=5
+log4cpp.appender.GenTL.layout=PatternLayout
+log4cpp.appender.GenTL.layout.ConversionPattern=[%p] %d [%t] %m%n 
