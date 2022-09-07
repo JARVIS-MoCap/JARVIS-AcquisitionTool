@@ -247,8 +247,8 @@ void SerialPeer::sendSetup(SetupStruct *setup) {
     setup_message msg;
 
     msg.pulse_hz = setup->pulse_hz;
-    msg.delay_us = htonl(setup->delay_us);
-    msg.pulse_limit = htonl(setup->pulse_limit);
+    msg.delay_us = setup->delay_us;
+    msg.pulse_limit = setup->pulse_limit;
     msg.flags = setup->flags;
 
     msg.header.type = TYPE_SETUP;

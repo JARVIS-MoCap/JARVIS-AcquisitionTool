@@ -17,8 +17,11 @@ add_library(gui
     labelwithtooltip.cpp
     toggleswitch.cpp
     toggleswitch.hpp
+    hardwarecheck.hpp
+    hardwarecheck.cpp
     settingswindow.hpp
     settingswindow.cpp
+
 )
 
 target_include_directories(gui
@@ -26,10 +29,15 @@ target_include_directories(gui
     ${PROJECT_SOURCE_DIR}
     acquisitionMode
     connectionMode
+    ${LIBUSB_INCLUDE_DIR}
+
 )
+
+message("AAAA"${LIBUSB_LIBRARY} )
 
 target_link_libraries(gui
   Qt::Widgets
   acquisitionMode
   connectionMode
+  ${LIBUSB_LIBRARY}
 )

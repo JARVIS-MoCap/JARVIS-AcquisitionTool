@@ -53,6 +53,7 @@ class TriggerInterface : public QObject {
     uint8_t m_frameRate = 100;
     uint32_t m_frameLimit = 0;
     uint32_t m_cmdDelay = 0;
+    bool m_syncRisingEdge = false;
 
   private slots:
     void statusInitReady() { emit statusUpdated(Ready, ""); };

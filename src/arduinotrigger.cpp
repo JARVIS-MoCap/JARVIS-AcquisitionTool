@@ -64,13 +64,16 @@ ArduinoTriggerWorker::~ArduinoTriggerWorker() {
     delete serialPeer;
 }
 
-void ArduinoTriggerWorker::sendSetupSlot(int m_cmdDelay, int m_frameRate,
-                                         int m_frameLimit, bool resetCounter) {
+void ArduinoTriggerWorker::sendSetupSlot(int cmdDelay, int frameRate,
+                                         int frameLimit, bool syncRisingEdge,
+                                         bool resetCounter) {
     SetupStruct setup;
-    setup.delay_us = m_cmdDelay;
-    setup.pulse_hz = m_frameRate;
-    setup.pulse_limit = m_frameLimit;
+    setup.delay_us = cmdDelay;
+    setup.pulse_hz = frameRate;
+    setup.pulse_limit = frameLimit;
     setup.flags = RESET_COUNTER ? resetCounter : 0;
+    setup.flags |= SYNC_RISING_EDGE ? syncRisingEdge : 0;
+
     serialPeer->sendSetup(&setup);
 }
 
@@ -109,20 +112,24 @@ ArduinoTrigger::ArduinoTrigger(const QString &deviceName)
 }
 
 void ArduinoTrigger::enable() {
-    emit sendSetupSignal(m_cmdDelay, m_frameRate, m_frameLimit, true);
+    emit sendSetupSignal(m_cmdDelay, m_frameRate, m_frameLimit,
+                         m_syncRisingEdge, true);
 }
 
 void ArduinoTrigger::pause(bool state) {
     if (state) {
         // Pause
-        emit sendSetupSignal(0, 0, 0, false);
+        emit sendSetupSignal(0, 0, 0, m_syncRisingEdge, false);
     } else {
         // Continue
-        emit sendSetupSignal(m_cmdDelay, m_frameRate, m_frameLimit, false);
+        emit sendSetupSignal(m_cmdDelay, m_frameRate, m_frameLimit,
+                             m_syncRisingEdge, false);
     }
 }
 
-void ArduinoTrigger::disable() { emit sendSetupSignal(0, 0, 0, false); }
+void ArduinoTrigger::disable() {
+    emit sendSetupSignal(0, 0, 0, m_syncRisingEdge, false);
+}
 
 ArduinoTrigger::~ArduinoTrigger() {
 
@@ -189,6 +196,9 @@ void ArduinoTrigger::settingChangedSlot(const QString &name,
     if (name == "CmdDelay") {
         m_cmdDelay = val.toInt();
     }
+    if (name == "SyncRisingEdge") {
+        m_syncRisingEdge = val.toInt() ? true : false;
+    }
 }
 
 void ArduinoTrigger::changeSimpleSetting(const QString &setting,
@@ -206,6 +216,11 @@ void ArduinoTrigger::changeSimpleSetting(const QString &setting,
     }
     if (setting == "CmdDelay") {
         m_cmdDelay = value.toDouble();
+        static_cast<IntNode *>(m_triggerSettings->findNode("CmdDelay"))
+            ->setValue(m_cmdDelay);
+    }
+    if (setting == "SyncRisingEdge") {
+        m_syncRisingEdge = value.toInt() ? true : false;
         static_cast<IntNode *>(m_triggerSettings->findNode("CmdDelay"))
             ->setValue(m_cmdDelay);
     }

@@ -52,7 +52,7 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
     recordingTimeLabel = new QLabel(this);
     recordingTimer = new QTimer(this);
     recordingTime = new QTime(0, 0);
-    //startTime = new QTime(0, 0);
+    // startTime = new QTime(0, 0);
     recordingTimeLabel->setText(recordingTime->toString("mm:ss:zzz"));
     connect(recordingTimer, &QTimer::timeout, this,
             &ControlBar::recordingTimerSlot);
@@ -127,105 +127,110 @@ ControlBar::ControlBar(QWidget *parent) : QToolBar(parent) {
 }
 
 void ControlBar::recordClickedSlot(bool toggled) {
-    if (toggled) {
-        QString recordingName = recordingNameEdit->text();
-        if (recordingNameEdit->text() == "") {
-            recordingName =
-                "Recording_" +
-                QDateTime::currentDateTime().toString("yyyy-MM-ddThhmmss");
+    if (!toggled) {
+        return;
+    }
+    QString recordingName = recordingNameEdit->text();
+    if (recordingNameEdit->text() == "") {
+        recordingName = "Recording_" + QDateTime::currentDateTime().toString(
+                                           "yyyy-MM-ddThhmmss");
+    }
+    if (saveFileDir.exists(recordingName) ||
+        !saveFileDir.mkpath(recordingName)) {
+        recordAction->setChecked(false);
+        QMessageBox msgBox;
+        msgBox.setText("Recording name already taken.\n "
+                       "Tipp: Leave blank for default timestamped name.");
+        msgBox.exec();
+        return;
+    }
+    QDir recordingDir = saveFileDir;
+    recordingDir.cd(recordingName);
+    AcquisitionSpecs acquisitionSpecs;
+    acquisitionSpecs.record = true;
+    acquisitionSpecs.recordingDir = recordingDir;
+    if (globalSettings.recorderType == "Cuda Recorder") {
+        acquisitionSpecs.recorderType = CudaRecorderType;
+    } else {
+        acquisitionSpecs.recorderType = BaseRecorderType;
+    }
+    if (TriggerInterface::triggerInstance != nullptr) {
+        acquisitionSpecs.frameRate =
+            TriggerInterface::triggerInstance->getFrameRate();
+    } else {
+        acquisitionSpecs.frameRate = 100;
+    }
+    acquisitionSpecs.streamingSamplingRatio =
+        globalSettings.recordingSubsamplingRatio;
+    emit startAcquisition(acquisitionSpecs);
+    startAction->setEnabled(false);
+    recordAction->setEnabled(false);
+    pauseAction->setEnabled(true);
+    stopAction->setEnabled(true);
+    recordingTimer->start(100);
+    startTime = QTime::currentTime();
+
+    // create Metadata file
+    if (globalSettings.metadataEnabled) {
+        // create instance of Metadata writer
+        // TODO should be above "setup acquisition" see next todo
+        if (metaWriter != nullptr) {
+            qFatal("metawriter was not deleted before a new one would be "
+                   "created!");
         }
-        if (saveFileDir.exists(recordingName) ||
-            !saveFileDir.mkpath(recordingName)) {
-            recordAction->setChecked(false);
-            QMessageBox msgBox;
-            msgBox.setText("Recording name already taken.\n "
-                           "Tipp: Leave blank for default timestamped name.");
-            msgBox.exec();
-            return;
-        }
-        QDir recordingDir = saveFileDir;
-        recordingDir.cd(recordingName);
-        AcquisitionSpecs acquisitionSpecs;
-        acquisitionSpecs.record = true;
-        acquisitionSpecs.recordingDir = recordingDir;
-        if (globalSettings.recorderType == "Cuda Recorder") {
-            acquisitionSpecs.recorderType = CudaRecorderType;
-        } else {
-            acquisitionSpecs.recorderType = BaseRecorderType;
-        }
-        if (TriggerInterface::triggerInstance != nullptr) {
-            acquisitionSpecs.frameRate =
-                TriggerInterface::triggerInstance->getFrameRate();
-        } else {
-            acquisitionSpecs.frameRate = 100;
-        }
-        acquisitionSpecs.streamingSamplingRatio =
-            globalSettings.recordingSubsamplingRatio;
-        emit startAcquisition(acquisitionSpecs);
-        startAction->setEnabled(false);
-        recordAction->setEnabled(false);
-        pauseAction->setEnabled(true);
-        stopAction->setEnabled(true);
-        recordingTimer->start(100);
-        startTime = QTime::currentTime();
+        metaWriter = new CSVDataWriter(recordingDir.path() + "/metadata.csv",
+                                       {"frame_camera_serial",
+                                        "frame_camera_name", "frame_id",
+                                        "frame_timestamp", "frame_image_uid"});
+        metaWriter->moveToThread(&(this->metawriterThread));
 
-        // create Metadata file
-        if (globalSettings.metadataEnabled) {
-            // create instance of Metadata writer
-            if (metaWriter != nullptr) {
-                qFatal("metawriter was not deleted before a new one would be "
-                       "created!");
-            }
-            metaWriter = new CSVDataWriter(
-                recordingDir.path() + "/metadata.csv",
-                {"frame_camera_serial", "frame_camera_name", "frame_id",
-                 "frame_timestamp", "frame_image_uid"});
-            metaWriter->moveToThread(&(this->metawriterThread));
-
-            // connect cameras
-            for (const auto &cam : CameraInterface::cameraList) {
-                // m_acquisitionWorker is instantiated with "emit
-                // startAcquisition".
-                qRegisterMetaType<uint64_t>("uint64_t");
-                metawriterConnects.append(connect(
-                    cam->m_acquisitionWorker,
-                    &AcquisitionWorker::provideMetadata, metaWriter,
-                    QOverload<QVariantList>::of(&CSVDataWriter::write)));
-            }
-
-            metawriterThread.start();
+        qRegisterMetaType<uint64_t>("uint64_t");
+        // connect cameras
+        for (const auto &cam : CameraInterface::cameraList) {
+            // This loop can only be executed after "emit
+            // startAcquisition(acquisitionSpecs);" for now!
+            // TODO m_acquisitionWorker is instantiated with "emit
+            // startAcquisition". For this reason, the connections are made only
+            // after the start of the acquisition, which means that some of the
+            // early events are lost.
+            metawriterConnects.append(
+                connect(cam->m_acquisitionWorker,
+                        &AcquisitionWorker::provideMetadata, metaWriter,
+                        QOverload<QVariantList>::of(&CSVDataWriter::write)));
         }
 
-        bool trigger = false;
-        while (!trigger) {
-            trigger = true;
-            for (const auto &cam : CameraInterface::cameraList) {
-                if (!cam->isStreaming())
-                    trigger = false;
-            }
-        }
-        emit acquisitionStarted();
-        if (TriggerInterface::triggerInstance != nullptr) {
-            if (triggerWriter != nullptr) {
-                qFatal("triggerWriter was not deleted before a new one would "
-                       "be created!");
-            }
-            triggerWriter = new CSVDataWriter(
-                recordingDir.path() + "/triggerdata.csv",
-                {"flag_0", "flag_1", "flag_2", "flag_3", "flag_4", "flag_5",
-                 "flag_6", "flag_7", "pulse_id", "uptime_us"});
-            triggerWriter->moveToThread(&(this->triggerwriterThread));
+        metawriterThread.start();
+    }
 
-            this->triggerwriterConnect =
-                connect(TriggerInterface::triggerInstance,
-                        &TriggerInterface::provideTriggerdata, triggerWriter,
-                        QOverload<QVariantList>::of(&CSVDataWriter::write));
-
-            TriggerInterface::triggerInstance->enable();
-
-            this->triggerwriterThread.start();
+    bool trigger = false;
+    while (!trigger) {
+        trigger = true;
+        for (const auto &cam : CameraInterface::cameraList) {
+            if (!cam->isStreaming())
+                trigger = false;
         }
     }
+    if (TriggerInterface::triggerInstance != nullptr) {
+        if (triggerWriter != nullptr) {
+            qFatal("triggerWriter was not deleted before a new one would "
+                   "be created!");
+        }
+        triggerWriter = new CSVDataWriter(
+            recordingDir.path() + "/triggerdata.csv",
+            {"flag_0", "flag_1", "flag_2", "flag_3", "flag_4", "flag_5",
+             "flag_6", "flag_7", "pulse_id", "uptime_us"});
+        triggerWriter->moveToThread(&(this->triggerwriterThread));
+
+        this->triggerwriterConnect =
+            connect(TriggerInterface::triggerInstance,
+                    &TriggerInterface::provideTriggerdata, triggerWriter,
+                    QOverload<QVariantList>::of(&CSVDataWriter::write));
+
+        TriggerInterface::triggerInstance->enable();
+
+        this->triggerwriterThread.start();
+    }
+    emit acquisitionStarted();
 }
 
 void ControlBar::startClickedSlot(bool toggled) {
