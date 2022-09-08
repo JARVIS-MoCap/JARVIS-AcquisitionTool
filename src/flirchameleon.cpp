@@ -43,7 +43,7 @@ void FlirWorker::acquireImages() {
                 QThread::currentThread()->isInterruptionRequested())
                 break;
             ImagePtr pResultImage =
-                m_pCam->GetNextImage(2000 / m_acquisitionSpecs.frameRate);
+                m_pCam->GetNextImage(200);
 
             if (pResultImage->IsIncomplete()) {
                 emit statusUpdated(statusType::Error,
