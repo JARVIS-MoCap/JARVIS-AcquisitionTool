@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
-set (UBUNTU_VERSION 2004)
+set (UBUNTU_VERSION 2204)
 set (USE_CUDA True)
 
 if(USE_CUDA)
@@ -84,8 +84,10 @@ add_executable(${PROJECT_NAME}
 )
 
 if (${UBUNTU_VERSION})
-  if(${UBUNTU_VERSION} AND ${UBUNTU_VERSION} STREQUAL "2004")
-    install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.1-1_amd64_2004/usr/local/bin)
+  if(${UBUNTU_VERSION} AND ${UBUNTU_VERSION} STREQUAL "2204")
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.1-1_amd64_2204/usr/local/bin)
+  elseif(${UBUNTU_VERSION} AND ${UBUNTU_VERSION} STREQUAL "2004")
+    install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.1-1_amd64_1804/usr/local/bin)
   elseif(${UBUNTU_VERSION})
     install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_SOURCE_DIR}/deployment/deb_packages/JARVIS-AcquisitionTool_1.1-1_amd64_1804/usr/local/bin)
   endif()

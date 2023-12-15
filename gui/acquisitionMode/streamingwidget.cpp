@@ -57,25 +57,25 @@ void StreamingWidget::setPanels(bool onlySizes) {
     int totalWidth = this->size().width() - 2 * margin;
     int totalHeight = this->size().height() - 2 * margin;
     int minWidths[] = {200, 200, 200, 200, 200, 250,
-                       300, 350, 400, 450, 500, 500};
+                       300, 350, 400, 450, 500, 500, 500,500, 500,500};
     float oneBigRatios[] = {0,   0,   0.6, 0.6, 0.6, 0.6,
-                            0.6, 0.5, 0.5, 0.5, 0.4, 0.4};
+                            0.6, 0.5, 0.5, 0.5, 0.4, 0.4, 0.4,0.4,0.4,0.4};
     float twoBigRatios[] = {0,   0,   0,   0,   0.7, 0.7, 0.7,
-                            0.7, 0.6, 0.6, 0.7, 0.5, 0.5};
+                            0.7, 0.6, 0.6, 0.7, 0.5, 0.5, 0.5,0.5,0.5,0.5};
     int numPanels = streamingPanels.size();
     if (numPanels == 0)
         return;
     if (m_panelLayout == Default) {
-        configurePanels(numPanels, 0, 0, minWidths[numPanels - 1], onlySizes);
+        configurePanels(numPanels, 0, 0, minWidths[std::min(numPanels - 1,15)], onlySizes);
     } else if (m_panelLayout == OneBig) {
-        configurePanels(numPanels, 1, oneBigRatios[numPanels - 1],
-                        minWidths[numPanels - 1], onlySizes);
+        configurePanels(numPanels, 1, oneBigRatios[std::min(numPanels - 1,15)],
+                        minWidths[std::min(numPanels - 1,15)], onlySizes);
     } else if (m_panelLayout == TwoBig) {
-        configurePanels(numPanels, 2, twoBigRatios[numPanels - 1],
-                        minWidths[numPanels - 1], onlySizes);
+        configurePanels(numPanels, 2, twoBigRatios[std::min(numPanels - 1, 15)],
+                        minWidths[std::min(numPanels - 1, 15)], onlySizes);
     } else if (m_panelLayout == FourBig) {
-        configurePanels(numPanels, 4, twoBigRatios[numPanels - 1],
-                        minWidths[numPanels - 1], onlySizes);
+        configurePanels(numPanels, 4, twoBigRatios[std::min(numPanels - 1,15)],
+                        minWidths[std::min(numPanels - 1, 15)], onlySizes);
     }
 }
 
