@@ -64,6 +64,21 @@ Create and enter a build directory
 Run cmake to configure and build the AnnotationTool
 
 	cmake .. && cmake --build . --parallel 8
+
+If you get the following error:
+
+     error: expected unqualified-id before ‘)’ token QString interface() const;
+
+open the `qdbusmessage.h` file in `JARVIS-AcquisitionTool/libs/Qt/qt_install/include/QtDBus/` and change:
+
+    #if defined(Q_OS_WIN) && defined(interface)
+    #  undef interface
+    #endif
+to: 
+    
+    #  undef interface
+
+and run `cmake --build .` again.
      
 If you want to create a debian package go to the deployment folder and run (replace XX04 by your Ubuntu Version)
 
